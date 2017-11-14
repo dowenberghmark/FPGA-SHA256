@@ -1,5 +1,6 @@
 
 import binascii
+import sys
 
 
 
@@ -18,22 +19,24 @@ def ascii_to_bits(text,encoding='utf-8', errors='surrogatepass'):
 	print 'this is binary passwords: ', type(binary_passwords)
 	return binary_passwords
 
+
 def append_one(params):
-		for i in range(0,len(params)):
-			params[i] = params[i] + '1'
-		return params
+
+	for i in range(0,len(params)):
+		params[i] = params[i] + '1'
+	return params
 
 def append_k(params):
 	k = []
 	for i in range(0,len(params)):
-		k.append(448%512 - len(params[i]))
+		byte_size = bytearray(params[i])
+		size_of_byte_size = sys.getsizeof(byte_size)
+		k.append(448%512 - size_of_byte_size)
 
 	for i in range(0,len(params)):
 		params[i] = params[i] + (k[i]*'0')
-	print k
-	print params
-	return params
 
+	return params
 def prepare_passwords():
 	
 	bin_array = ascii_to_bits('password.txt')
