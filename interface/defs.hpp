@@ -1,6 +1,8 @@
 #ifndef __DEFS_H_INCLUDED__
 #define __DEFS_H_INCLUDED__
 
+#include <cstdint>
+
 
 struct chunk {
 	char data[64];
