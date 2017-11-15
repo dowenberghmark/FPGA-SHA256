@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
   chunk_placement_ptr = our_double_buffer.get_chunk();
   strcpy(chunk_placement_ptr, string_array[1].c_str());
 
-  our_double_buffer.start_process();
+  our_double_buffer.start_processing();
   //This depends on how we return the result
   chunk_placement_ptr = our_double_buffer.get_result();
 
@@ -34,14 +34,14 @@ int main(int argc, char *argv[])
   
   chunk_placement_ptr = our_double_buffer.get_chunk();
   strcpy(chunk_placement_ptr, string_array[3].c_str());
-  our_double_buffer.start_process();
+  our_double_buffer.start_processing();
   //This depends on how we return the result
   chunk_placement_ptr = our_double_buffer.get_result();
 
   //adding one chunk
   chunk_placement_ptr = our_double_buffer.get_chunk();
   strcpy(chunk_placement_ptr, string_array[4].c_str());
-  our_double_buffer.start_process();
+  our_double_buffer.start_processing();
   //This depends on how we return the result
   chunk_placement_ptr = our_double_buffer.get_result();
 
