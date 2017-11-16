@@ -8,7 +8,7 @@ void deploy_chunk(std::string current, Double_buffer *double_buffer){
   chunk_placement_ptr = double_buffer->get_chunk();
   strcpy(chunk_placement_ptr, current.c_str());
 }
-void deploy_work(int total_chunks, int chunks_per_buffer, std::string *data, Double_buffer *our_double_buffer){
+void deploy_work(int total_chunks, int chunks_per_buffer, const std::string *data, Double_buffer *our_double_buffer){
   char *result;
   int counter = 0;
   while (counter < total_chunks) {

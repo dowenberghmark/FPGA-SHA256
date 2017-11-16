@@ -25,7 +25,7 @@ class Double_buffer
   void start_processing();
   char *get_result();
   Double_buffer(uint32_t chunks);
-  ~Double_buffer() = default;
+  ~Double_buffer();
 
 
 };
