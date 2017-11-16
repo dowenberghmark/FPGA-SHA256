@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 project( interface )
-add_executable( main main.cpp )
+add_executable( fpga_main fpga_main.cpp fpga.cpp )
 set( THREADS_PREFER_PTHREAD_FLAG ON )
 find_package( Threads REQUIRED )
-target_link_libraries (main Threads::Threads)
+target_link_libraries (fpga_main Threads::Threads)
