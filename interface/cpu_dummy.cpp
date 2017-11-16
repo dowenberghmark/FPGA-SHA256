@@ -3,13 +3,13 @@
 #include <string.h>
 #include "double_buffer.hpp"
 
-void deploy_chunk(std::string current, Double_buffer * double_buffer){
-  char * chunk_placement_ptr;
+void deploy_chunk(std::string current, Double_buffer *double_buffer){
+  char *chunk_placement_ptr;
   chunk_placement_ptr = double_buffer->get_chunk();
   strcpy(chunk_placement_ptr, current.c_str());
 }
-void deploy_work(int total_chunks, int chunks_per_buffer, std::string* data, Double_buffer* our_double_buffer){
-  char* result;
+void deploy_work(int total_chunks, int chunks_per_buffer, std::string *data, Double_buffer *our_double_buffer){
+  char *result;
   int counter = 0;
   while (counter < total_chunks) {
     for (int i = counter; i < chunks_per_buffer; i++) {
@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 {
   int number_of_strings = 5;
   int chunks_per_buffer = 2;
-  Double_buffer* our_double_buffer = new Double_buffer(4);
+  Double_buffer *our_double_buffer = new Double_buffer(4);
   const std::string string_array[number_of_strings] = {"1111111111111111111111111111111111111111111111111111111111111111",
                                     "2222222222222222222222222222222222222222222222222222222222222222",
                                     "3333333333333333333333333333333333333333333333333333333333333333",
