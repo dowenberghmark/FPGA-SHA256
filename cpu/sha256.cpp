@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include <typeinfo>
+#include <cstring>
 #include "sha256.hpp"
 
 using namespace std;
