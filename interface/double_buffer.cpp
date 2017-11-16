@@ -1,16 +1,19 @@
 #include <stdint.h>
 #include <cstdlib>
+#include <thread>
+
+#include <stdio.h>
 
 #include "double_buffer.hpp"
 #include "defs.hpp"
-
+#include "fpga.hpp"
 
 Double_buffer::Double_buffer(uint32_t chunks){
   global_start_of_buffer = (char *) malloc((chunks * CHUNK_SIZE * 2) + (2 * BUFFER_HEADER_SIZE) + GLOBAL_HEADER_SIZE);
 
   glob_head = (global_header *) (global_start_of_buffer);
   glob_head -> start_processing_flag = 0;
-  glob_head -> active_buffer_flag = 0;
+  glob_head -> active_buffer_flag = 1;
 
   first_buf_head = (buffer_header *) ((char *) glob_head + GLOBAL_HEADER_SIZE);
   first_buf_head -> num_chunks = 0;
@@ -27,7 +30,9 @@ Double_buffer::Double_buffer(uint32_t chunks){
   chunk_counter = 0;
   max_chunks = chunks;
   active_buffer = 0;
-
+  fpga =  Fpga(glob_head, first_buf_head, second_buf_head);
+  t = std::thread(&Fpga::run, fpga);
+  
 }
 
 char *Double_buffer::get_chunk(){
@@ -42,7 +47,14 @@ char *Double_buffer::get_chunk(){
 
 
 void Double_buffer::start_processing(){
+  
   glob_head -> active_buffer_flag = 1 - glob_head -> active_buffer_flag;
+  if (glob_head -> active_buffer_flag == 0) {
+    first_buf_head -> num_chunks = chunk_counter;
+  }else{
+    second_buf_head -> num_chunks = chunk_counter;
+  }
+  chunk_counter = 0;
   glob_head -> start_processing_flag = 1;
 
   if(glob_head -> active_buffer_flag == 0){
@@ -64,7 +76,11 @@ char *Double_buffer::get_result(){
   }
     return res_ptr;
 }
-
+void Double_buffer::done(){
+  
+  glob_head->start_processing_flag = 1337;
+  t.join();
+}
 Double_buffer::~Double_buffer(){
   free(global_start_of_buffer);
 }

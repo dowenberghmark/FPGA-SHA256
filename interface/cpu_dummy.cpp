@@ -12,12 +12,15 @@ void deploy_work(int total_chunks, int chunks_per_buffer, const std::string *dat
   char *result;
   int counter = 0;
   while (counter < total_chunks) {
-    for (int i = counter; i < chunks_per_buffer; i++) {
-      deploy_chunk(data[1],our_double_buffer);
-      counter++;
+    for (int i = 0; i < chunks_per_buffer; i++) {
+      deploy_chunk(data[i],our_double_buffer);
+      //counter++;
     }
      our_double_buffer->start_processing();
+     std::cout << "start_proc\n" ;
      result = our_double_buffer->get_result();
+     std::cout << "res\n" ;
+     counter+= chunks_per_buffer;
   }
 }
 
@@ -33,6 +36,8 @@ int main(int argc, char *argv[])
                                     "5555555555555555555555555555555555555555555555555555555555555555"};
 
   deploy_work(number_of_strings, chunks_per_buffer, string_array, our_double_buffer);
+  
+  our_double_buffer->done();
 
   return 0;
 }

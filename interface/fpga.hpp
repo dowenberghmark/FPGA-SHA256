@@ -14,6 +14,7 @@
 class Fpga {
 
 public:
+  Fpga() = default;
   Fpga(void *g_header, void *buffer0, void *buffer1);
   void run();
   ~Fpga() = default;

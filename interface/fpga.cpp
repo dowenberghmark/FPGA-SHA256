@@ -1,5 +1,5 @@
 #include "fpga.hpp"
-
+#include <stdio.h>
 
 Fpga::Fpga(void *g_header, void *buffer0, void *buffer1) {
     if (!global_header || !buffer0 || !buffer1) {
@@ -12,6 +12,7 @@ Fpga::Fpga(void *g_header, void *buffer0, void *buffer1) {
     buffers[1] = (struct buffer *) buffer1;
     buffers[0]->chunks = (struct chunk *)((char *) buffer0 + BUFFER_HEADER_SIZE);
     buffers[1]->chunks = (struct chunk *)((char *) buffer1 + BUFFER_HEADER_SIZE);
+    
 }
 
 // run this function as a thread. communicate through the shared buffers.
@@ -20,8 +21,9 @@ void Fpga::run() {
   while (1) {
 
     while (!global_header->start_processing_flag) {
-      // usleep(500);
+       usleep(5000);
     }
+    usleep(500000);
     // only for testing so we can quit nicely
     if (global_header->start_processing_flag == 1337) {
       break;
@@ -40,6 +42,8 @@ void Fpga::run() {
     for (int i = 0; i < num_chunks; i++) {
       std::cout << "chunk: " << i << "\n";
       struct chunk c = chunks[i];
+      std::cout << "acc chunk: " << i << "\n";
+
       for (int j = 0; j < 32; j++) {
 	c.data[j] = i;
       }
