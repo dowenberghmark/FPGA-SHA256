@@ -5,10 +5,11 @@
 #include <sstream>
 #include <bitset>
 #include <chrono>
-
+#include <bitset>
 #include "sha256.hpp"
-using namespace std;
 
+using namespace std;
+typedef unsigned char BYTE;
 /** 
  * Appends char one to input string.
  * Appends '1' to a string which is in binary format
@@ -80,27 +81,67 @@ std::string ascii_to_bits(string s){
   		return binary_string;
 }
 
+// BYTE = UNSIGNED CHAR
+vector<BYTE> password_prepare(string filename){
+//	ifstream file;
+//  file.open(filename);
 
-std::vector<std::string> password_prepare(string filename){
+ // open the file:
+    std::ifstream file(filename, std::ios::binary);
+
+    // Stop eating new lines in binary mode!!!
+    file.unsetf(std::ios::skipws);
+
+    // get its size:
+    std::streampos fileSize;
+
+    file.seekg(0, std::ios::end);
+    fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    // reserve capacity
+    std::vector<BYTE> vec;
+    vec.reserve(fileSize);
+
+    // read the data:
+    vec.insert(vec.begin(),
+               std::istream_iterator<BYTE>(file),
+               std::istream_iterator<BYTE>());
+
+    for (auto && n : vec){
+      cout << "TEST PRINTING VEC: " << bitset<8>(n) << endl;
+    }
+
+
+// PRINTA BITS
+
+
+
+    return vec;
+/*
 	
-
-	ifstream file;
-   file.open(filename);
-  	string element;
-  	vector<string> vector_array;
+   
+  	char* element;
+  	vector<char*> vector_array;
+    cout << "Reading file... " << endl;
   	while(!file.eof()){
   		file >> element;
-  		
+  		cout << "element in bit: " << element << endl;
+
+*/
+
+
   		/*HÄR SKA KODEN IN*/
-  		string password = ascii_to_bits(element);
-  		password = append_one(password);
-  		password = append_k(password);
-  		password = append_64(password,element);
-		vector_array.push_back(password);  //skriver den i en vectory array
+  	//	string password = ascii_to_bits(element);
+  	//	password = append_one(password);
+  	//	password = append_k(password);
+  	//	password = append_64(password,element);
+		//vector_array.push_back(password);  //skriver den i en vectory array
 	
-  	}
-   file.close();
-   return vector_array;
+//  	}
+//   file.close();
+//   cout << "Reading file: finished " << endl;
+//   return vector_array;
 }
 
 
@@ -110,9 +151,8 @@ int main() {
 
 	// PREPARE FOR HASHING
   auto start = chrono::steady_clock::now();
-   vector<string> prepared_passwords = password_prepare("password.txt");
-   for (string n : prepared_passwords){
-   }
+   vector<BYTE> prepared_passwords = password_prepare("password.txt");
+
 
 
    auto end_pre_hashing = chrono::steady_clock::now();
