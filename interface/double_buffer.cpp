@@ -25,6 +25,8 @@ Double_buffer::Double_buffer(uint32_t chunks){
   place_to_write = first_buffer;
 
   chunk_counter = 0;
+Should be fine otherwise
+￼	￼ Reply…
   max_chunks = chunks;
   active_buffer = 0;
 
@@ -61,4 +63,8 @@ char *Double_buffer::get_result(){
     res_ptr = second_buffer;
   }
     return res_ptr;
+}
+
+Double_buffer::~Double_buffer(){
+  free(global_start_of_buffer);
 }
