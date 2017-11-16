@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <bitset>
+#include <chrono>
 using namespace std;
 
 /** 
@@ -103,12 +104,48 @@ std::vector<std::string> password_prepare(string filename){
 
 
 int main() {
-  
+  auto start = chrono::steady_clock::now();
    vector<string> prepared_passwords = password_prepare("password.txt");
    for (string n : prepared_passwords){
-   	std::cout << n << '\n';
-   	std::cout << "size is: " << n.size() << "\n";
+   	//std::cout << n << '\n';
+   	//std::cout << "size is: " << n.size() << "\n";
    }
+
+
+   auto end_pre_hashing = chrono::steady_clock::now();
+   auto pre_hashing_time = end_pre_hashing - start;
+
+   auto sending_chunk = chrono::steady_clock::now();
+   //SEND CHUNK
+   auto recieving_chunk = chrono::steady_clock::now();
+   auto chunk_transport_time = recieving_chunk - sending_chunk; 
+
+   // When all passwords have been hashed
+   auto end = chrono::steady_clock::now();
+
+   auto diff = end - start;
+
+   cout << "===========================================" << endl;
+   cout << "Pre-hashing passwords... " << endl;
+   cout << "Pre-hashing time: ";
+   cout << chrono::duration <double, milli> (pre_hashing_time).count() << " ms" << endl;
+   cout << "===========================================" << endl;
+   cout << "\n";
+   cout << "\n";
+   cout << "===========================================" << endl;
+   cout << "Sending chunk.... " << endl;
+
+   cout << "Chunk transport time: ";
+   cout << chrono::duration <double, milli> (chunk_transport_time).count() << " ms" << endl;
+   cout << "===========================================" << endl;
+   cout << "\n";
+   cout << "\n";
+   cout << "===========================================" << endl;
+   cout << "Total time: ";
+   cout << chrono::duration <double, milli> (diff).count() << " ms" << endl;
+   cout << "===========================================" << endl;
+
+
 
    return 0;
 }
