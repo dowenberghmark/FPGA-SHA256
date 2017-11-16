@@ -12,11 +12,11 @@ Double_buffer::Double_buffer(uint32_t chunks){
   glob_head -> start_processing_flag = 0;
   glob_head -> active_buffer_flag = 0;
 
-  first_buf_head = (buffer_header *) (char *) (glob_head + GLOBAL_HEADER_SIZE);
+  first_buf_head = (buffer_header *) ((char *) glob_head + GLOBAL_HEADER_SIZE);
   first_buf_head -> num_chunks = 0;
   first_buf_head -> ready_flag = 0;
 
-  second_buf_head = (buffer_header *) (char *) (first_buf_head + BUFFER_HEADER_SIZE + (CHUNK_SIZE * chunks));
+  second_buf_head = (buffer_header *) ((char *) first_buf_head + BUFFER_HEADER_SIZE + (CHUNK_SIZE * chunks));
   second_buf_head -> num_chunks = 0;
   second_buf_head -> ready_flag = 0;
 
