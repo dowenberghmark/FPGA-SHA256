@@ -5,6 +5,8 @@
 #include <sstream>
 #include <bitset>
 #include <chrono>
+
+#include "sha256.hpp"
 using namespace std;
 
 /** 
@@ -40,6 +42,7 @@ string append_64(string s1, string s2){
 }
 
 std::string ascii_to_bits(string s){
+
 	string binary_string;
 	int ascii;
   		for(int i=0; i<s.length(); i++){
@@ -104,11 +107,11 @@ std::vector<std::string> password_prepare(string filename){
 
 
 int main() {
+
+	// PREPARE FOR HASHING
   auto start = chrono::steady_clock::now();
    vector<string> prepared_passwords = password_prepare("password.txt");
    for (string n : prepared_passwords){
-   	//std::cout << n << '\n';
-   	//std::cout << "size is: " << n.size() << "\n";
    }
 
 
@@ -124,7 +127,6 @@ int main() {
    auto end = chrono::steady_clock::now();
 
    auto diff = end - start;
-
    cout << "===========================================" << endl;
    cout << "Pre-hashing passwords... " << endl;
    cout << "Pre-hashing time: ";
@@ -141,11 +143,24 @@ int main() {
    cout << "\n";
    cout << "\n";
    cout << "===========================================" << endl;
-   cout << "Total time: ";
+   cout << "Total time FPGA hashing: ";
    cout << chrono::duration <double, milli> (diff).count() << " ms" << endl;
    cout << "===========================================" << endl;
 
 
+// KÖRA SHA-256 I CPU 
+   start = chrono::steady_clock::now();
+   SHA256_CPU();
+   end = chrono::steady_clock::now();
+   diff = end - start;
+   cout << "\n";
+   cout << "\n";
+   cout << "\n";
+   cout << "\n";
+   cout << "===========================================" << endl;
+   cout << "Total time CPU hashing: ";
+   cout << chrono::duration <double, milli> (diff).count() << " ms" << endl;
+   cout << "===========================================" << endl;
 
    return 0;
 }

@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include <typeinfo>
+#include "sha256.hpp"
 
 using namespace std;
 
@@ -168,7 +169,7 @@ string SHA256(char* data) {
 	return hashStr;
 }
 
- int main(){
+ int SHA256_CPU(){
  	ifstream file;
    	file.open("password.txt");
   	string element;
