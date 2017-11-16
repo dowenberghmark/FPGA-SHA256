@@ -20,8 +20,8 @@ Double_buffer::Double_buffer(uint32_t chunks){
   second_buf_head -> num_chunks = 0;
   second_buf_head -> ready_flag = 0;
 
-  first_buf = (char *) (first_buf_head + BUFFER_HEADER_SIZE);
-  second_buf = (char *) (second_buf_head + BUFFER_HEADER_SIZE);
+  first_buf = (char *) first_buf_head + BUFFER_HEADER_SIZE;
+  second_buf = (char *) second_buf_head + BUFFER_HEADER_SIZE;
   chunk_to_write = first_buf;
 
   chunk_counter = 0;
