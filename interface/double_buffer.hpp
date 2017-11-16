@@ -15,19 +15,18 @@ class Double_buffer
   //dummy variables
   Fpga fpga;
   std::thread t;
-  
+
   global_header *glob_head;
   buffer_header *first_buf_head;
   buffer_header *second_buf_head;
   uint32_t chunk_counter;
   uint32_t max_chunks;
-  uint32_t active_buffer;
  public:
   char *get_chunk();
   void start_processing();
   char *get_result();
   void done();
-  
+
   Double_buffer(uint32_t chunks);
   ~Double_buffer();
 

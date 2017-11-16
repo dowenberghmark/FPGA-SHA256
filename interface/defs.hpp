@@ -17,7 +17,7 @@ struct buffer_header {
 };
 
 struct buffer {
-  struct buffer_header buffer_header;
+  struct buffer_header *buffer_header;
   struct chunk *chunks;
 };
 

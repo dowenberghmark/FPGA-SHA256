@@ -1,6 +1,7 @@
 # Runnable
 main
 fpga_main
+interface_main
 
 # TAGS
 TAGS

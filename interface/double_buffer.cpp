@@ -8,6 +8,7 @@
 #include "defs.hpp"
 #include "fpga.hpp"
 
+
 Double_buffer::Double_buffer(uint32_t chunks){
   global_start_of_buffer = (char *) malloc((chunks * CHUNK_SIZE * 2) + (2 * BUFFER_HEADER_SIZE) + GLOBAL_HEADER_SIZE);
 
@@ -29,10 +30,9 @@ Double_buffer::Double_buffer(uint32_t chunks){
 
   chunk_counter = 0;
   max_chunks = chunks;
-  active_buffer = 0;
   fpga =  Fpga(glob_head, first_buf_head, second_buf_head);
   t = std::thread(&Fpga::run, fpga);
-  
+
 }
 
 char *Double_buffer::get_chunk(){
@@ -45,9 +45,8 @@ char *Double_buffer::get_chunk(){
   return old_buf_ptr;
 }
 
-
 void Double_buffer::start_processing(){
-  
+
   glob_head -> active_buffer_flag = 1 - glob_head -> active_buffer_flag;
   if (glob_head -> active_buffer_flag == 0) {
     first_buf_head -> num_chunks = chunk_counter;
@@ -64,7 +63,6 @@ void Double_buffer::start_processing(){
   }
 }
 
-
 char *Double_buffer::get_result(){
   char *res_ptr = nullptr;
   if(glob_head -> active_buffer_flag == 0){
@@ -76,11 +74,13 @@ char *Double_buffer::get_result(){
   }
     return res_ptr;
 }
+
 void Double_buffer::done(){
-  
+
   glob_head->start_processing_flag = 1337;
   t.join();
 }
+
 Double_buffer::~Double_buffer(){
   free(global_start_of_buffer);
 }

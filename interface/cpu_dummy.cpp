@@ -3,11 +3,13 @@
 #include <string.h>
 #include "double_buffer.hpp"
 
+
 void deploy_chunk(std::string current, Double_buffer *double_buffer){
   char *chunk_placement_ptr;
   chunk_placement_ptr = double_buffer->get_chunk();
   strcpy(chunk_placement_ptr, current.c_str());
 }
+
 void deploy_work(int total_chunks, int chunks_per_buffer, const std::string *data, Double_buffer *our_double_buffer){
   char *result;
   int counter = 0;
@@ -16,11 +18,11 @@ void deploy_work(int total_chunks, int chunks_per_buffer, const std::string *dat
       deploy_chunk(data[i],our_double_buffer);
       //counter++;
     }
-     our_double_buffer->start_processing();
-     std::cout << "start_proc\n" ;
-     result = our_double_buffer->get_result();
-     std::cout << "res\n" ;
-     counter+= chunks_per_buffer;
+    our_double_buffer->start_processing();
+    std::cout << "start_proc\n" ;
+    result = our_double_buffer->get_result();
+    std::cout << "res\n" ;
+    counter+= chunks_per_buffer;
   }
 }
 
@@ -36,7 +38,7 @@ int main(int argc, char *argv[])
                                     "5555555555555555555555555555555555555555555555555555555555555555"};
 
   deploy_work(number_of_strings, chunks_per_buffer, string_array, our_double_buffer);
-  
+
   our_double_buffer->done();
 
   return 0;
