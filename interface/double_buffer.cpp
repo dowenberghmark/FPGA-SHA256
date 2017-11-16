@@ -30,12 +30,12 @@ Double_buffer::Double_buffer(uint32_t chunks){
 
 }
 
-char* Double_buffer::get_chunk(){
+char *Double_buffer::get_chunk(){
   if(chunk_counter == max_chunks){
     return nullptr;
   }
   chunk_counter++;
-  char* old_buf_ptr = place_to_write;
+  char *old_buf_ptr = place_to_write;
   place_to_write += sizeof(chunk);
   return old_buf_ptr;
 }
@@ -53,8 +53,8 @@ void Double_buffer::start_processing(){
 }
 
 
-char* Double_buffer::get_result(){
-  char* res_ptr = nullptr;
+char *Double_buffer::get_result(){
+  char *res_ptr = nullptr;
   if(glob_head -> active_buffer_flag == 0){
     res_ptr = first_buffer;
   }else{
