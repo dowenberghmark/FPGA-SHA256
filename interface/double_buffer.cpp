@@ -8,20 +8,20 @@
 Double_buffer::Double_buffer(uint32_t chunks){
   global_start_of_buffer = malloc((chunks * sizeof(chunk) * 2) + 2 * sizeof(buffer_header) + sizeof(global_header));
 
-  glob_head = (global_header*) (global_start_of_buffer);
+  glob_head = (global_header *) (global_start_of_buffer);
   glob_head -> start_processing_flag = 0;
   glob_head -> active_buffer_flag = 0;
 
-  buf_head_first = (buffer_header*) (glob_head + sizeof(global_header));
+  buf_head_first = (buffer_header *) (glob_head + sizeof(global_header));
   buf_head_first -> num_chunks = 0;
   buf_head_first -> ready_flag = 0;
 
-  buf_head_second = (buffer_header*) (buf_head_first + sizeof(buffer_header) + sizeof(chunk) * chunks);
+  buf_head_second = (buffer_header *) (buf_head_first + sizeof(buffer_header) + sizeof(chunk) * chunks);
   buf_head_second -> num_chunks = 0;
   buf_head_second -> ready_flag = 0;
 
-  first_buffer = (char*) (buf_head_first + sizeof(buffer_header));
-  second_buffer = (char*) (buf_head_second + sizeof(buffer_header));
+  first_buffer = (char *) (buf_head_first + sizeof(buffer_header));
+  second_buffer = (char *) (buf_head_second + sizeof(buffer_header));
   place_to_write = first_buffer;
 
   chunk_counter = 0;
