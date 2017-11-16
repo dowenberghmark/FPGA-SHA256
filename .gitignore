@@ -1,5 +1,6 @@
 # Runnable
 main
+fpga_main
 
 # TAGS
 TAGS
@@ -12,6 +13,8 @@ CMakeFiles/
 
 # Temp
 *~
+\#*
+.\#*
 
 # Prerequisites
 *.d
