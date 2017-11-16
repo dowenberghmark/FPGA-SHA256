@@ -36,23 +36,29 @@ char* Double_buffer::get_chunk(){
   }
   chunk_counter++;
   char* old_buf_ptr = place_to_write;
-  this -> place_to_write += sizeof(chunk);
+  place_to_write += sizeof(chunk);
   return old_buf_ptr;
 }
 
 
 void Double_buffer::start_processing(){
-  active_buffer = 1 - active_buffer;
-  if(active_buffer == 0){
-    place_to_write = first_buffer;
-  }
-  if(active_buffer == 1){
+  glob_head -> active_buffer_flag = 1 - glob_head -> active_buffer_flag;
+  glob_head -> start_processing_flag = 1;
+
+  if(glob_head -> active_buffer_flag == 0){
     place_to_write = second_buffer;
+  }else{
+    place_to_write = first_buffer;
   }
 }
 
+
 char* Double_buffer::get_result(){
-  return nullptr;
-
-
+  char* res_ptr = nullptr;
+  if(glob_head -> active_buffer_flag == 0){
+    res_ptr = first_buffer;
+  }else{
+    res_ptr = second_buffer;
+  }
+    return res_ptr;
 }
