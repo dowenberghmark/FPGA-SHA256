@@ -21,8 +21,8 @@ void deploy_work(int total_chunks, int chunks_per_buffer, const std::string *dat
       std::cout << "The number: " << counter+i << "\n";
       deploy_chunk(data[i],our_double_buffer, chunk_placement_ptr);
       //counter++;
-      
     }
+
     our_double_buffer->start_processing();
     std::cout << "start_proc\n" ;
     result = our_double_buffer->get_result();
@@ -30,12 +30,14 @@ void deploy_work(int total_chunks, int chunks_per_buffer, const std::string *dat
     counter+= chunks_per_buffer;
   }
 }
+
 void flipping_buffer(int amount_buffer_flips, int number_of_strings, const std::string *data, Double_buffer *our_double_buffer){
   char *result;
-  bool flag;  
+  bool flag;
   int counter_flips = 0;
   int counter_chunks = 0;
   char *chunk_placement_ptr;
+
   while (counter_flips < amount_buffer_flips) {
     flag = true;
     while (flag) {
@@ -53,7 +55,6 @@ void flipping_buffer(int amount_buffer_flips, int number_of_strings, const std::
   }
 }
 
-
 int main(int argc, char *argv[])
 {
   int number_of_strings = 5;
@@ -67,7 +68,7 @@ int main(int argc, char *argv[])
 
   //deploy_work(number_of_strings, chunks_per_buffer, string_array, our_double_buffer);
   flipping_buffer(50, number_of_strings, string_array, our_double_buffer);
-  
+
   our_double_buffer->done();
 
   return 0;

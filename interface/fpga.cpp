@@ -19,7 +19,6 @@ Fpga::Fpga(void *g_header, void *buffer0, void *buffer1) {
 void Fpga::run() {
   // dummy fpga loop
   while (1) {
-
     while (!global_header->start_processing_flag) {
        usleep(5000);
     }
@@ -53,4 +52,5 @@ void Fpga::run() {
 
     *ready_flag = 1;
   }
+  std::cout << "quitting fpga run" << "\n";
 }

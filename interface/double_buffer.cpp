@@ -67,9 +67,11 @@ char *Double_buffer::get_result(){
   char *res_ptr = nullptr;
   if(glob_head -> active_buffer_flag == 0){
     while(first_buf_head -> ready_flag == 0){}
+    first_buf_head -> ready_flag = 0;
     res_ptr = first_buf;
   }else{
     while(second_buf_head -> ready_flag == 0){}
+    second_buf_head -> ready_flag = 0;
     res_ptr = second_buf;
   }
     return res_ptr;
