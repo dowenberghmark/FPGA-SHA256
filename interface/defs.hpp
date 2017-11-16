@@ -1,10 +1,10 @@
 #ifndef __DEFS_H_INCLUDED__
 #define __DEFS_H_INCLUDED__
 
-
 #include <cstdint>
 
 
+#define BUFFER_HEADER_SIZE sizeof(struct buffer_header)
 
 struct chunk {
   char data[64];
