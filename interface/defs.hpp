@@ -3,8 +3,9 @@
 
 #include <cstdint>
 
-
 #define BUFFER_HEADER_SIZE sizeof(struct buffer_header)
+#define GLOBAL_HEADER_SIZE sizeof(struct global_header)
+#define CHUNK_SIZE sizeof(struct chunk)
 
 struct chunk {
   char data[64];

@@ -7,16 +7,14 @@
 class Double_buffer
 {
  private:
-  char *first_buffer; //start of first buffer
-  char *second_buffer; //start of second buffer
-  char *place_to_write; //place to write to in active buffer
-  void *global_start_of_buffer;
+  char *first_buf; //start of first buffer
+  char *second_buf; //start of second buffer
+  char *chunk_to_write; //place to write to in active buffer
+  char *global_start_of_buffer;
 
   global_header *glob_head;
-  buffer_header *buf_head_first;
-  buffer_header *buf_head_second;
-  // buffer_header buf_head[2];
-  //global_header global_head;
+  buffer_header *first_buf_head;
+  buffer_header *second_buf_head;
   uint32_t chunk_counter;
   uint32_t max_chunks;
   uint32_t active_buffer;
