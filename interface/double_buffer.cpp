@@ -41,26 +41,21 @@ char *Double_buffer::get_chunk(){
   }
   chunk_counter++;
   char *old_buf_ptr = chunk_to_write;
-  chunk_to_write += sizeof(chunk);
+  chunk_to_write += CHUNK_SIZE;
   return old_buf_ptr;
 }
 
 void Double_buffer::start_processing(){
-
   glob_head -> active_buffer_flag = 1 - glob_head -> active_buffer_flag;
   if (glob_head -> active_buffer_flag == 0) {
     first_buf_head -> num_chunks = chunk_counter;
+    chunk_to_write = second_buf;
   }else{
     second_buf_head -> num_chunks = chunk_counter;
+    chunk_to_write = first_buf;
   }
   chunk_counter = 0;
   glob_head -> start_processing_flag = 1;
-
-  if(glob_head -> active_buffer_flag == 0){
-    chunk_to_write = second_buf;
-  }else{
-    chunk_to_write = first_buf;
-  }
 }
 
 char *Double_buffer::get_result(){
