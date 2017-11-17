@@ -7,6 +7,8 @@
 #define GLOBAL_HEADER_SIZE sizeof(struct global_header)
 #define CHUNK_SIZE sizeof(struct chunk)
 
+const int BUFFER_COUNT = 2;
+
 struct chunk {
   char data[64];
 };

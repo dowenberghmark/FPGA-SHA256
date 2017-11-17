@@ -16,21 +16,20 @@ Double_buffer::Double_buffer(uint32_t chunks){
   glob_head -> start_processing_flag = 0;
   glob_head -> active_buffer_flag = 1;
 
-  first_buf_head = (buffer_header *) ((char *) glob_head + GLOBAL_HEADER_SIZE);
-  first_buf_head -> num_chunks = 0;
-  first_buf_head -> ready_flag = 0;
+  buffer_heads[0] = (buffer_header *) ((char *) glob_head + GLOBAL_HEADER_SIZE);
+  buffer_heads[1] = (buffer_header *) ((char *) buffer_heads[0] + BUFFER_HEADER_SIZE + (CHUNK_SIZE * chunks));
 
-  second_buf_head = (buffer_header *) ((char *) first_buf_head + BUFFER_HEADER_SIZE + (CHUNK_SIZE * chunks));
-  second_buf_head -> num_chunks = 0;
-  second_buf_head -> ready_flag = 0;
+  for (int i = 0; i < BUFFER_COUNT; i++) {
+    buffer_heads[i] -> num_chunks = 0;
+    buffer_heads[i] -> ready_flag = 0;
+    buffers[i] = (char *) buffer_heads[i] + BUFFER_HEADER_SIZE;
+  }
 
-  first_buf = (char *) first_buf_head + BUFFER_HEADER_SIZE;
-  second_buf = (char *) second_buf_head + BUFFER_HEADER_SIZE;
-  chunk_to_write = first_buf;
+  chunk_to_write = buffers[0];
 
   chunk_counter = 0;
   max_chunks = chunks;
-  fpga =  Fpga(glob_head, first_buf_head, second_buf_head);
+  fpga =  Fpga(glob_head, buffer_heads[0], buffer_heads[1]);
   t = std::thread(&Fpga::run, fpga);
 
 }
@@ -48,11 +47,11 @@ char *Double_buffer::get_chunk(){
 void Double_buffer::start_processing(){
   glob_head -> active_buffer_flag = 1 - glob_head -> active_buffer_flag;
   if (glob_head -> active_buffer_flag == 0) {
-    first_buf_head -> num_chunks = chunk_counter;
-    chunk_to_write = second_buf;
+    buffer_heads[0] -> num_chunks = chunk_counter;
+    chunk_to_write = buffers[1];
   }else{
-    second_buf_head -> num_chunks = chunk_counter;
-    chunk_to_write = first_buf;
+    buffer_heads[1] -> num_chunks = chunk_counter;
+    chunk_to_write = buffers[0];
   }
   chunk_counter = 0;
   glob_head -> start_processing_flag = 1;
@@ -61,13 +60,13 @@ void Double_buffer::start_processing(){
 char *Double_buffer::get_result(){
   char *res_ptr = nullptr;
   if(glob_head -> active_buffer_flag == 0){
-    while(first_buf_head -> ready_flag == 0){}
-    first_buf_head -> ready_flag = 0;
-    res_ptr = first_buf;
+    while(buffer_heads[0] -> ready_flag == 0){}
+    buffer_heads[0] -> ready_flag = 0;
+    res_ptr = buffers[0];
   }else{
-    while(second_buf_head -> ready_flag == 0){}
-    second_buf_head -> ready_flag = 0;
-    res_ptr = second_buf;
+    while(buffer_heads[1] -> ready_flag == 0){}
+    buffer_heads[1] -> ready_flag = 0;
+    res_ptr = buffers[1];
   }
     return res_ptr;
 }

@@ -8,8 +8,7 @@
 class Double_buffer
 {
  private:
-  char *first_buf; //start of first buffer
-  char *second_buf; //start of second buffer
+  char *buffers[BUFFER_COUNT]; // start of the data in buffers
   char *chunk_to_write; //place to write to in active buffer
   char *global_start_of_buffer;
   //dummy variables
@@ -17,10 +16,10 @@ class Double_buffer
   std::thread t;
 
   global_header *glob_head;
-  buffer_header *first_buf_head;
-  buffer_header *second_buf_head;
+  buffer_header *buffer_heads[BUFFER_COUNT];
   uint32_t chunk_counter;
   uint32_t max_chunks;
+
  public:
   char *get_chunk();
   void start_processing();
