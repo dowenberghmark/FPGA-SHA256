@@ -44,44 +44,6 @@ string append_64(string s1, string s2){
 
 
 
-std::string ascii_to_bits(string s){
-
-	string binary_string;
-	int ascii;
-  		for(int i=0; i<s.length(); i++){
-  			ascii = s[i];
-  			char* binary_reverse = new char [9];
-  			char* binary = new char[9];
-  			int j = 0; //array counter
-  			while(ascii !=1){
-  				if(ascii % 2 == 0){
-  					binary_reverse[j] = '0';
-  				}
-  				else if(ascii % 2 == 1){
-  					binary_reverse[j] = '1';
-  				}
-  				ascii /=2;
-  				j++;
-  			}
-
-  			if(ascii == 1){
-  				binary_reverse[j] = '1';
-  				j++;
-  			}
-  			if(j < 8){
-  				for(;j<8;j++){
-  					binary_reverse[j] = '0';
-  				}
-  			}
-  			for(int k=0; k<8;k++){
-  				binary[k] = binary_reverse[7 - k];
-  			}
-
-  			binary_string += binary;
-
-  		}
-  		return binary_string;
-}
 
 // BYTE = UNSIGNED CHAR
 vector<BYTE> password_prepare(string filename){
@@ -97,13 +59,17 @@ vector<BYTE> password_prepare(string filename){
     // get its size:
     std::streampos fileSize;
 
-    file.seekg(0, std::ios::end);
+    file.seekg(509, std::ios::end);
+    memset(file,'0',509);
     fileSize = file.tellg();
+    int length = file.tellg();
+    cout << "length is: " << length << endl;
     file.seekg(0, std::ios::beg);
 
     // reserve capacity
     std::vector<BYTE> vec;
-    vec.reserve(fileSize);
+    vec.reserve(512);
+    
 
     // read the data:
     vec.insert(vec.begin(),
@@ -112,6 +78,7 @@ vector<BYTE> password_prepare(string filename){
 
     for (auto && n : vec){
       cout << "TEST PRINTING VEC: " << bitset<8>(n) << endl;
+
     }
 
 
@@ -120,30 +87,7 @@ vector<BYTE> password_prepare(string filename){
 
 
     return vec;
-/*
-	
-   
-  	char* element;
-  	vector<char*> vector_array;
-    cout << "Reading file... " << endl;
-  	while(!file.eof()){
-  		file >> element;
-  		cout << "element in bit: " << element << endl;
 
-*/
-
-
-  		/*HÄR SKA KODEN IN*/
-  	//	string password = ascii_to_bits(element);
-  	//	password = append_one(password);
-  	//	password = append_k(password);
-  	//	password = append_64(password,element);
-		//vector_array.push_back(password);  //skriver den i en vectory array
-	
-//  	}
-//   file.close();
-//   cout << "Reading file: finished " << endl;
-//   return vector_array;
 }
 
 
@@ -157,52 +101,6 @@ int main() {
 
 
 
-   auto end_pre_hashing = chrono::steady_clock::now();
-   auto pre_hashing_time = end_pre_hashing - start;
-
-   auto sending_chunk = chrono::steady_clock::now();
-   //SEND CHUNK
-   auto recieving_chunk = chrono::steady_clock::now();
-   auto chunk_transport_time = recieving_chunk - sending_chunk; 
-
-   // When all passwords have been hashed
-   auto end = chrono::steady_clock::now();
-
-   auto diff = end - start;
-   cout << "===========================================" << endl;
-   cout << "Pre-hashing passwords... " << endl;
-   cout << "Pre-hashing time: ";
-   cout << chrono::duration <double, milli> (pre_hashing_time).count() << " ms" << endl;
-   cout << "===========================================" << endl;
-   cout << "\n";
-   cout << "\n";
-   cout << "===========================================" << endl;
-   cout << "Sending chunk.... " << endl;
-
-   cout << "Chunk transport time: ";
-   cout << chrono::duration <double, milli> (chunk_transport_time).count() << " ms" << endl;
-   cout << "===========================================" << endl;
-   cout << "\n";
-   cout << "\n";
-   cout << "===========================================" << endl;
-   cout << "Total time FPGA hashing: ";
-   cout << chrono::duration <double, milli> (diff).count() << " ms" << endl;
-   cout << "===========================================" << endl;
-
-
-// KÖRA SHA-256 I CPU 
-   start = chrono::steady_clock::now();
-   SHA256_CPU();
-   end = chrono::steady_clock::now();
-   diff = end - start;
-   cout << "\n";
-   cout << "\n";
-   cout << "\n";
-   cout << "\n";
-   cout << "===========================================" << endl;
-   cout << "Total time CPU hashing: ";
-   cout << chrono::duration <double, milli> (diff).count() << " ms" << endl;
-   cout << "===========================================" << endl;
 
    return 0;
 }
