@@ -9,11 +9,11 @@ using namespace std;
 
 int main() {
 
-	//Get vector with hashed passwords from an extrernal SHA-256 hasher
-	vector<string>pass_vec = SHA256_CPU_vec("password.txt");
+  //Get vector with hashed passwords from an extrernal SHA-256 hasher
+  vector<string>pass_vec = SHA256_CPU_vec("password.txt");
 
-	ifstream file;
-	//Uses dummie file until we get our own results
+  ifstream file;
+  //Uses dummie file until we get our own results
   file.open("hashed_passwords.txt");
   string element;
   int counter = 0;
