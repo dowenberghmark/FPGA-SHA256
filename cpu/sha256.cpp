@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <vector>
 #include <typeinfo>
 #include <cstring>
 #include "sha256.hpp"
@@ -181,4 +182,18 @@ string SHA256(char* data) {
  		cout << SHA256(s) << endl;
 	}
  	return 0;
+ }
+
+ std::vector<string> SHA256_CPU_vec(string filename){
+ 	vector<string> vector_array;
+ 	ifstream file;
+   	file.open(filename);
+  	string element;
+ 	char* s;
+  	while(!file.eof()){
+  		file >> element;
+  		s = &element[0u];
+  		vector_array.push_back (SHA256(s));
+	}
+ 	return vector_array;
  }

@@ -3,5 +3,6 @@
 
 
  int SHA256_CPU();
+ std::vector<std::string> SHA256_CPU_vec(std::string filename);
 
  #endif
