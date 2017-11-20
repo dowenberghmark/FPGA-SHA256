@@ -14,16 +14,16 @@ int main() {
 
 	ifstream file;
 	//Uses dummie file until we get our own results
-   	file.open("hashed_passwords.txt");
-  	string element;
-  	int counter = 0;
-  	while(!file.eof()){
-  		file >> element;
-  		if (element.compare(pass_vec[counter]) != 0){
-  			cout << "Line " << counter+1 << " is incorrect" << endl;
-  		}
- 		counter++;
-	}
-	cout << "Comparison completed" << endl;
-	return 0;
+  file.open("hashed_passwords.txt");
+  string element;
+  int counter = 0;
+  while(!file.eof()){
+    file >> element;
+    if (element.compare(pass_vec[counter]) != 0){
+      cout << "Line " << counter+1 << " is incorrect" << endl;
+    }
+    counter++;
+  }
+  cout << "Comparison completed" << endl;
+  return 0;
 }

@@ -6,11 +6,11 @@ if [ $# -ne 1 ]; then
     echo "Usage: ./gen_passwords.sh [megabytes of passwords]"
 else
 	pass_size=$(($1*1000))
-	counter=$(($pass_size/512))
+	counter=$(($pass_size/64))
 	echo "Generating $counter passwords"
 	until [ $counter -lt 1 ]
 	do
-		res=$( cat /dev/random | LC_CTYPE=C tr -dc "[:alpha:]" | head -c 30 )
+		res=$( cat /dev/urandom | LC_CTYPE=C tr -dc "[:alpha:]" | head -c 30 )
 		echo $res >> random_passwords.txt
 		((counter--))
 	done
