@@ -42,7 +42,7 @@ InterfaceTest::~InterfaceTest(){
 }
 
 void InterfaceTest::run_tests(){
-  this->flipping_buffer(40,string_array.size());
+  this->flipping_buffer(10,string_array.size());
 }
 
 
@@ -62,8 +62,8 @@ void InterfaceTest::deploy_work(int total_chunks, int chunks_per_buffer){
       std::cout << "The number: " << counter+i << "\n";
       deploy_chunk(string_array[i]);
       //counter++;
-      
     }
+
     our_double_buffer->start_processing();
     std::cout << "start_proc\n" ;
     result = our_double_buffer->get_result();
@@ -74,11 +74,10 @@ void InterfaceTest::deploy_work(int total_chunks, int chunks_per_buffer){
 
 void InterfaceTest::flipping_buffer(int amount_buffer_flips, int number_of_strings){
   char *result;
-  bool flag;  
+  bool flag;
   int counter_flips = 0;
   int counter_chunks = 0;
   char *chunk_placement_ptr;
-  
   while (counter_flips < amount_buffer_flips) {
     flag = true;
     while (flag) {
@@ -95,7 +94,6 @@ void InterfaceTest::flipping_buffer(int amount_buffer_flips, int number_of_strin
     counter_flips++;
   }
 }
-
 
 int main(int argc, char *argv[])
 {

@@ -21,7 +21,7 @@ public:
 
 private:
   struct global_header *global_header;
-  struct buffer buffers[2];
+  struct buffer buffers[BUFFER_COUNT];
 
 };
 
