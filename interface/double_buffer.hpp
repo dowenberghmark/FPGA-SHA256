@@ -23,9 +23,8 @@ class Double_buffer
  public:
   char *get_chunk();
   void start_processing();
-  char *get_result();
+  result_struct get_result();
   void done();
-
   Double_buffer(uint32_t chunks);
   ~Double_buffer();
 

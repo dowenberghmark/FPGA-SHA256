@@ -57,18 +57,22 @@ void Double_buffer::start_processing(){
   glob_head -> start_processing_flag = 1;
 }
 
-char *Double_buffer::get_result(){
-  char *res_ptr = nullptr;
+result_struct Double_buffer::get_result(){
+  result_struct res_struct;
+  res_struct.res_ptr = nullptr;
+  res_struct.num_chunks = 0;
   if(glob_head -> active_buffer_flag == 0){
     while(buffer_heads[0] -> ready_flag == 0){}
     buffer_heads[0] -> ready_flag = 0;
-    res_ptr = buffers[0];
+    res_struct.res_ptr = buffers[0];
+    res_struct.num_chunks = buffer_heads[0]-> num_chunks;
   }else{
     while(buffer_heads[1] -> ready_flag == 0){}
     buffer_heads[1] -> ready_flag = 0;
-    res_ptr = buffers[1];
+    res_struct.res_ptr = buffers[1];
+    res_struct.num_chunks = buffer_heads[1]-> num_chunks;
   }
-    return res_ptr;
+    return res_struct;
 }
 
 void Double_buffer::done(){
@@ -76,7 +80,6 @@ void Double_buffer::done(){
   glob_head->start_processing_flag = 1337;
   t.join();
 }
-
 Double_buffer::~Double_buffer(){
   free(global_start_of_buffer);
 }
