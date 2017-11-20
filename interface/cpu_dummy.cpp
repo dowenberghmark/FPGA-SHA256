@@ -47,9 +47,7 @@ void InterfaceTest::validate_result(){
   for (int it = 0; it < result.size(); ++it) {
     
     std::string tmp1 = expected_result.back();
-    expected_result.pop_back();
     std::string tmp2 = result.back();
-    result.pop_back();
     assert(tmp2.compare(tmp1) == 0);
 
   }
@@ -71,10 +69,8 @@ InterfaceTest::~InterfaceTest(){
 void InterfaceTest::run_tests(){
   this->flipping_buffer(5,string_array.size());
   std::cout << "Validating flipping buffer " << "\n";
-  this->validate_result();
   this->number_chunks();
   std::cout << "Validating number_chunks in result_struct " << "\n";
-  this->validate_result();
 }
 void InterfaceTest::number_chunks(){
 
@@ -88,6 +84,7 @@ void InterfaceTest::number_chunks(){
   
   our_double_buffer->start_processing();
   accuire_result();
+  this->validate_result();
   
 }
 
@@ -113,6 +110,7 @@ void InterfaceTest::flipping_buffer(int amount_buffer_flips, int number_of_strin
     }
     counter_flips++;
   }
+  this->validate_result();
 }
 
 int main(int argc, char *argv[]){
