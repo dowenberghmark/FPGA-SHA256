@@ -1,34 +1,37 @@
 #ifndef __DOUBLE_BUFFER_H__
 #define  __DOUBLE_BUFFER_H__
-#include "defs.hpp"
 #include <stdint.h>
 #include <cstdlib>
+
+#include "defs.hpp"
 #include "fpga.hpp"
 
-class Double_buffer
-{
- private:
-  char *buffers[BUFFER_COUNT]; // start of the data in buffers
-  char *chunk_to_write; //place to write to in active buffer
-  char *global_start_of_buffer;
-  //dummy variables
-  Fpga fpga;
-  std::thread t;
-
-  global_header *glob_head;
-  buffer_header *buffer_heads[BUFFER_COUNT];
-  uint32_t chunk_counter;
-  uint32_t max_chunks;
-
+class DoubleBuffer {
  public:
   char *get_chunk();
   void start_processing();
   char *get_result();
   void done();
 
-  Double_buffer(uint32_t chunks);
-  ~Double_buffer();
+  DoubleBuffer(char const *fpga_path);
+  ~DoubleBuffer();
 
+ private:
+  char *buf; // start of the data in buffers
+  char *chunk_to_write; // chunk to write in active buffer
+  // dummy variables for 'emulated' fpga thread
+  Fpga fpga;
+  std::thread t;
+
+  global_header *glob_head;
+  buffer_header *buf_head;
+  uint32_t chunk_counter;
+
+  int dram_fd;
+  // physical addresses to buffer headers in dram
+  long int dram_glob_head;
+  long int dram_buf_heads[BUFFER_COUNT];
+  long int dram_bufs[BUFFER_COUNT];
 };
 
 #endif
