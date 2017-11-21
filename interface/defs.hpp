@@ -9,11 +9,15 @@
 
 const int BUFFER_COUNT = 2;
 
-struct result_struct {
-  uint32_t num_chunks;
-  char *res_ptr;
+
+struct res_chunk{
+  char data[32];
 };
 
+struct result_struct {
+  uint32_t num_chunks;
+  res_chunk *res_ptr;
+};
 
 struct chunk {
   char data[64];

@@ -19,7 +19,7 @@ class Double_buffer
   buffer_header *buffer_heads[BUFFER_COUNT];
   uint32_t chunk_counter;
   uint32_t max_chunks;
-
+  result_struct process_result(buffer_header *curr, char *buffer);
  public:
   char *get_chunk();
   void start_processing();

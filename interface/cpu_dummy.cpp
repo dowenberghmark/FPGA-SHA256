@@ -57,7 +57,7 @@ void InterfaceTest::accuire_result(){
   std::string tmp;
   result_struct res = our_double_buffer->get_result();
   for (uint32_t i = 0; i < res.num_chunks; i++) {
-    tmp = (res.res_ptr + i * offset);
+    std::cout << res.res_ptr[i].data ;
     result.push_back(tmp);
   }
 }
