@@ -15,17 +15,17 @@ Notes from daily and weekly scrum together with other various information can be
 
 ## Code style
 
-# Names
+### Names
 
 Snake case for everything except class names. Class names use camel case
 
-# Spacing
+### Spacing
 
 Indentation level is two spaces.
 
-# Brackets
+### Brackets
 
-'''
+```
 
 void foo(){
   if(!coffee){
@@ -33,25 +33,25 @@ void foo(){
   }
 }
 
-'''
+```
 
 
-# Pointers
+### Pointers
 
-'''
+```
 
 int *bar
 
-'''
+```
 
 NOT
 
-'''
+```
 
 int* bar
 
-'''
+```
 
 
-# Other
+### Other
 Follow the Google c++ style guide
