@@ -5,7 +5,8 @@
 if [ $# -ne 1 ]; then
     echo "Usage: ./gen_passwords.sh [megabytes of passwords]"
 else
-    pass_size=$(($1*1000))
+    > random_passwords.txt
+    pass_size=$(($1*1000000))
     counter=$(($pass_size/64))
     echo "Generating $counter passwords"
     until [ $counter -lt 1 ]
