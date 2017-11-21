@@ -13,7 +13,7 @@ Code is mostly self-documenting.
 Notes from daily and weekly scrum together with other various information can be found in our [blog](https://pineappleblogg.wordpress.com/).
 
 
-## Code style
+## Code standard
 
 ### Names
 
@@ -51,6 +51,10 @@ NOT
 int* bar
 
 ```
+
+### Pull requests
+
+Merge is used for pull requests.
 
 
 ### Other
