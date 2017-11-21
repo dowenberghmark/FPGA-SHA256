@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.1)
+project( interface )
+set(SOURCES cpu_dummy.cpp double_buffer.cpp fpga.cpp)
+add_executable( interface_main ${SOURCES})
+set( THREADS_PREFER_PTHREAD_FLAG ON )
+find_package( Threads REQUIRED )
+target_link_libraries (interface_main Threads::Threads)
