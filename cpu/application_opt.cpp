@@ -56,6 +56,6 @@ while(i < 64){
   cout << "print strlen(element): " << strlen(element) << endl;
   cout << "print sizeof(element): " << sizeof(element) << endl;
 
-
+//test
    return 0;
 }
