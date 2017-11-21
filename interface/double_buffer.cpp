@@ -10,6 +10,22 @@
 #include "fpga.hpp"
 #include "utils.hpp"
 
+/**
+   The system has three buffers in total. CPU/API shares one buffer, denoted here as CPU-buffer.
+   FPGA has two buffers in DRAM, dram-buffer0 and dram-buffer1. The dummy version has its DRAM
+   in the file dram.hex and also an extra buffer to load data from the DRAM.
+
+   Buffer cycle:
+   1. CPU fills up CPU-buffer chunk-wise.
+   2. CPU calls start_processing and CPU-buffer is copied to dram-buffer0.
+   3. Interface retrieves result from dram-buffer1 and loads it into CPU-buffer.
+   4. CPU calls get_result and receives result from interface.
+   5. CPU fills up CPU-buffer chunk-wise.
+   6. CPU calls start_processing and CPU-buffer is copied to dram-buffer1.
+   7. Interface retrieves result from dram-buffer0 and loads it into CPU-buffer.
+   8. CPU calls get_result and receives result from interface.
+   9. goto 1.
+ */
 
 DoubleBuffer::DoubleBuffer(char const *fpga_path){
   glob_head = (global_header *) malloc(BUFFER_SIZE + BUFFER_HEADER_SIZE + GLOBAL_HEADER_SIZE);
