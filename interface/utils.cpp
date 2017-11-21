@@ -8,9 +8,9 @@
 int open_file(char const *path) {
   int fd;
 
-  if ((fd = open(path, O_RDWR | O_CREAT | O_TRUNC)) == -1) {
+  //if ((fd = open(path, O_RDWR | O_CREAT | O_TRUNC)) == -1) {
     // This should be used for the actual FPGA as it is the only supported option.
-    // if ((fd = open(path, O_RDWR)) == -1) {
+  if ((fd = open(path, O_RDWR)) == -1) {
     perror("open failed with errno");
     return -1;
   }

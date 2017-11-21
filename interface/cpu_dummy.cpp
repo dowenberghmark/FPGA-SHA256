@@ -20,7 +20,7 @@ public:
 };
 
 InterfaceTest::InterfaceTest(){
-  char const *dram_path = "dram.hex";
+  char const *dram_path = "/dev/edma0_queue_0";
   our_double_buffer = new DoubleBuffer(dram_path);
 
   string_array.push_back("1111111111111111111111111111111111111111111111111111111111111111");
