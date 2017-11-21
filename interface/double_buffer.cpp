@@ -94,7 +94,6 @@ void DoubleBuffer::start_processing() {
 }
 
 char *DoubleBuffer::get_result() {
-  char *res_ptr = nullptr;
   int ret;
   int buf_i = glob_head->active_buf;
 

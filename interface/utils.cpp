@@ -24,7 +24,9 @@ int close_file(int fd) {
   ret = close(fd);
   if (ret < 0) {
     perror("close failed with errno");
+    return -1;
   }
+  return 1;
 }
 
 

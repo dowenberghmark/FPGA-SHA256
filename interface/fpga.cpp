@@ -16,7 +16,6 @@ Fpga::Fpga(int fd, long int glob_head, long int buf0, long int buf1) {
 
 // run this function as a thread. communicate through the shared file.
 void Fpga::run() {
-  int ret;
   // dummy fpga loop
   while (1) {
     do {
@@ -36,7 +35,7 @@ void Fpga::run() {
     read_buf();
     // do dummy sha-256 to received chunks
     struct chunk *chunks = buf.data;
-    for (int i = 0; i < buf.head.num_chunks; i++) {
+    for (size_t i = 0; i < buf.head.num_chunks; i++) {
       for (int j = 0; j < 32; j++) {
 	chunks[i].data[j] = i;
       }
