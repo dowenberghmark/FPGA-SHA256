@@ -1,3 +1,22 @@
+# Runnable
+main
+fpga_main
+app
+
+# TAGS
+TAGS
+
+# cmake
+Makefile
+CMakeCache.txt
+CMakeFiles/
+*.cmake
+
+# Temp
+*~
+\#*
+.\#*
+
 # Prerequisites
 *.d
 
