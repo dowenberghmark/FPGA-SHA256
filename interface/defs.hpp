@@ -6,6 +6,10 @@
 #define BUFFER_HEADER_SIZE sizeof(struct buffer_header)
 #define GLOBAL_HEADER_SIZE sizeof(struct global_header)
 #define CHUNK_SIZE sizeof(struct chunk)
+#define CHUNKS_PER_BUFFER 4
+#define BUFFER_SIZE (CHUNKS_PER_BUFFER * CHUNK_SIZE)
+
+#define OFFSET_IN_FPGA_DRAM 0 // 0x10000000 in example
 
 const int BUFFER_COUNT = 2;
 
@@ -15,7 +19,7 @@ struct chunk {
 
 struct buffer_header {
   uint32_t num_chunks;
-  uint32_t ready_flag;
+  uint32_t rdy_flag;
 };
 
 struct buffer {
@@ -24,8 +28,8 @@ struct buffer {
 };
 
 struct global_header {
-  uint32_t start_processing_flag;
-  uint32_t active_buffer_flag;
+  uint32_t active_buf;
+  uint32_t start_proc;
 };
 
 #endif

@@ -1,56 +1,89 @@
-#include "fpga.hpp"
 #include <stdio.h>
 
-Fpga::Fpga(void *g_header, void *buffer0, void *buffer1) {
-    if (!global_header || !buffer0 || !buffer1) {
-      throw std::invalid_argument("received NULL pointer as argument");
-    }
+#include "fpga.hpp"
+#include "utils.hpp"
 
-    global_header = (struct global_header *) g_header;
 
-    buffers[0].buffer_header = (struct buffer_header *) buffer0;
-    buffers[1].buffer_header = (struct buffer_header *) buffer1;
-    buffers[0].chunks = (struct chunk *)((char *) buffer0 + BUFFER_HEADER_SIZE);
-    buffers[1].chunks = (struct chunk *)((char *) buffer1 + BUFFER_HEADER_SIZE);
-
+Fpga::Fpga(int fd, long int glob_head, long int buf0, long int buf1) {
+  // set dram addresses.
+  dram_fd = fd;
+  dram_buf_heads[0] = buf0;
+  dram_buf_heads[1] = buf1;
+  dram_bufs[0] = dram_buf_heads[0] + BUFFER_HEADER_SIZE;
+  dram_bufs[1] = dram_buf_heads[1] + BUFFER_HEADER_SIZE;
+  dram_glob_head = glob_head;
 }
 
-// run this function as a thread. communicate through the shared buffers.
+// run this function as a thread. communicate through the shared file.
 void Fpga::run() {
+  int ret;
   // dummy fpga loop
   while (1) {
-    while (!global_header->start_processing_flag) {
-       usleep(5000);
-    }
+    do {
+      read_glob_head();
+      usleep(5000);
+    } while (!glob_head.start_proc);
+
     usleep(500000);
     // only for testing so we can quit nicely
-    if (global_header->start_processing_flag == 1337) {
+    if (glob_head.start_proc == 1337) {
       break;
     }
-    global_header->start_processing_flag = 0;
+    // restore start proc flag.
+    glob_head.start_proc = 0;
+    write_glob_head();
 
-    uint32_t active_buf = global_header->active_buffer_flag;
-    struct buffer curr = buffers[active_buf];
-
-    struct buffer_header *buffer_header = curr.buffer_header;
-    uint32_t num_chunks = buffer_header->num_chunks;
-    uint32_t *ready_flag = &buffer_header->ready_flag;
-    struct chunk *chunks = curr.chunks;
-
-    std::cout << "buffer" << active_buf << " processed, num_chunks: " << num_chunks << " ready_flag: " << *ready_flag << "\n";
-
-    // do sha-256 to chunks
-    for (int i = 0; i < num_chunks; i++) {
-      std::cout << "chunk: " << i << "\n";
-      struct chunk c = chunks[i];
-      std::cout << "acc chunk: " << i << "\n";
-
+    read_buf();
+    // do dummy sha-256 to received chunks
+    struct chunk *chunks = buf.data;
+    for (int i = 0; i < buf.head.num_chunks; i++) {
       for (int j = 0; j < 32; j++) {
-	c.data[j] = i;
+	chunks[i].data[j] = i;
       }
+      std::cout << "result written to chunk: " << i << "\n";
     }
+    std::cout << "buffer" << glob_head.active_buf << " processed, num_chunks: " << buf.head.num_chunks << " rdy_flag: " << buf.head.rdy_flag << "\n";
 
-    *ready_flag = 1;
+    // write back result and ready flag
+    buf.head.rdy_flag = 1;
+    write_result();
   }
   std::cout << "quitting fpga run" << "\n";
+}
+
+void Fpga::read_glob_head() {
+  int ret;
+  ret = pread_all(dram_fd, &glob_head, GLOBAL_HEADER_SIZE, dram_glob_head);
+  if (ret < 0) {
+    throw std::runtime_error("Can't write to dram from fpga.");
+  }
+}
+
+void Fpga::write_glob_head() {
+  int ret;
+  ret = pwrite_all(dram_fd, &glob_head, GLOBAL_HEADER_SIZE, dram_glob_head);
+  if (ret < 0) {
+    throw std::runtime_error("Can't write to dram from fpga.");
+  }
+}
+
+void Fpga::read_buf() {
+  int ret;
+  ret = pread_all(dram_fd, &buf.head, BUFFER_HEADER_SIZE, dram_buf_heads[glob_head.active_buf]);
+  if (ret < -1) {
+    throw std::runtime_error("Can't write to dram from fpga.");
+  }
+  // only read the chunks that have been written to.
+  ret = pread_all(dram_fd, &buf.data, CHUNK_SIZE*buf.head.num_chunks, dram_bufs[glob_head.active_buf]);
+  if (ret < -1) {
+    throw std::runtime_error("Can't write to dram from fpga.");
+  }
+}
+
+void Fpga::write_result() {
+  int ret;
+  ret = pwrite_all(dram_fd, &buf.head, BUFFER_HEADER_SIZE+CHUNK_SIZE*buf.head.num_chunks, dram_buf_heads[glob_head.active_buf]);
+  if (ret < -1) {
+    throw std::runtime_error("Can't write to dram from fpga.");
+  }
 }
