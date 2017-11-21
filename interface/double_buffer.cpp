@@ -39,7 +39,7 @@ DoubleBuffer::DoubleBuffer(char const *fpga_path){
   buf_head = (buffer_header *) ((char *) glob_head + GLOBAL_HEADER_SIZE);
 
   buf_head->num_chunks = 0;
-  buf_head->rdy_flag = 0;
+  buf_head->rdy_flag = 1;
   buf = (char *)buf_head + BUFFER_HEADER_SIZE;
 
   chunk_to_write = buf;
@@ -57,8 +57,8 @@ DoubleBuffer::DoubleBuffer(char const *fpga_path){
     throw std::runtime_error("Can't open fpga fd.");
   }
 
-  fpga = Fpga(dram_fd, dram_glob_head, dram_buf_heads[0], dram_buf_heads[1]);
-  t = std::thread(&Fpga::run, fpga);
+  // fpga = Fpga(dram_fd, dram_glob_head, dram_buf_heads[0], dram_buf_heads[1]);
+  // t = std::thread(&Fpga::run, fpga);
 }
 
 char *DoubleBuffer::get_chunk() {
@@ -105,7 +105,7 @@ char *DoubleBuffer::get_result() {
   } while (buf_head->rdy_flag == 0);
 
   // reset ready flag
-  buf_head->rdy_flag = 0;
+  buf_head->rdy_flag = 1;
   ret = pwrite_all(dram_fd, buf_head, BUFFER_HEADER_SIZE, dram_buf_heads[buf_i]);
   if (ret < 0) return nullptr;
 

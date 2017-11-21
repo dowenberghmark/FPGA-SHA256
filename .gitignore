@@ -2,6 +2,7 @@
 main
 fpga_main
 interface_main
+aws_interface_main
 
 # TAGS
 TAGS
