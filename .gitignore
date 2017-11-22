@@ -1,3 +1,23 @@
+# Runnable
+main
+fpga_main
+interface_main
+aws_interface_main
+dram.hex
+
+# TAGS
+TAGS
+
+# cmake
+CMakeCache.txt
+CMakeFiles/
+*.cmake
+
+# Temp
+*~
+\#*
+.\#*
+
 # Prerequisites
 *.d
 
@@ -34,7 +54,6 @@
 *.app
 *.i*86
 *.x86_64
-*.hex
 
 # Debug files
 *.dSYM/
