@@ -17,45 +17,65 @@ using namespace std;
 int main() {
 /*ÖPPNAR PASSWORD.TXT*/
   fstream file;
-    file.open("password.txt");
-    char element[64];
-  char *s;
-    while(!file.eof()){
-      file >> element;
-      s = &element[0u];
+  file.open("password.txt");
+  char element[64];
 
-/*appendar 1 och k-times 0*/
-  unsigned char one = 0x01;
-  unsigned char zero = 0x00;
- int i = strlen(element);
- int j = i;
- int k = 0;
-if (strlen(element) < 56){
-    element[i++] = one;
-    while (i < 56){
-     element[i++] = 0x00;
-    }
-}
+  while(!file.eof()){
+
+    memset(element,0x00,64); //fills block memory with 0x00
+    file >> element;
+
+
+/*appends 1 after string*/
+    unsigned char one = 1 << 7;
+
+    int strLen = strlen(element);
+    element[strLen++] = one;
+    strLen--;
+
 
 /*appendar strlen(element)*8 i binär form */
-while(i < 64){
-  cout << "strlen is: " << j << endl;
-  for(int k = 0;k<8;k++){
-    element[i++] = bitset<8>(j*8)[k];
+    int i=63;
+    int num = 1;
+    
+    if(*(char *)&num == 1){  // if Little-Endian
+      /*
+      for(int k=0; k<8; k++){
+       element[i] = bitset<64>(strLen*8)[k];
+       printf ("%d: %x \n",k,element[i]);
+       i--;
+       */
+      element[63] = strLen*8;
+     
+     
+
+   }else{  // Big-Endian
+    i = 55;
+    for(int k=0; k<8; k++){
+     element[i] = bitset<8>(strLen*8)[k];
+     printf ("%d: %x \n",k,element[i]);
+     i++;
+   }
+ }
+}
+
+for(int i=0;i<sizeof(element);i++){
+  printf ("%d: %x \n",i,element[i]);
+}
+
+int counter = 0;
+for(int i=0;i<64; i++){
+  bitset<8> x(element[i]);
+  if(i == 57){
+    cout << "64 bits from here:" << endl;
   }
+  cout << x;
+  counter += 8;
+  cout << ", " << endl;
 }
 
 
-}
-
-  for(int i=0;i<sizeof(element);i++){
-    //out << "print s_pre: " << element[i] << endl;
-    printf ("%d: %x \n",i,element[i]);
-  }
-  cout << "print eleement: " << element << endl;
-  cout << "print strlen(element): " << strlen(element) << endl;
-  cout << "print sizeof(element): " << sizeof(element) << endl;
 
 //test
-   return 0;
+return 0;
 }
