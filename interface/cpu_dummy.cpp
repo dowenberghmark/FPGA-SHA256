@@ -10,7 +10,7 @@ private:
   std::vector<std::string> string_array;
   char *chunk_placement_ptr;
 
-  void flipping_buffer(int amount_buffer_flips, int number_of_strings);
+  void test_switch_buffer_n_times(int amount_buffer_switches, int number_of_strings);
   void deploy_work(int total_chunks, int chunks_per_buffer);
   void deploy_chunk(std::string current);
 public:
@@ -35,7 +35,7 @@ InterfaceTest::~InterfaceTest(){
 }
 
 void InterfaceTest::run_tests(){
-  this->flipping_buffer(10,string_array.size());
+  this->test_switch_buffer_n_times(10,string_array.size());
 }
 
 void InterfaceTest::deploy_chunk(std::string current){
@@ -64,24 +64,24 @@ void InterfaceTest::deploy_work(int total_chunks, int chunks_per_buffer){
   }
 }
 
-void InterfaceTest::flipping_buffer(int amount_buffer_flips, int number_of_strings){
+void InterfaceTest::test_switch_buffer_n_times(int amount_buffer_switches, int number_of_strings){
   char *result;
-  bool flag;
+  bool not_at_end_of_buffer;
   int counter_flips = 0;
   int counter_chunks = 0;
   char *chunk_placement_ptr;
-  while (counter_flips < amount_buffer_flips) {
-    flag = true;
-    while (flag) {
+  while (counter_flips < amount_buffer_switches) {
+    not_at_end_of_buffer = true;
+    while (not_at_end_of_buffer) {
       chunk_placement_ptr = our_double_buffer->get_chunk();
       if (chunk_placement_ptr == nullptr) {
         our_double_buffer->start_processing();
         result = our_double_buffer->get_result();
-        flag = false;
+        not_at_end_of_buffer = false;
       }else{
         strncpy(chunk_placement_ptr, string_array[counter_chunks % number_of_strings].c_str(), 64);
+        counter_chunks++;
       }
-      counter_chunks++;
     }
     counter_flips++;
   }

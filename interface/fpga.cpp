@@ -54,7 +54,7 @@ void Fpga::read_glob_head() {
   int ret;
   ret = pread_all(dram_fd, &glob_head, GLOBAL_HEADER_SIZE, dram_glob_head);
   if (ret < 0) {
-    throw std::runtime_error("Can't write to dram from fpga.");
+    throw std::runtime_error("Can't read from dram to fpga.");
   }
 }
 
@@ -70,12 +70,12 @@ void Fpga::read_buf() {
   int ret;
   ret = pread_all(dram_fd, &buf.head, BUFFER_HEADER_SIZE, dram_buf_heads[glob_head.active_buf]);
   if (ret < -1) {
-    throw std::runtime_error("Can't write to dram from fpga.");
+    throw std::runtime_error("Can't read from dram to fpga.");
   }
   // only read the chunks that have been written to.
   ret = pread_all(dram_fd, &buf.data, CHUNK_SIZE*buf.head.num_chunks, dram_bufs[glob_head.active_buf]);
   if (ret < -1) {
-    throw std::runtime_error("Can't write to dram from fpga.");
+    throw std::runtime_error("Can't read from dram to fpga.");
   }
 }
 
