@@ -32,8 +32,9 @@ DoubleBuffer::DoubleBuffer(char const *fpga_path){
   if (!glob_head) {
     throw std::runtime_error("Can't allocate enough memory.");
   }
-
+  //Signals to the FPGA to start processing when set to 1
   glob_head->start_proc = 0;
+  // Which buffer to process. 0 -> buffer0 & 1 -> buffer1
   glob_head->active_buf = 1;
 
   buf_head = (buffer_header *) ((char *) glob_head + GLOBAL_HEADER_SIZE);
