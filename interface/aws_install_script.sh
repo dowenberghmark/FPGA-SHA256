@@ -22,5 +22,3 @@ echo 'edma' | sudo tee --append /etc/modules-load.d/edma.conf
 sudo cp edma-drv.ko /lib/modules/`uname -r`/
 sudo depmod
 sudo modprobe edma-drv
-cd
-git clone https://github.com/dowenberghmark/PineappleExpress.git
