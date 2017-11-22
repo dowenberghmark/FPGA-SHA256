@@ -1,8 +1,11 @@
 #include <iostream>
 #include <thread>
 #include <string.h>
-#include "double_buffer.hpp"
 #include <vector>
+
+#include "double_buffer.hpp"
+#include "defs.hpp"
+
 
 class InterfaceTest {
 private:
@@ -20,7 +23,13 @@ public:
 };
 
 InterfaceTest::InterfaceTest(){
-  char const *dram_path = "dram.hex";
+  char const *dram_path;
+  if (MODE == LOCAL) {
+    dram_path = "dram.hex";
+  } else if (MODE == AWS) {
+    dram_path = "/dev/edma0_queue_0";
+  }
+
   our_double_buffer = new DoubleBuffer(dram_path);
 
   string_array.push_back("1111111111111111111111111111111111111111111111111111111111111111");
