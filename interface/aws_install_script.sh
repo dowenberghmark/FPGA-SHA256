@@ -14,8 +14,8 @@ cd $AWS_FPGA_REPO_DIR
 source sdk_setup.sh
 sudo fpga-clear-local-image  -S 0
 sudo fpga-load-local-image -S 0 -I agfi-08f98fa67671454fe
-sudo yum groupinstall "Development tools"
-sudo yum install kernel-devel
+sudo yum -y groupinstall "Development tools"
+sudo yum -y install kernel-devel
 cd sdk/linux_kernel_drivers/edma
 make
 echo 'edma' | sudo tee --append /etc/modules-load.d/edma.conf

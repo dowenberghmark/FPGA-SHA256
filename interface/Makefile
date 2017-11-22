@@ -32,8 +32,7 @@ ifeq ($(mode),aws)
 	LDLIBS += -lfpga_mgmt
 	BIN = aws_interface_main
 else
-	mode = local
-	CFLAGS += -DMODE=
+	CFLAGS += -DMODE=0
 	SRC += fpga.cpp
 	BIN = interface_main
 endif
