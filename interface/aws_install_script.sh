@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
-# Loads the CL_DRAM_DMA CustomLogic Example. The file works manually at least.
+# Loads the CL_DRAM_DMA CustomLogic Example. Interactive.
+
+# What this script does:
+## sets up an fpga: https://github.com/aws/aws-fpga/blob/master/hdk/cl/examples/README.md
+
+## loads this example: https://github.com/aws/aws-fpga/tree/master/hdk/cl/examples/cl_dram_dma
+
+## installs edma:
+## https://github.com/aws/aws-fpga/blob/master/sdk/linux_kernel_drivers/edma/edma_install.md
+
 
 cd $AWS_FPGA_REPO_DIR
 source sdk_setup.sh
