@@ -9,7 +9,7 @@ def write_random_lowercase(size):
   len_lc = 26
   ba = bytearray(os.urandom(n))
   counter = 0;
-  
+
   print "Number of passwords generated:", num_of_pass
 
   for i, b in enumerate(ba):
@@ -21,7 +21,7 @@ def write_random_lowercase(size):
       counter += 1
 
   del ba[-1]
-  with open("Output.txt", "w") as text_file:
+  with open("random_passwords.txt", "w") as text_file:
     text_file.write("%s" % ba)
 
 def main(argv):
