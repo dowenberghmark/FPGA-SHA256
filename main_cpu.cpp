@@ -9,6 +9,9 @@
 #include <bitset>
 #include <iomanip>
 #include <string.h>
+#include <unistd.h>
+#include <cstdlib>
+#include <cmath>
 
 #include "interface/double_buffer.hpp"
 #include "interface/defs.hpp"
@@ -18,7 +21,7 @@ using namespace std;
 
 #define uchar unsigned char
 #define uint unsigned int
-
+int debug_flag, compile_flag, size_in_bytes;
 
 void pre_process(char* element){
 /*appends 1 after string*/
@@ -49,16 +52,83 @@ void pre_process(char* element){
     } else{} // Big-Endian
   }
 
-  int main() {
-    char* string_array;
+  int main(int argc, char ** argv){
+    int c;
+
+    int bopt = 0, dopt = 0, sopt = 0;
+    int fopt = 0;
+    char *fvalue = NULL;
+    int svalue;
+
+    string filename;
+    int filesize;
+    int lines_to_read;
+
+
+
+    while ((c = getopt (argc, argv, "b,d,f:s:")) != -1){
+      //int this_option_optind = optind ? optind : 1;
+      switch (c) {
+
+        case 'b':
+        dopt = 1;
+        break;
+
+        case 'd':
+        bopt = 1;
+        break;
+
+        case 'f':
+        fopt = 1;
+        fvalue = optarg;
+        break;
+
+        case 's':
+        sopt = 1;
+        svalue = stoi(optarg);
+        break;
+
+        default:
+        abort ();
+      }
+    }
+
+
+
+    cout << "==========SETTINGS==========" << endl;
+    if(bopt == 1){
+      cout << "bopt is on" << endl;
+    }
+
+    if(dopt == 1){
+      cout << "dopt is on" << endl;
+    }
+    if(fopt == 1){ //filename flag
+      filename = fvalue;
+      cout << "filename: " << filename << endl;
+    } else{
+      filename = "password.txt";
+      cout << "filename: " << filename << endl;
+    }
+
+    if(sopt == 1){ //size flag
+      filesize = svalue;
+      lines_to_read = trunc(filesize/64);
+      cout << "size: " << filesize << endl;
+      cout << "lines_to_read: " << lines_to_read << endl;
+    } else{
+      cout << "size: whole file will be read" << endl;
+    }
+
+    cout << "============================" << endl;
+
+    DoubleBuffer *our_double_buffer;
     char *chunk_placement_ptr;
     char const *dram_path;
     char element[64];
 
     fstream file;
-    file.open("password.txt");
-
-    DoubleBuffer *our_double_buffer;
+    file.open(filename);
 
     if (MODE == LOCAL) {
       dram_path = "dram.hex";
@@ -76,13 +146,15 @@ void pre_process(char* element){
       if(chunk_placement_ptr == nullptr){
         our_double_buffer->start_processing();
         our_double_buffer->get_result();
+
       } else{
-       pre_process(element);      
-       memcpy(chunk_placement_ptr,element,sizeof(element));
-     }
+        pre_process(element);
+        memcpy(chunk_placement_ptr,element,sizeof(element));
+      }
 
-   }
+    }
 
-   our_double_buffer->done();
-   return 0;
- }
+    file.close();
+    our_double_buffer->done();
+    return 0;
+  }
