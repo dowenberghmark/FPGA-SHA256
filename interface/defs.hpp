@@ -14,7 +14,7 @@ enum mode_flags {
 #define BUFFER_HEADER_SIZE sizeof(struct buffer_header)
 #define GLOBAL_HEADER_SIZE sizeof(struct global_header)
 #define CHUNK_SIZE sizeof(struct chunk)
-#define CHUNKS_PER_BUFFER 4
+#define CHUNKS_PER_BUFFER 2
 #define BUFFER_SIZE (CHUNKS_PER_BUFFER * CHUNK_SIZE)
 
 #define OFFSET_IN_FPGA_DRAM 0 // 0x10000000 in example

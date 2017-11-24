@@ -12,7 +12,6 @@ dram.hex
 TAGS
 
 # cmake
-Makefile
 CMakeCache.txt
 CMakeFiles/
 *.cmake

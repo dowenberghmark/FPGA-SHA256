@@ -20,21 +20,21 @@
 CC = g++
 CFLAGS = -DCONFIG_LOGLEVEL=4 -std=c++11 -g -Wall #-Werror
 
-LDLIBS = -lrt -lpthread
+LDLIBS = -lpthread
 
-SRC = cpu_dummy.cpp double_buffer.cpp utils.cpp
+SRC = interface/double_buffer.cpp interface/utils.cpp main_cpu.cpp
 
 #Compiler flags
 #if mode variable is empty, setting local build mode
 ifeq ($(mode),aws)
 	INCLUDES = -I$(SDK_DIR)/userspace/include
 	CFLAGS += $(INCLUDES) -DMODE=1
-	LDLIBS += -lfpga_mgmt
+	LDLIBS += -lfpga_mgmt -lrt
 	BIN = aws_interface_main
 else
 	CFLAGS += -DMODE=0
-	SRC += fpga.cpp
-	BIN = interface_main
+	SRC += interface/fpga.cpp
+	BIN = main
 endif
 
 OBJ = $(SRC:.c=.o)
