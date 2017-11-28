@@ -171,9 +171,9 @@ string SHA256(char* data) {
 	return hashStr;
 }
 
- int SHA256_CPU(){
+ int SHA256_CPU_debug(string filename){
  	ifstream file;
-   	file.open("password.txt");
+   	file.open(filename);
   	string element;
  	char* s;
   	while(!file.eof()){
@@ -184,7 +184,7 @@ string SHA256(char* data) {
  	return 0;
  }
 
- std::vector<string> SHA256_CPU_vec(string filename){
+ int SHA256_CPU_benchmark(string filename){
  	vector<string> vector_array;
  	ifstream file;
    	file.open(filename);
@@ -195,5 +195,6 @@ string SHA256(char* data) {
   		s = &element[0u];
   		vector_array.push_back (SHA256(s));
 	}
- 	return vector_array;
+ 	return 0;
  }
+ 
