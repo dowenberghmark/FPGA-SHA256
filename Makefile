@@ -1,4 +1,4 @@
-COMMON_REPO := ../../..
+COMMON_REPO := /home/centos/aws-fpga/SDAccel/examples/xilinx
 
 #Common Includes
 include $(COMMON_REPO)/utility/boards.mk
