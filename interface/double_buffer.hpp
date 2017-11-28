@@ -17,9 +17,6 @@ class DoubleBuffer {
 
  private:
   struct chunk *chunk_to_write; // chunk to write in active buffer
-  // dummy variables for 'emulated' fpga thread
-  Fpga fpga;
-  std::thread t;
 
   struct global_header *glob_head;
   struct buffer_header *buf_head[BUFFER_COUNT];

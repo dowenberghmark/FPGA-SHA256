@@ -25,7 +25,7 @@
    9. goto 1.
  */
 
-DoubleBuffer::DoubleBuffer(){
+DoubleBuffer::DoubleBuffer() {
   glob_head = (global_header *) malloc(BUFFER_SIZE + BUFFER_HEADER_SIZE + GLOBAL_HEADER_SIZE);
   if (!glob_head) {
     throw std::runtime_error("Can't allocate enough memory.");

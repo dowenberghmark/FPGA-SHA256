@@ -56,8 +56,7 @@ void InterfaceTest::test_switch_buffer_n_times(int amount_buffer_switches, int n
   }
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
   InterfaceTest tester = InterfaceTest();
   tester.run_tests();
   return 0;
