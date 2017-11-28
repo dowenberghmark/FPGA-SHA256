@@ -7,8 +7,6 @@
 
 #include "double_buffer.hpp"
 #include "defs.hpp"
-#include "fpga.hpp"
-#include "utils.hpp"
 
 /**
    The system has three buffers in total. CPU/API shares one buffer, denoted here as CPU-buffer.

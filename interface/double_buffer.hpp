@@ -4,7 +4,6 @@
 #include <cstdlib>
 
 #include "defs.hpp"
-#include "fpga.hpp"
 #include "device_interface.hpp"
 
 
