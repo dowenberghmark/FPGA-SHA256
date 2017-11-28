@@ -2,14 +2,6 @@
 #define __DEFS_H_INCLUDED__
 
 #include <cstdint>
-#ifndef MODE
-#error MODE compilation flag missing
-#endif
-
-enum mode_flags {
-   LOCAL = 0,
-   AWS = 1
-};
 
 #define BUFFER_HEADER_SIZE sizeof(struct buffer_header)
 #define GLOBAL_HEADER_SIZE sizeof(struct global_header)
