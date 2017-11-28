@@ -22,7 +22,7 @@ CFLAGS = -DCONFIG_LOGLEVEL=4 -std=c++11 -g -Wall #-Werror
 
 LDLIBS = -lpthread
 
-SRC = interface/double_buffer.cpp interface/utils.cpp cpu/sha256.cpp main_cpu.cpp
+SRC = interface/double_buffer.cpp interface/utils.cpp cpu/sha256.cpp cpu/sha_preprocess.cpp  main_cpu.cpp
 
 #Compiler flags
 #if mode variable is empty, setting local build mode

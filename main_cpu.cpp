@@ -17,42 +17,15 @@
 #include "interface/double_buffer.hpp"
 #include "interface/defs.hpp"
 #include "cpu/sha256.hpp"
+#include "cpu/sha_preprocess.hpp"
 
 
 using namespace std;
 
 #define uchar unsigned char
 #define uint unsigned int
-int debug_flag, compile_flag, size_in_bytes;
 
-void pre_process(char* element){
-/*appends 1 after string*/
-  int num = 1;
-  unsigned char one;
-    if(*(char *)&num == 1){   // Little-Endian
-      one = 1 << 7;
-    } else{  // Big-Endian
-      one = 1;
-    }
-    int strLen = strlen(element);
-    element[strLen++] = one;
-    strLen--;
-    unsigned char bytes[4];
-    char l_append;
-    l_append = strLen*8;
 
-    if(*(char *)&num == 1){  // if Little-Endian
-      l_append = strLen*8;
-      bytes[0] = (l_append >> 24) & 0xFF;
-      bytes[1] = (l_append >> 16) & 0xFF;
-      bytes[2] = (l_append >> 8) & 0xFF;
-      bytes[3] = l_append & 0xFF;
-      element[60] = bytes[0];
-      element[61] = bytes[1];
-      element[62] = bytes[2];
-      element[63] = bytes[3];    
-    } else{} // Big-Endian
-  }
 
   int main(int argc, char ** argv){
     int c;
@@ -68,7 +41,7 @@ void pre_process(char* element){
 
 
 
-    while ((c = getopt (argc, argv, "b,d,f:s:")) != -1){
+    while ((c = getopt (argc, argv, "b,d,h,f:s:")) != -1){
       //int this_option_optind = optind ? optind : 1;
       switch (c) {
 
@@ -90,6 +63,15 @@ void pre_process(char* element){
         svalue = stoi(optarg);
         break;
 
+        case 'h':
+        cout << "=============================== HELP PAGE ===================================" << endl;
+        cout << "usage: ./main [-d] [-s size in MB] [-f filepath]" << endl;
+        cout << "d : debug mode. Displays print for the process of the program" << endl;
+        cout << "s : define file size. Will read the whole file if not specified" << endl;
+        cout << "f : define file to read. Will read password.txt if not specified" << endl;
+        cout << "h : help page" << endl;
+        cout << "==============================================================================" << endl;
+        abort ();
         default:
         abort ();
       }
@@ -104,7 +86,7 @@ void pre_process(char* element){
     }
 
     if(dopt == 1){
-      cout << "dopt is on" << endl;
+      cout << "debug mode is on" << endl;
     }
 
 
@@ -157,13 +139,13 @@ void pre_process(char* element){
       file >> element;
       chunk_placement_ptr = our_double_buffer->get_chunk();
 
-      if(MODE == LOCAL){
+      if(MODE == LOCAL || dopt == 1){
 
         cout << "reading string: " << element << endl;
       }
 
       if(chunk_placement_ptr == nullptr){
-        if (MODE == LOCAL){
+        if (MODE == LOCAL || dopt == 1){
           cout << "get_chunk() returned nullptr" << endl;
           cout << "running start_processing() & get_result().." << endl;
         }
@@ -211,7 +193,7 @@ void pre_process(char* element){
       cout << "================================================================" << endl;
     }
 
-    if(MODE == LOCAL){
+    if(MODE == LOCAL || dopt == 1){
 
     }
     return 0;
