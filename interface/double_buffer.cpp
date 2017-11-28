@@ -39,8 +39,8 @@ DoubleBuffer::DoubleBuffer() {
   buf_head[0]->num_chunks = 0;
   buf_head[1]->num_chunks = 0;
 
-  bufs[0] = (struct chunks *) ((char *)buf_head[0] + BUFFER_HEADER_SIZE);
-  bufs[1] = (struct chunks *) ((char *)buf_head[1] + BUFFER_HEADER_SIZE);
+  bufs[0] = (struct chunk *) ((char *)buf_head[0] + BUFFER_HEADER_SIZE);
+  bufs[1] = (struct chunk *) ((char *)buf_head[1] + BUFFER_HEADER_SIZE);
 
   chunk_to_write = bufs[0];
 
@@ -61,7 +61,7 @@ struct chunk *DoubleBuffer::get_chunk() {
 
 struct chunk *DoubleBuffer::start_processing() {
   // run kernel
-  dev_if->run_fpga(bufs[glob_head->active_buf]);
+  dev_if.run_fpga(buf_head[glob_head->active_buf]->num_chunks, glob_head->active_buf);
   // flip buffers
   glob_head->active_buf = 1 - glob_head->active_buf;
 

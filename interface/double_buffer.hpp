@@ -20,7 +20,7 @@ class DoubleBuffer {
 
   struct global_header *glob_head;
   struct buffer_header *buf_head[BUFFER_COUNT];
-  struct chunks *bufs[BUFFER_COUNT];
+  struct chunk *bufs[BUFFER_COUNT];
 
   DeviceInterface dev_if;
 };

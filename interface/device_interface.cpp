@@ -2,7 +2,7 @@
 
 #include "device_interface.hpp"
 #include "defs.hpp"
-
+#include "xcl2.hpp"
 
 DeviceInterface::DeviceInterface(struct chunk *buffer0, struct chunk *buffer1) {
   first_flag = 1;
@@ -12,7 +12,7 @@ DeviceInterface::DeviceInterface(struct chunk *buffer0, struct chunk *buffer1) {
 
   //Creating Context and Command Queue for selected Device
   cl::Context context(device);
-  q(context, device, CL_QUEUE_PROFILING_ENABLE);
+  q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE);
   std::string device_name = device.getInfo<CL_DEVICE_NAME>();
   std::cout << "Found Device=" << device_name.c_str() << std::endl;
 
@@ -23,10 +23,10 @@ DeviceInterface::DeviceInterface(struct chunk *buffer0, struct chunk *buffer1) {
   std::string binaryFile = xcl::find_binary_file(device_name,"device_kernel");
   cl::Program::Binaries bins = xcl::import_binary_file(binaryFile);
   devices.resize(1);
-  cl::Program program(context, devices, bins);
+  program = cl::Program(context, devices, bins);
 
-  ocl_bufs[0](context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE, BUFFER_SIZE, buffer0);
-  ocl_bufs[1](context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE, BUFFER_SIZE, buffer1);
+  ocl_bufs[0] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE, BUFFER_SIZE, buffer0);
+  ocl_bufs[1] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE, BUFFER_SIZE, buffer1);
   host_bufs[0] = buffer0;
   host_bufs[1] = buffer1;
 }
@@ -40,7 +40,7 @@ void DeviceInterface::run_fpga(uint32_t num_chunks, int active_buf) {
   // application and into the buffer_a and buffer_b cl::Buffer objects. The data
   // will be be transferred from system memory over PCIe to the FPGA on-board
   // DDR memory.
-  q.enqueueMigrateMemObjects(inBufVec, 0/* 0 means from host*/);
+  q.enqueueMigrateMemObjects(in_buf_vec, 0/* 0 means from host*/);
 
   // This call will extract a kernel out of the program we loaded in the
   // previous line. A kernel is an OpenCL function that is executed on the
@@ -49,7 +49,7 @@ void DeviceInterface::run_fpga(uint32_t num_chunks, int active_buf) {
 
   //set the kernel Arguments
   int narg=0;
-  krnl_sha.setArg(narg++, host_bufs[active_buf]);
+  krnl_sha.setArg(narg++, *host_bufs[active_buf]);
   krnl_sha.setArg(narg++, num_chunks);
 
   //Launch the Kernel
@@ -59,10 +59,10 @@ void DeviceInterface::run_fpga(uint32_t num_chunks, int active_buf) {
   // order to view the results. This call will write the data from the
   // buffer_result cl_mem object to the source_results vector
   // don't read result buffer first time
-  if (!first_time) {
-    q.enqueueMigrateMemObjects(outBufVec, CL_MIGRATE_MEM_OBJECT_HOST);
+  if (!first_flag) {
+    q.enqueueMigrateMemObjects(out_buf_vec, CL_MIGRATE_MEM_OBJECT_HOST);
   } else {
-    first_time = 0;
+    first_flag = 0;
   }
   q.finish();
 }
