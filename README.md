@@ -27,8 +27,10 @@ Indentation level is two spaces.
 
 ```
 
-void foo(){
-  if(!coffee){
+void foo() {
+  if (!coffee) {
+    make_coffee();
+  } else {
     make_coffee();
   }
 }
