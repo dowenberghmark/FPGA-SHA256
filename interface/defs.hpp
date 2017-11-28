@@ -9,7 +9,6 @@
 #define CHUNKS_PER_BUFFER 4
 #define BUFFER_SIZE (CHUNKS_PER_BUFFER * CHUNK_SIZE)
 
-#define OFFSET_IN_FPGA_DRAM 0 // 0x10000000 in example
 
 const int BUFFER_COUNT = 2;
 
