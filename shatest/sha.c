@@ -3,7 +3,6 @@
 #include "sha256.h"
 #include "sha_preprocess.hpp"
 
-
 int char_to_uint32_array(char *chars, int char_length, uint32_t* new_array){
 	if(!(char_length > 0) | chars == NULL) {
 		return 1;
@@ -21,7 +20,6 @@ int char_to_uint32_array(char *chars, int char_length, uint32_t* new_array){
 		}
 		return 0;
 	}
-
 }
 
 main(){
@@ -44,10 +42,7 @@ main(){
 		printf("Tet: %x\n", test3[i]);
 	}
 
-
-
 	//for (int i = 0; i < 8; i+=sizeof(uint32_t)){
 		//    printf("%x\n", (uint32_t)test[i]);
 	//}
-
 }
