@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <stdexcept>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "double_buffer.hpp"
 #include "defs.hpp"
@@ -26,50 +27,55 @@
  */
 
 DoubleBuffer::DoubleBuffer() {
-  glob_head = (global_header *) malloc(BUFFER_SIZE + BUFFER_HEADER_SIZE + GLOBAL_HEADER_SIZE);
-  if (!glob_head) {
+
+  bufs[0].chunks = (struct chunk *) aligned_alloc(4096, BUFFER_SIZE);
+  bufs[1].chunks = (struct chunk *) aligned_alloc(4096, BUFFER_SIZE);
+
+  if (!bufs[0].chunks || !bufs[1].chunks) {
     throw std::runtime_error("Can't allocate enough memory.");
   }
   // Which buffer to process. 0 -> buffer0 & 1 -> buffer1
-  glob_head->active_buf = 0;
+  glob_head.active_buf = 0;
 
-  buf_head[0] = (buffer_header *) ((char *) glob_head + GLOBAL_HEADER_SIZE);
-  buf_head[1] = (buffer_header *) ((char *) buf_head[0] + BUFFER_HEADER_SIZE + BUFFER_SIZE);
+  bufs[0].num_chunks = 0;
+  bufs[1].num_chunks = 0;
 
-  buf_head[0]->num_chunks = 0;
-  buf_head[1]->num_chunks = 0;
+  chunk_to_write = bufs[0].chunks;;
 
-  bufs[0] = (struct chunk *) ((char *)buf_head[0] + BUFFER_HEADER_SIZE);
-  bufs[1] = (struct chunk *) ((char *)buf_head[1] + BUFFER_HEADER_SIZE);
+  dev_if = new DeviceInterface(bufs[0].chunks, bufs[1].chunks);
 
-  chunk_to_write = bufs[0];
-
-  dev_if = DeviceInterface(bufs[0], bufs[1]);
+  flip_flag = 0;
 }
 
 struct chunk *DoubleBuffer::get_chunk() {
-  uint32_t *n = &buf_head[glob_head->active_buf]->num_chunks;
-  if(*n >= CHUNKS_PER_BUFFER){
+  if (flip_flag) {
+    bufs[glob_head.active_buf].num_chunks = 0;
+    flip_flag = 0;
+  }
+
+  if(bufs[glob_head.active_buf].num_chunks >= CHUNKS_PER_BUFFER){
     return nullptr;
   }
-  *n++;
+  bufs[glob_head.active_buf].num_chunks++;
   struct chunk *old_buf_ptr = chunk_to_write;
   // hops to next chunk 64 bytes forward
   chunk_to_write += 1;
   return old_buf_ptr;
 }
 
-struct chunk *DoubleBuffer::start_processing() {
+struct buffer DoubleBuffer::start_processing() {
   // run kernel
-  dev_if.run_fpga(buf_head[glob_head->active_buf]->num_chunks, glob_head->active_buf);
+  dev_if->run_fpga(bufs[glob_head.active_buf].num_chunks, glob_head.active_buf);
   // flip buffers
-  glob_head->active_buf = 1 - glob_head->active_buf;
-
+  glob_head.active_buf = 1 - glob_head.active_buf;
+  flip_flag = 1;
   // result is in our new active buffer, which is also where we write new data.
-  chunk_to_write = bufs[glob_head->active_buf];
-  return chunk_to_write;
+  chunk_to_write = bufs[glob_head.active_buf].chunks;
+  return bufs[glob_head.active_buf];
 }
 
 DoubleBuffer::~DoubleBuffer() {
-  free(glob_head);
+  free(bufs[0].chunks);
+  free(bufs[1].chunks);
+  delete dev_if;
 }

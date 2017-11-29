@@ -27,14 +27,18 @@ DeviceInterface::DeviceInterface(struct chunk *buffer0, struct chunk *buffer1) {
 
   ocl_bufs[0] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE, BUFFER_SIZE, buffer0);
   ocl_bufs[1] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE, BUFFER_SIZE, buffer1);
-  host_bufs[0] = buffer0;
-  host_bufs[1] = buffer1;
+
+  // This call will extract a kernel out of the program we loaded in the
+  // previous line. A kernel is an OpenCL function that is executed on the
+  // FPGA. This function is defined in the interface/device_kernel.cl file.
+  krnl_sha = cl::Kernel(program, "fpga_sha");
 }
 
-void DeviceInterface::run_fpga(uint32_t num_chunks, int active_buf) {
+void DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   std::vector<cl::Memory> in_buf_vec, out_buf_vec;
   in_buf_vec.push_back(ocl_bufs[active_buf]);
   out_buf_vec.push_back(ocl_bufs[1 - active_buf]);
+
 
   // These commands will load either buffer0 or buffer1 from the host
   // application and into the buffer_a and buffer_b cl::Buffer objects. The data
@@ -42,14 +46,9 @@ void DeviceInterface::run_fpga(uint32_t num_chunks, int active_buf) {
   // DDR memory.
   q.enqueueMigrateMemObjects(in_buf_vec, 0/* 0 means from host*/);
 
-  // This call will extract a kernel out of the program we loaded in the
-  // previous line. A kernel is an OpenCL function that is executed on the
-  // FPGA. This function is defined in the src/vetor_addition.cl file.
-  cl::Kernel krnl_sha(program, "fpga_sha");
-
   //set the kernel Arguments
   int narg=0;
-  krnl_sha.setArg(narg++, *host_bufs[active_buf]);
+  krnl_sha.setArg(narg++, ocl_bufs[active_buf]);
   krnl_sha.setArg(narg++, num_chunks);
 
   //Launch the Kernel

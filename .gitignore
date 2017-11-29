@@ -5,6 +5,7 @@ _xocc_*
 sdaccel*
 sha256
 xclbin/
+emulation_debug.log
 
 # Runnable
 main

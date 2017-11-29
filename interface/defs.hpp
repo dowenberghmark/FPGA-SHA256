@@ -16,19 +16,13 @@ struct chunk {
   char data[64];
 };
 
-struct buffer_header {
-  uint32_t num_chunks;
-  uint32_t rdy_flag;
-};
-
 struct buffer {
-  struct buffer_header *buffer_header;
+  int num_chunks;
   struct chunk *chunks;
 };
 
 struct global_header {
-  uint32_t active_buf;
-  uint32_t start_proc;
+  int active_buf;
 };
 
 #endif

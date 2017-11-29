@@ -10,7 +10,7 @@
 class DoubleBuffer {
  public:
   struct chunk *get_chunk();
-  struct chunk *start_processing();
+  struct buffer start_processing();
 
   DoubleBuffer();
   ~DoubleBuffer();
@@ -18,11 +18,12 @@ class DoubleBuffer {
  private:
   struct chunk *chunk_to_write; // chunk to write in active buffer
 
-  struct global_header *glob_head;
-  struct buffer_header *buf_head[BUFFER_COUNT];
-  struct chunk *bufs[BUFFER_COUNT];
+  struct global_header glob_head;
+  struct buffer bufs[BUFFER_COUNT];
 
-  DeviceInterface dev_if;
+  DeviceInterface *dev_if;
+  // used to signal that we have to reset num_chunks after a flip
+  int flip_flag;
 };
 
 #endif
