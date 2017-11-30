@@ -14,13 +14,12 @@ void pre_process(char *element){
   /*Initilaize*/
   int num = 1;
   int strLen = strlen(element);
-  char l_append;
-  uchar bytes[4];
+  uint64_t l_append;
   uchar one;
   /*appends 1 after string*/
 
     if(*(char *)&num == 1) {   // Little-Endian
-      one = 1 << 7;
+      one = 0x80;
     } else {  // Big-Endian
       one = 1;
     }
@@ -31,13 +30,13 @@ void pre_process(char *element){
 
     if(*(char *)&num == 1) {  // if Little-Endian
       l_append = strLen*8;
-      bytes[0] = (l_append >> 24) & 0xFF;
-      bytes[1] = (l_append >> 16) & 0xFF;
-      bytes[2] = (l_append >> 8) & 0xFF;
-      bytes[3] = l_append & 0xFF;
-      element[60] = bytes[0];
-      element[61] = bytes[1];
-      element[62] = bytes[2];
-      element[63] = bytes[3];    
+      element[56] = (l_append >> 56) & 0xFF;
+      element[57] = (l_append >> 48) & 0xFF;
+      element[58] = (l_append >> 40) & 0xFF;
+      element[59] = (l_append >> 32) & 0xFF;
+      element[60] = (l_append >> 24) & 0xFF;
+      element[61] = (l_append >> 16) & 0xFF;
+      element[62] = (l_append >> 8) & 0xFF;
+      element[63] = l_append & 0xFF;  
     } else{} // Big-Endian
   }
