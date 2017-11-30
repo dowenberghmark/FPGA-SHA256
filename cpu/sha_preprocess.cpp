@@ -7,27 +7,29 @@
 
 using namespace std;
 
-
 #define uchar unsigned char
 #define uint unsigned int
 
-void pre_process(char* element){
-/*appends 1 after string*/
+void pre_process(char *element){
+  /*Initilaize*/
   int num = 1;
+  int strLen = strlen(element);
+  char l_append;
+  uchar bytes[4];
   uchar one;
-    if(*(char *)&num == 1){   // Little-Endian
+  /*appends 1 after string*/
+
+    if(*(char *)&num == 1) {   // Little-Endian
       one = 1 << 7;
-    } else{  // Big-Endian
+    } else {  // Big-Endian
       one = 1;
     }
-    int strLen = strlen(element);
+    
     element[strLen++] = one;
     strLen--;
-    uchar bytes[4];
-    char l_append;
     l_append = strLen*8;
 
-    if(*(char *)&num == 1){  // if Little-Endian
+    if(*(char *)&num == 1) {  // if Little-Endian
       l_append = strLen*8;
       bytes[0] = (l_append >> 24) & 0xFF;
       bytes[1] = (l_append >> 16) & 0xFF;
