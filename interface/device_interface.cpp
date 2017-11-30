@@ -25,7 +25,7 @@ DeviceInterface::DeviceInterface(struct chunk *buffer0, struct chunk *buffer1) {
   std::string binaryFile = xcl::find_binary_file(device_name,"device_kernel");
   cl::Program::Binaries bins = xcl::import_binary_file(binaryFile);
   devices.resize(1);
-  cl::Program program(context, devices, bins);
+  program = cl::Program(context, devices, bins);
 
   ocl_bufs[0] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE, BUFFER_SIZE, buffer0);
   ocl_bufs[1] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE, BUFFER_SIZE, buffer1);
