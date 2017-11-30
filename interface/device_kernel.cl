@@ -6,6 +6,7 @@ struct chunk{
   char data[64];
 };
 
+// https://www.xilinx.com/html_docs/xilinx2017_2/sdaccel_doc/topics/pragmas/concept-Intro_to_OpenCL_attributes.html
 kernel __attribute__((reqd_work_group_size(1, 1, 1)))
 void fpga_sha(global struct chunk *chunk_buffer, const int n_elements) {
   printf("HELLO FROM FPGA\n");

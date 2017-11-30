@@ -19,7 +19,6 @@ private:
   cl::CommandQueue q;
   cl::Buffer ocl_bufs[BUFFER_COUNT];
   struct buffer host_bufs[BUFFER_COUNT];
-  cl::Program program;
   cl::Kernel krnl_sha;
 };
 

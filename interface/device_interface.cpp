@@ -1,8 +1,10 @@
 // device interface for connecting cpu to fpga using opencl code.
+// initialization based on SDaccel hello world program
 
 #include "device_interface.hpp"
 #include "defs.hpp"
 #include "xcl2.hpp"
+
 
 DeviceInterface::DeviceInterface(struct chunk *buffer0, struct chunk *buffer1) {
   first_flag = 1;
@@ -23,7 +25,7 @@ DeviceInterface::DeviceInterface(struct chunk *buffer0, struct chunk *buffer1) {
   std::string binaryFile = xcl::find_binary_file(device_name,"device_kernel");
   cl::Program::Binaries bins = xcl::import_binary_file(binaryFile);
   devices.resize(1);
-  program = cl::Program(context, devices, bins);
+  cl::Program program(context, devices, bins);
 
   ocl_bufs[0] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE, BUFFER_SIZE, buffer0);
   ocl_bufs[1] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE, BUFFER_SIZE, buffer1);
@@ -39,7 +41,7 @@ DeviceInterface::DeviceInterface(struct chunk *buffer0, struct chunk *buffer1) {
 
 void DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   // The data will be be transferred from system memory over PCIe to the FPGA on-board
-  // DDR memory.
+  // DDR memory. blocking.
   q.enqueueWriteBuffer(ocl_bufs[active_buf], CL_TRUE, 0, num_chunks*CHUNK_SIZE, host_bufs[active_buf].chunks, NULL, NULL);
   host_bufs[active_buf].num_chunks = num_chunks;
 
@@ -54,8 +56,9 @@ void DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   // The result of the previous kernel execution will need to be retrieved in
   // order to view the results. This call will write the data from the
   // buffer_result cl_mem object to the source_results vector
-  // don't read result buffer first time
+  // first_flag causes us to not read result buffer first time
   if (!first_flag) {
+    // blocking.
     q.enqueueReadBuffer(ocl_bufs[1 - active_buf], CL_TRUE, 0, host_bufs[1 - active_buf].num_chunks*CHUNK_SIZE, host_bufs[1 - active_buf].chunks, NULL, NULL);
     host_bufs[1 - active_buf].num_chunks = 0;
   } else {
