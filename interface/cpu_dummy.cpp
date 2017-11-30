@@ -59,6 +59,11 @@ void InterfaceTest::test_switch_buffer_n_times(int amount_buffer_switches, int n
     }
     counter_flips++;
   }
+  result = our_double_buffer->start_processing();
+  for (int i = 0; i < result.num_chunks; i++) {
+    result.chunks[i].data[63] = '\0';
+    puts(result.chunks[i].data);
+  }
 }
 
 InterfaceTest::~InterfaceTest() {
