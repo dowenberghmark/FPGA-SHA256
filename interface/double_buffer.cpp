@@ -27,7 +27,7 @@
    9. goto 1.
  */
 
-DoubleBuffer::DoubleBuffer(char const *fpga_path){
+DoubleBuffer::DoubleBuffer(char const *fpga_path) {
   glob_head = (global_header *) malloc(BUFFER_SIZE + BUFFER_HEADER_SIZE + GLOBAL_HEADER_SIZE);
   if (!glob_head) {
     throw std::runtime_error("Can't allocate enough memory.");
@@ -47,7 +47,7 @@ DoubleBuffer::DoubleBuffer(char const *fpga_path){
     buf_head->rdy_flag = 1;
   }
 
-  buf = (char *)buf_head + BUFFER_HEADER_SIZE;
+  buf = (char *) buf_head + BUFFER_HEADER_SIZE;
 
   chunk_to_write = buf;
   chunk_counter = 0;
@@ -71,7 +71,7 @@ DoubleBuffer::DoubleBuffer(char const *fpga_path){
 }
 
 char *DoubleBuffer::get_chunk() {
-  if(chunk_counter >= CHUNKS_PER_BUFFER){
+  if (chunk_counter >= CHUNKS_PER_BUFFER) {
     return nullptr;
   }
   chunk_counter++;
