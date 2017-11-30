@@ -28,6 +28,9 @@ DeviceInterface::DeviceInterface(struct chunk *buffer0, struct chunk *buffer1) {
   ocl_bufs[0] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE, BUFFER_SIZE, buffer0);
   ocl_bufs[1] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE, BUFFER_SIZE, buffer1);
 
+  host_bufs[0].chunks = buffer0;
+  host_bufs[1].chunks = buffer1;
+
   // This call will extract a kernel out of the program we loaded in the
   // previous line. A kernel is an OpenCL function that is executed on the
   // FPGA. This function is defined in the interface/device_kernel.cl file.
@@ -35,16 +38,10 @@ DeviceInterface::DeviceInterface(struct chunk *buffer0, struct chunk *buffer1) {
 }
 
 void DeviceInterface::run_fpga(int num_chunks, int active_buf) {
-  std::vector<cl::Memory> in_buf_vec, out_buf_vec;
-  in_buf_vec.push_back(ocl_bufs[active_buf]);
-  out_buf_vec.push_back(ocl_bufs[1 - active_buf]);
-
-
-  // These commands will load either buffer0 or buffer1 from the host
-  // application and into the buffer_a and buffer_b cl::Buffer objects. The data
-  // will be be transferred from system memory over PCIe to the FPGA on-board
+  // The data will be be transferred from system memory over PCIe to the FPGA on-board
   // DDR memory.
-  q.enqueueMigrateMemObjects(in_buf_vec, 0/* 0 means from host*/);
+  q.enqueueWriteBuffer(ocl_bufs[active_buf], CL_TRUE, 0, num_chunks*CHUNK_SIZE, host_bufs[active_buf].chunks, NULL, NULL);
+  host_bufs[active_buf].num_chunks = num_chunks;
 
   //set the kernel Arguments
   int narg=0;
@@ -59,7 +56,8 @@ void DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   // buffer_result cl_mem object to the source_results vector
   // don't read result buffer first time
   if (!first_flag) {
-    q.enqueueMigrateMemObjects(out_buf_vec, CL_MIGRATE_MEM_OBJECT_HOST);
+    q.enqueueReadBuffer(ocl_bufs[1 - active_buf], CL_TRUE, 0, host_bufs[1 - active_buf].num_chunks*CHUNK_SIZE, host_bufs[1 - active_buf].chunks, NULL, NULL);
+    host_bufs[1 - active_buf].num_chunks = 0;
   } else {
     first_flag = 0;
   }
