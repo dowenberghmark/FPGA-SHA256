@@ -19,78 +19,62 @@
 #include "cpu/sha256.hpp"
 #include "cpu/sha_preprocess.hpp"
 
-
 using namespace std;
 
-#define uchar unsigned char
-#define uint unsigned int
+int main(int argc, char ** argv) {
+  int c;
 
+  int bopt = 0, dopt = 0, sopt = 0;
+  int fopt = 0;
+  char *fvalue = NULL;
+  int svalue;
 
+  string filename;
+  int filesize;
+  int lines_to_read;
 
-  int main(int argc, char ** argv){
-    int c;
-
-    int bopt = 0, dopt = 0, sopt = 0;
-    int fopt = 0;
-    char *fvalue = NULL;
-    int svalue;
-
-    string filename;
-    int filesize;
-    int lines_to_read;
-
-
-
-    while ((c = getopt (argc, argv, "b,d,h,f:s:")) != -1){
+  while ((c = getopt (argc, argv, "d,h,f:s:")) != -1) {
       //int this_option_optind = optind ? optind : 1;
-      switch (c) {
+    switch (c) {
 
-        case 'b':
-        bopt = 1;
-        break;
+      case 'b':
+      bopt = 1;
+      break;
 
-        case 'd':
-        dopt = 1;
-        break;
+      case 'd':
+      dopt = 1;
+      break;
 
-        case 'f':
-        fopt = 1;
-        fvalue = optarg;
-        break;
+      case 'f':
+      fopt = 1;
+      fvalue = optarg;
+      break;
 
-        case 's':
-        sopt = 1;
-        svalue = stoi(optarg);
-        break;
+      case 's':
+      sopt = 1;
+      svalue = stoi(optarg);
+      break;
 
-        case 'h':
-        cout << "=============================== HELP PAGE ===================================" << endl;
-        cout << "usage: ./main [-d] [-s size in MB] [-f filepath]" << endl;
-        cout << "d : debug mode. Displays print for the process of the program" << endl;
-        cout << "s : define file size. Will read the whole file if not specified" << endl;
-        cout << "f : define file to read. Will read password.txt if not specified" << endl;
-        cout << "h : help page" << endl;
-        cout << "==============================================================================" << endl;
-        abort ();
-        default:
-        abort ();
-      }
+      case 'h':
+      cout << "=============================== HELP PAGE ===================================" << endl;
+      cout << "usage: ./main [-d] [-s size in MB] [-f filepath]" << endl;
+      cout << "d : debug mode. Displays print for the process of the program" << endl;
+      cout << "s : define file size. Will read the whole file if not specified" << endl;
+      cout << "f : define file to read. Will read password.txt if not specified" << endl;
+      cout << "h : help page" << endl;
+      cout << "==============================================================================" << endl;
+      abort ();
+
+      default:
+      abort ();
     }
+  }
 
-
-
-    cout << "======================== PRE SETTINGS ==========================" << endl;
-    if(bopt == 1){
-      cout << "bopt is on" << endl;
-      
-    }
-
-    if(dopt == 1){
-      cout << "debug mode is on" << endl;
-    }
-
-
-    if(fopt == 1){ //filename flag
+  cout << "======================== PRE SETTINGS ==========================" << endl;
+  if(dopt == 1) {
+    cout << "debug mode is on" << endl;
+  }
+    if(fopt == 1) { //filename flag
       filename = fvalue;
       cout << "filename: " << filename << endl;
     } else{
@@ -98,7 +82,7 @@ using namespace std;
       cout << "filename: " << filename << endl;
     }
 
-    if(sopt == 1){ //size flag
+    if(sopt == 1) { //size flag
       filesize = svalue * 1000;
       lines_to_read = trunc(filesize/64);
       cout << "size: " << filesize << "MB" << endl; 
@@ -106,18 +90,24 @@ using namespace std;
     } else{
       cout << "size: whole file will be read" << endl;
     }
-
-
     cout << endl;
+    
     DoubleBuffer *our_double_buffer;
     char *chunk_placement_ptr;
     char const *dram_path;
     char element[64];
     chrono::duration<double> time_preprocess;
+    chrono::duration<double> time_buffer_processing;
+    chrono::duration<double> time_retrive_result;
     chrono::duration<double> time_total;
 
     auto start_preprocess = chrono::system_clock::now();
     auto end_preprocess = chrono::system_clock::now();
+    auto start_buffer_processing = chrono::system_clock::now();
+    auto end_buffer_processing = chrono::system_clock::now();
+    auto start_retrive_result = chrono::system_clock::now();
+    auto end_retrive_result = chrono::system_clock::now();
+
 
     fstream file;
     file.open(filename);
@@ -131,27 +121,38 @@ using namespace std;
     }  
     cout << "reading from dram: " << dram_path << endl;
     cout << "================================================================" << endl;
+
+    /*Initialization*/
     our_double_buffer = new DoubleBuffer(dram_path);
     auto start = std::chrono::system_clock::now();  //benchmark variable
-    while(!file.eof()){
-
+    
+    /*start reading file*/
+    while(!file.eof()) {
       memset(element,0,64);
       file >> element;
       chunk_placement_ptr = our_double_buffer->get_chunk();
 
-      if(MODE == LOCAL || dopt == 1){
-
+      if(dopt == 1) {
         cout << "reading string: " << element << endl;
       }
 
-      if(chunk_placement_ptr == nullptr){
-        if (MODE == LOCAL || dopt == 1){
+      if(chunk_placement_ptr == nullptr) {
+        if (dopt == 1) {
           cout << "get_chunk() returned nullptr" << endl;
           cout << "running start_processing() & get_result().." << endl;
         }
-
+        start_buffer_processing = chrono::system_clock::now();
         our_double_buffer->start_processing();
+        end_buffer_processing = chrono::system_clock::now();
+        time_buffer_processing += end_buffer_processing - start_buffer_processing;
+
+        start_retrive_result = chrono::system_clock::now();
         our_double_buffer->get_result();
+        end_retrive_result = chrono::system_clock::now();
+        time_retrive_result += end_retrive_result - start_retrive_result; 
+        if(dopt == 1) {
+          cout << "get_chunk() returned: " << &chunk_placement_ptr << endl;
+        }
         chunk_placement_ptr = our_double_buffer->get_chunk();
       }
 
@@ -164,21 +165,18 @@ using namespace std;
       end_preprocess = chrono::system_clock::now();
       time_preprocess += end_preprocess - start_preprocess;
       lines_to_read--;
-      if (lines_to_read == 0){
+      if (lines_to_read == 0) {
         break;
       }
-
     }
-
-    
-
     
     our_double_buffer->done();
     auto end = std::chrono::system_clock::now();
     file.close();
 
+
     time_total = end - start;
-     if(MODE == AWS){ // benchmark flag
+    if(MODE == AWS){ 
       cout << "Running sha256 CPU program..." << endl;
       auto start = std::chrono::system_clock::now();
       SHA256_CPU_benchmark(filename);
@@ -186,15 +184,19 @@ using namespace std;
       chrono::duration<double> cpu_program_time = end - start;
       cout << endl;
       cout << "====================== BENCHMARK RESULTS =======================" << endl;
-      cout << "fpga pre-process time: " << time_preprocess.count() << "s" << endl;
-      cout << "fpga program time: "<< time_total.count() << "s" << endl;
+      cout << "FPGA sha256 program time: "<< time_total.count() << "s" << endl;
       cout << endl;
       cout << "CPU sha256 program time: " <<  cpu_program_time.count() << "s" << endl;
       cout << "================================================================" << endl;
     }
 
-    if(MODE == LOCAL || dopt == 1){
-
+    if(MODE == LOCAL || dopt == 1) {
+      cout << "====================== DEBUG TIME RESULTS =======================" << endl;
+      cout << "pre_process() time: " << time_preprocess.count() << "s" << endl;
+      cout << "start_processing() function time: " << time_buffer_processing.count() << "s" << endl;
+      cout << "get_result() function time: " << time_retrive_result.count() << "s" << endl;
+      cout << "total program time: "<< time_total.count() << "s" << endl;
+      cout << "================================================================" << endl;
     }
     return 0;
   }
