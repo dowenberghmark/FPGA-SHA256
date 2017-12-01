@@ -3,6 +3,9 @@
 #include "sha256.h"
 #include "sha_preprocess.hpp"
 #include "print_bits.hpp"
+#include "sha256/sha256.h"
+
+#define v true
 
 int char_to_uint32_array(char *chars, int char_length, uint32_t* new_array){
 	if(!(char_length > 0) | (chars == NULL)) {
@@ -24,16 +27,26 @@ int char_to_uint32_array(char *chars, int char_length, uint32_t* new_array){
 }
 
 int main(){
-	char test[64] = {"abcdefghijklmnopqrstuvwxyz"};
+	//char test[64] = {"abcdefghijklmnopqrstuvwxyz"};
+	char test[64] = {"abc"};
+	char message[64] = {"abc"};
+
 	//test[0]= ''; //hash of "a" is
 	//ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb
 	//14ffffffd660ffffffa16115ffffffa1ffffffd1
 	printf("%s\n", "1");
 	pre_process(test);
-	printf("After preprocessing: \n");
-	print_bits(test, 64);
+	if(v){
+		printf("After preprocessing: \n");
+		print_bits(test, 64);
+	}
 	printf("\n");
-	sha256((uint32_t*)test);
+	sha256(test);
+
+	/*SHA256_CTX *ctx;
+	sha256_init(ctx);
+	sha256_update(ctx, )*/
+
 
 	/*char *test2 = "abcdefghijklmnoq";
 	int strlenw = 16;
@@ -43,8 +56,10 @@ int main(){
 	for (int i = 0; i < strlenw/4; ++i){
 		printf("Tet: %x\n", test3[i]);
 	}*/
-	printf("After hashing: \n");
-	print_bits(test, 32);
+	if(v){
+		printf("After hashing: \n");
+		print_bits(test, 32);
+	}
 	for(int i = 0; i < 32; i++){
 		printf("%x", (unsigned char)test[i]);
 	}
