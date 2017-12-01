@@ -5,11 +5,12 @@
 #include <bitset>
 #include <string.h>
 #include <stdint.h>
-
-using namespace std;
+#include <endian.h>
 
 #define uchar unsigned char
 #define uint unsigned int
+
+#define little_endian __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 
 void pre_process(char *element){
   /*Initilaize*/
@@ -19,7 +20,7 @@ void pre_process(char *element){
   uchar one;
   /*appends 1 after string*/
 
-    if(*(char *)&num == 1) {   // Little-Endian
+    if(little_endian) {   // Little-Endian
       one = 0x80;
     } else {  // Big-Endian
       one = 1;
@@ -29,7 +30,7 @@ void pre_process(char *element){
     strLen--;
     l_append = strLen*8;
 
-    if(*(char *)&num == 1) {  // if Little-Endian
+    if (little_endian) {  // if Little-Endian
       l_append = strLen*8;
       element[56] = (l_append >> 56) & 0xFF;
       element[57] = (l_append >> 48) & 0xFF;

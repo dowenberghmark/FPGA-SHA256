@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdio.h>
 
 #define pow32 4294967296
 #define ROTR(x, n) (((x) >> (n)) | ((x) << ((sizeof(x) * 8) - (n)))) //from https://stackoverflow.com/questions/21895604/rotate-right-by-n-only-using-bitwise-operators-in-c
@@ -40,6 +41,7 @@ void sha256(char* message_address){
 	//Prepare Message Schedule
 	uint32_t H0[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
 	uint32_t W[64];
+
 	uint32_t a,b,c,d,e,f,g,h,t1,t2;
 	//  __attribute__((opencl_unroll_hint(n)))
 	for(int i = 0, j = 0; i < 16; i++, j += 4){
@@ -47,6 +49,7 @@ void sha256(char* message_address){
 	}
 	 //__attribute__((opencl_unroll_hint(n)))
 	for(int i = 16; i < 63; i++){
+
 		W[i] = (sigma1(W[i-2]) + W[i-7] + sigma0(W[i-15]) + W[i-16])%pow32;
 	}
 
@@ -67,26 +70,31 @@ void sha256(char* message_address){
 		h = g;
 		g = f;
 		f = e;
-		e = d + t1;
+		e = (d + t1)%pow32;
 		d = c;
 		c = b;
 		b = a;
 		a = (t1 + t2)%pow32;
 	}
-	H0[0] += a;
-	H0[1] += b;
-	H0[2] += c;
-	H0[3] += d;
-	H0[4] += e;
-	H0[5] += f;
-	H0[6] += g;
-	H0[7] += h;
+	H0[0] = (H0[0] + a)%pow32;
+	H0[1] = (H0[1] + b)%pow32;
+	H0[2] = (H0[2] + c)%pow32;
+	H0[3] = (H0[3] + d)%pow32;
+	H0[4] = (H0[4] + e)%pow32;
+	H0[5] = (H0[5] + f)%pow32;
+	H0[6] = (H0[6] + g)%pow32;
+	H0[7] = (H0[7] + h)%pow32;
+
+	for(int i = 0; i < 8; i++){
+		printf("%x\n", H0[i]);
+	}
+
 
 
 	//Store hash in input buffer
 	//__attribute__((opencl_unroll_hint(n)))
 	for (int i = 0; i < 8; i++){
-		message_address[i] = H0[i];
+		((uint32_t*)message_address)[i] = H0[i];
 	}
-	message_address[8] = 0x0;
+	//message_address[8] = 0x0;
 }
