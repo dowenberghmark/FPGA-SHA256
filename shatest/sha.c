@@ -8,22 +8,22 @@
 #define v true
 
 int char_to_uint32_array(char *chars, int char_length, uint32_t* new_array){
-	if(!(char_length > 0) | (chars == NULL)) {
-		return 1;
-	}else{
-		int j = 0;
-		for(int i = 0; i < char_length; i+=4){
-			uint32_t a = ((0xffff & chars[i])<<8 | (0xffff & chars[i+1]));
-			printf("part1: %x\n", a);
-			uint32_t b = ((0xffff & chars[i+2])<<8 | (0xffff & chars[i+3]));
-			printf("part1: %x\n", b);
-			new_array[j] = ((0xffffffff & a)<<16 | (0xffffffff & b));
-			printf("all: %x\n", new_array[j]);
-			j=j+1;
-			//new_array[i] = (((0xffffffff & chars[i]) << 3*8) | ((0xffffffff & chars[i+1]) << 2*8) | ((0xffffffff & chars[i+2]) << 1*8) | (0xffffffff & chars[i+3]));
-		}
-		return 0;
-	}
+  if(!(char_length > 0) | (chars == NULL)) {
+    return 1;
+  }else{
+    int j = 0;
+    for(int i = 0; i < char_length; i+=4){
+      uint32_t a = ((0xffff & chars[i])<<8 | (0xffff & chars[i+1]));
+      printf("part1: %x\n", a);
+      uint32_t b = ((0xffff & chars[i+2])<<8 | (0xffff & chars[i+3]));
+      printf("part1: %x\n", b);
+      new_array[j] = ((0xffffffff & a)<<16 | (0xffffffff & b));
+      printf("all: %x\n", new_array[j]);
+      j=j+1;
+      //new_array[i] = (((0xffffffff & chars[i]) << 3*8) | ((0xffffffff & chars[i+1]) << 2*8) | ((0xffffffff & chars[i+2]) << 1*8) | (0xffffffff & chars[i+3]));
+    }
+    return 0;
+  }
 }
 
 int main(){
@@ -65,4 +65,5 @@ int main(){
 	}
 	printf("\n");
 	return 0;
+
 }
