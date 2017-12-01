@@ -1,20 +1,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define pow32 4294967296
 #define ROTR(x, n) (((x) >> (n)) | ((x) << ((32) - (n)))) //from https://stackoverflow.com/questions/21895604/rotate-right-by-n-only-using-bitwise-operators-in-c
 
-#define ROTLEFT(a,b) (((a) << (b)) | ((a) >> (32-(b))))
-#define ROTRIGHT(a,b) (((a) >> (b)) | ((a) << (32-(b))))
-
-#define CH(x,y,z) (((x) & (y)) ^ (~(x) & (z)))
-#define MAJ(x,y,z) (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
-#define EP0(x) (ROTRIGHT(x,2) ^ ROTRIGHT(x,13) ^ ROTRIGHT(x,22))
-#define EP1(x) (ROTRIGHT(x,6) ^ ROTRIGHT(x,11) ^ ROTRIGHT(x,25))
-#define SIG0(x) (ROTRIGHT(x,7) ^ ROTRIGHT(x,18) ^ ((x) >> 3))
-#define SIG1(x) (ROTRIGHT(x,17) ^ ROTRIGHT(x,19) ^ ((x) >> 10))
-
-const uint32_t K[65] = {
+const uint32_t K[64] = {
   0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
   0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
   0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
@@ -25,93 +14,91 @@ const uint32_t K[65] = {
   0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
 };
 
-uint32_t Ch(uint32_t x, uint32_t y, uint32_t z){
-	return (x & y)^(~x & z);
+uint32_t Ch(uint32_t x, uint32_t y, uint32_t z) {
+  return (x & y)^(~x & z);
 }
 
-uint32_t Maj(uint32_t x, uint32_t y, uint32_t z){
-	return (x & y)^(x & z)^(y & z);
+uint32_t Maj(uint32_t x, uint32_t y, uint32_t z) { 
+  return (x & y)^(x & z)^(y & z);
 }
 
-uint32_t sigma0(uint32_t x){
-	return (ROTR(x, 7))^(ROTR(x, 18))^(x >> 3);
+uint32_t sigma0(uint32_t x) {
+  return (ROTR(x, 7))^(ROTR(x, 18))^(x >> 3);
 }
 
-uint32_t sigma1(uint32_t x){
-	return (ROTR(x, 17))^(ROTR(x, 19))^(x >> 10);
+uint32_t sigma1(uint32_t x) {
+  return (ROTR(x, 17))^(ROTR(x, 19))^(x >> 10);
 }
 
-uint32_t zigma0(uint32_t x){
-	return (ROTR(x, 2))^(ROTR(x, 13))^(ROTR(x, 22));
+uint32_t zigma0(uint32_t x) {
+  return (ROTR(x, 2))^(ROTR(x, 13))^(ROTR(x, 22));
 }
 
-uint32_t zigma1(uint32_t x){
-	return (ROTR(x, 6))^(ROTR(x, 11))^(ROTR(x, 25));
+uint32_t zigma1(uint32_t x) {
+  return (ROTR(x, 6))^(ROTR(x, 11))^(ROTR(x, 25));
 }
 
-void sha256(char* message_address){
-	//Prepare Message Schedule
-	uint32_t H0[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
-
-	uint32_t W[65];
-	uint32_t a,b,c,d,e,f,g,h,t1,t2,i,j;
+void sha256(char* chunk_address) {
+  //Prepare Message Schedule
+  uint32_t H0[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
+  uint32_t W[64];
+  uint32_t a,b,c,d,e,f,g,h,t1,t2,i,j;
+  
   //  __attribute__((opencl_unroll_hint(n)))
-	for(i = 0, j = 0; i < 16; i++, j += 4){
-		W[i] = ((unsigned char)message_address[j] << 24) | ((unsigned char)message_address[j+1] << 16) | ((unsigned char)message_address[j+2] << 8) | ((unsigned char)message_address[j+3]);
-	}
+  for (i = 0, j = 0; i < 16; i++, j += 4) {
+    W[i] = ((unsigned char) chunk_address[j] << 24) | ((unsigned char) chunk_address[j+1] << 16) | ((unsigned char) chunk_address[j+2] << 8) | ((unsigned char) chunk_address[j+3]);
+  }
+  
   //__attribute__((opencl_unroll_hint(n)))
-	for(int i = 16; i < 64; i++){
-		W[i] = SIG1(W[i-2]) + W[i-7] + SIG0(W[i-15]) + W[i-16];
-	}
+  for (int i = 16; i < 64; i++) {
+    W[i] = sigma1(W[i-2]) + W[i-7] + sigma0(W[i-15]) + W[i-16];
+  }
 
-	//Initialize working variables
-	a = H0[0];
-	b = H0[1];
-	c = H0[2];
-	d = H0[3];
-	e = H0[4];
-	f = H0[5];
-	g = H0[6];
-	h = H0[7];
+  //Initialize working variables
+  a = H0[0];
+  b = H0[1];
+  c = H0[2];
+  d = H0[3];
+  e = H0[4];
+  f = H0[5];
+  g = H0[6];
+  h = H0[7];
 
-
-	//Compute Hash
-	for(int i = 0; i < 64; i++){
-		t1 = h + EP1(e) + CH(e,f,g) + K[i] + W[i];
-		t2 = EP0(a) + MAJ(a,b,c);
-		h = g;
-		g = f;
-		f = e;
-		e = d + t1;
-		d = c;
-		c = b;
-		b = a;
-		a = t1 + t2;
-
-    printf("%d %x %x %x %x %x %x %x %x\n", i,a,b,c,d,e,f,g,h);
-	}
+  //Compute Hash
+  for (int i = 0; i < 64; i++) {
+    t1 = h + zigma1(e) + Ch(e, f, g) + K[i] + W[i];
+    t2 = zigma0(a) + Maj(a, b, c);
+    h = g;
+    g = f;
+    f = e;
+    e = d + t1;
+    d = c;
+    c = b;
+    b = a;
+    a = t1 + t2;
+  }
 
 
-	H0[0] = (H0[0] + a)%pow32;
-	H0[1] = (H0[1] + b)%pow32;
-	H0[2] = (H0[2] + c)%pow32;
-	H0[3] = (H0[3] + d)%pow32;
-	H0[4] = (H0[4] + e)%pow32;
-	H0[5] = (H0[5] + f)%pow32;
-	H0[6] = (H0[6] + g)%pow32;
-	H0[7] = (H0[7] + h)%pow32;
+  H0[0] = H0[0] + a;
+  H0[1] = H0[1] + b;
+  H0[2] = H0[2] + c;
+  H0[3] = H0[3] + d;
+  H0[4] = H0[4] + e;
+  H0[5] = H0[5] + f;
+  H0[6] = H0[6] + g;
+  H0[7] = H0[7] + h;
 
   printf("H0 after loop: \n");
-	for(int i = 0; i < 8; i++){
-		printf("%x\n", H0[i]);
-	}
+  for (int i = 0; i < 8; i++) {
+    printf("%x\n", H0[i]);
+  }
 
 
 
-	//Store hash in input buffer
-	//__attribute__((opencl_unroll_hint(n)))
-	for (int i = 0; i < 8; i++){
-		((uint32_t*)message_address)[i] = H0[i];
-	}
-	//message_address[8] = 0x0;
+  //Store hash in input buffer
+  //__attribute__((opencl_unroll_hint(n)))
+  
+  for (int i = 0; i < 8; i++) {
+    ((uint32_t *) chunk_address)[i] = (((unsigned char *) H0)[i*4] << 24) | (((unsigned char *) H0)[i*4+1] << 16) | (((unsigned char *) H0)[i*4+2] << 8) | (((unsigned char *) H0)[i*4+3]);
+  }
 }

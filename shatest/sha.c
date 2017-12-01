@@ -65,7 +65,7 @@ int main(){
 		print_bits(test, 32);
 	}
 	for(int i = 0; i < 32; i++){
-		printf("%x", (unsigned char)test[i]);
+		printf("%02x", (unsigned char)test[i]);
 	}
 	printf("\n");
 	return 0;
