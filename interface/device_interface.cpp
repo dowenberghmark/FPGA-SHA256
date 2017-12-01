@@ -6,7 +6,15 @@
 #include "xcl2.hpp"
 
 
-DeviceInterface::DeviceInterface(struct chunk *buffer0, struct chunk *buffer1, struct buffer **bufs) {
+void check(cl_int err) {
+  if (err) {
+    printf("ERROR: Operation Failed: %d\n", err);
+    exit(EXIT_FAILURE);
+  }
+}
+
+
+DeviceInterface::DeviceInterface(struct buffer **bufs) {
   host_bufs = bufs;
   first_flag = 1;
   // The get_xil_devices will return vector of Xilinx Devices
@@ -23,40 +31,54 @@ DeviceInterface::DeviceInterface(struct chunk *buffer0, struct chunk *buffer1, s
   // xocc compiler load into OpenCL Binary and return as Binaries
   // OpenCL and it can contain many functions which can be executed on the
   // device.
-  std::string binaryFile = xcl::find_binary_file(device_name,"device_kernel");
+  std::string binaryFile = xcl::find_binary_file(device_name, "device_kernel");
   cl::Program::Binaries bins = xcl::import_binary_file(binaryFile);
   devices.resize(1);
   program = cl::Program(context, devices, bins);
 
-  cl_mem_ext_ptr_t buffer_ext0, buffer_ext1;  // Declaring two extensions for both buffers
-  buffer_ext0.flags  = XCL_MEM_DDR_BANK0; // Specify Bank0 Memory for input memory
+  buffer_ext0.flags = XCL_MEM_DDR_BANK0; // Specify Bank0 Memory for input memory
   buffer_ext1.flags = XCL_MEM_DDR_BANK1; // Specify Bank1 Memory for output Memory
-  buffer_ext0.obj   = buffer0;
-  buffer_ext1.obj  = buffer1; // Setting Obj and Param to Zero
-  buffer_ext0.param = 0 ; buffer_ext1.param = 0;
+  buffer_ext0.obj = NULL;
+  buffer_ext1.obj = NULL; // Setting Obj and Param to Zero
+  buffer_ext0.param = 0;
+  buffer_ext1.param = 0;
 
-  ocl_bufs[0] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX, BUFFER_SIZE, &buffer_ext0);
-  ocl_bufs[1] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX, BUFFER_SIZE, &buffer_ext1);
+  int err;
+  ocl_bufs[0] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX, BUFFER_SIZE, &buffer_ext0, &err);
+  if (err != CL_SUCCESS) {
+    printf("Error: Failed to allocate buffer0 in DDR bank %zu\n", BUFFER_SIZE);
+  }
+  ocl_bufs[1] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX, BUFFER_SIZE, &buffer_ext1, &err);
+  if (err != CL_SUCCESS) {
+    printf("Error: Failed to allocate buffer1 in DDR bank %zu\n", BUFFER_SIZE);
+  }
+
+  host_bufs[0]->chunks = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[0], CL_TRUE, CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
+  if (err != CL_SUCCESS) {
+    printf("Error: Failed to enqueuemapbuffer\n");
+  }
 
 
-  host_bufs[0]->chunks = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[0], CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, BUFFER_SIZE);
   host_bufs[1]->chunks = nullptr;
 
   // This call will extract a kernel out of the program we loaded in the
   // previous line. A kernel is an OpenCL function that is executed on the
   // FPGA. This function is defined in the interface/device_kernel.cl file.
-  krnl_sha = cl::Kernel(program, "fpga_sha");
+  krnl_sha = cl::Kernel(program, "device_kernel");
 }
 
 struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
+  cl_int err;
   // The data will be be transferred from system memory over PCIe to the FPGA on-board
   // DDR memory. blocking.
-  q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf]->chunks);
+  q.enqueueUnmapMemObject(ocl_bufs[active_buf], (void *) host_bufs[active_buf]->chunks, NULL, NULL);
   host_bufs[active_buf]->num_chunks = num_chunks;
 
   //set the kernel Arguments
   int narg=0;
-  krnl_sha.setArg(narg++, ocl_bufs[active_buf]);
+  krnl_sha.setArg(narg++, ocl_bufs[0]);
+  krnl_sha.setArg(narg++, ocl_bufs[1]);
+  krnl_sha.setArg(narg++, active_buf);
   krnl_sha.setArg(narg++, num_chunks);
 
   //Launch the Kernel
@@ -68,7 +90,8 @@ struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   // first_flag causes us to not read result buffer first time
   if (!first_flag) {
     // blocking.
-    host_bufs[1 - active_buf]->chunks = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, BUFFER_SIZE);
+    host_bufs[1 - active_buf]->chunks = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, BUFFER_SIZE, NULL, NULL, &err);
+    check(err);
     host_bufs[1 - active_buf]->num_chunks = 0;
   } else {
     first_flag = 0;
@@ -86,5 +109,5 @@ void DeviceInterface::read_last_result(int active_buf) {
 }
 
 void DeviceInterface::unmap_last_result(int active_buf) {
-  q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf]->chunks);
+  q.enqueueUnmapMemObject(ocl_bufs[active_buf], (void *) host_bufs[active_buf]->chunks);
 }

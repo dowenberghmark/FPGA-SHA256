@@ -14,12 +14,11 @@ class DoubleBuffer {
   struct buffer get_last_result();
   DoubleBuffer();
   ~DoubleBuffer();
+  struct buffer bufs[BUFFER_COUNT];
 
  private:
   struct chunk *chunk_to_write; // chunk to write in active buffer
-  struct chunk *host_bufs[BUFFER_COUNT];
   struct global_header glob_head;
-  struct buffer bufs[BUFFER_COUNT];
 
   DeviceInterface *dev_if;
   // used to signal that we have to reset num_chunks after a flip

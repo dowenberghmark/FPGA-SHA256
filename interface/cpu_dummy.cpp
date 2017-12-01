@@ -31,7 +31,7 @@ InterfaceTest::InterfaceTest() {
 }
 
 void InterfaceTest::run_tests() {
-  this->test_switch_buffer_n_times(5, string_array.size());
+  this->test_switch_buffer_n_times(1, string_array.size());
 }
 
 void InterfaceTest::test_switch_buffer_n_times(int amount_buffer_switches, int number_of_strings) {

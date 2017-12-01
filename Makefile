@@ -19,16 +19,22 @@ EXES=sha256
 
 # Kernel
 device_kernel_SRCS=$(SRC_DIR)/device_kernel.cl
+device_kernel_CLFLAGS= -I$(SRC_DIR)/ --max_memory_ports device_kernel
+
 
 XOS=device_kernel
 
 device_kernel_XOS=device_kernel
+device_kernel_LDCLFLAGS=--xp misc:map_connect=add.kernel.device_kernel_1.M_AXI_GMEM0.core.OCL_REGION_0.M00_AXI --xp misc:map_connect=add.kernel.device_kernel_1.M_AXI_GMEM1.core.OCL_REGION_0.M01_AXI
+device_kernel_NDEVICES=xilinx:adm-pcie-7v3:1ddr
+
 
 XCLBINS=device_kernel
 
 # check
 check_EXE=sha256
 check_XCLBINS=device_kernel
+check_NDEVICES=$(device_kernel_NDEVICES)
 
 CHECKS=check
 
