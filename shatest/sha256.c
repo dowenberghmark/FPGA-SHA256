@@ -60,7 +60,7 @@ void sha256(char* message_address){
 		W[i] = ((unsigned char)message_address[j] << 24) | ((unsigned char)message_address[j+1] << 16) | ((unsigned char)message_address[j+2] << 8) | ((unsigned char)message_address[j+3]);
 	}
   //__attribute__((opencl_unroll_hint(n)))
-	for(int i = 16; i < 63; i++){
+	for(int i = 16; i < 64; i++){
 		W[i] = SIG1(W[i-2]) + W[i-7] + SIG0(W[i-15]) + W[i-16];
 	}
 

@@ -43,12 +43,12 @@ int main(){
 	printf("\n");
 	sha256(test);
 
-  printf("Using \n", );
+  printf("Using \n");
   unsigned char hash[32];
-	SHA256_CTX *ctx;
-	sha256_init(ctx);
-	sha256_update(ctx, message, 3);
-  sha256_final(ctx, hash);
+  /*       SHA256_CTX *ctx; */
+  /*       sha256_init(ctx); */
+  /*       sha256_update(ctx, message, 3); */
+  /* sha256_final(ctx, hash); */
 
 
 
