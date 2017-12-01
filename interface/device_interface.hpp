@@ -9,18 +9,20 @@
 class DeviceInterface {
 public:
   DeviceInterface() = default;
-  DeviceInterface(struct chunk *buffer0, struct chunk *buffer1);
+  DeviceInterface(struct buffer **bufs);
   // result written directly to buf
-  void run_fpga(int num_chunks, int active_buf);
+  struct chunk *run_fpga(int num_chunks, int active_buf);
+  void read_last_result(int active_buf);
+  void unmap_last_result(int active_buf);
   ~DeviceInterface() = default;
 
 private:
   int first_flag;
   cl::CommandQueue q;
   cl::Buffer ocl_bufs[BUFFER_COUNT];
-  struct buffer host_bufs[BUFFER_COUNT];
   cl::Program program;
   cl::Kernel krnl_sha;
+  struct buffer **host_bufs;
 };
 
 
