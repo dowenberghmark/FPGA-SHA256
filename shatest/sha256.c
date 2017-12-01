@@ -41,9 +41,11 @@ void sha256(char* message_address){
 	uint32_t H0[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
 	uint32_t W[64];
 	uint32_t a,b,c,d,e,f,g,h,t1,t2;
+	//  __attribute__((opencl_unroll_hint(n)))
 	for(int i = 0, j = 0; i < 16; i++, j += 4){
 		W[i] = (message_address[j] << 24) | (message_address[j+1] << 16) | (message_address[j+2] << 8) | (message_address[j+3]);
 	}
+	 //__attribute__((opencl_unroll_hint(n)))
 	for(int i = 16; i < 63; i++){
 		W[i] = (sigma1(W[i-2]) + W[i-7] + sigma0(W[i-15]) + W[i-16])%pow32;
 	}
@@ -82,6 +84,7 @@ void sha256(char* message_address){
 
 
 	//Store hash in input buffer
+	//__attribute__((opencl_unroll_hint(n)))
 	for (int i = 0; i < 8; i++){
 		message_address[i] = H0[i];
 	}
