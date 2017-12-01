@@ -27,8 +27,21 @@ DeviceInterface::DeviceInterface(struct chunk *buffer0, struct chunk *buffer1) {
   devices.resize(1);
   program = cl::Program(context, devices, bins);
 
-  ocl_bufs[0] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE, BUFFER_SIZE, buffer0);
-  ocl_bufs[1] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE, BUFFER_SIZE, buffer1);
+
+  cl_mem_ext_ptr_t bank_buffer0, bank_buffer1;  // Declaring two extensions for both buffers
+  bank_buffer0.flags  = XCL_MEM_DDR_BANK0; // Specify Bank0 Memory for input memory
+  bank_buffer1.flags = XCL_MEM_DDR_BANK1; // Specify Bank1 Memory for output Memory
+  bank_buffer0.obj   = buffer0; 
+  bank_buffer1.obj  = buffer1; // Setting Obj and Param to Zero
+  bank_buffer0.param = 0 ; bank_buffer1.param = 0; 
+
+  // This call will extract a kernel out of the program we loaded in the
+  // previous line. A kernel is an OpenCL function that is executed on the
+  // FPGA. This function is defined in the interface/device_kernel.cl file.
+  // krnl_sha = cl::Kernel(program, "fpga_sha");
+
+  ocl_bufs[0] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX, BUFFER_SIZE, &bank_buffer0);
+  ocl_bufs[1] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX, BUFFER_SIZE, &bank_buffer1);
 
   host_bufs[0].chunks = buffer0;
   host_bufs[1].chunks = buffer1;
@@ -36,7 +49,7 @@ DeviceInterface::DeviceInterface(struct chunk *buffer0, struct chunk *buffer1) {
   // This call will extract a kernel out of the program we loaded in the
   // previous line. A kernel is an OpenCL function that is executed on the
   // FPGA. This function is defined in the interface/device_kernel.cl file.
-  krnl_sha = cl::Kernel(program, "fpga_sha");
+  krnl_sha = cl::Kernel(program, "device_kernel");
 }
 
 void DeviceInterface::run_fpga(int num_chunks, int active_buf) {
@@ -47,7 +60,11 @@ void DeviceInterface::run_fpga(int num_chunks, int active_buf) {
 
   //set the kernel Arguments
   int narg=0;
-  krnl_sha.setArg(narg++, ocl_bufs[active_buf]);
+  //  krnl_sha.setArg(narg++, ocl_bufs[active_buf]);
+  krnl_sha.setArg(narg++, ocl_bufs[0]);
+  krnl_sha.setArg(narg++, ocl_bufs[1]);
+  krnl_sha.setArg(narg++, active_buf);
+
   krnl_sha.setArg(narg++, num_chunks);
 
   //Launch the Kernel
