@@ -4,4 +4,4 @@ OBJS = sha.o sha256.o sha_preprocess.o
 TARGET = sha
 
 $(TARGET): sha256.c sha_preprocess.cpp sha.c
-	$(CC) $(CFLAGS) -o $(TARGET) sha.c sha256.c sha_preprocess.cpp print_bits.cpp
+	$(CC) $(CFLAGS) -o $(TARGET) sha.c sha256.c sha_preprocess.cpp print_bits.cpp ./sha256/sha256.c

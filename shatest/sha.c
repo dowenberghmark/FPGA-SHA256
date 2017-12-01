@@ -5,7 +5,7 @@
 #include "print_bits.hpp"
 #include "sha256/sha256.h"
 
-#define v true
+#define v 0
 
 int char_to_uint32_array(char *chars, int char_length, uint32_t* new_array){
   if(!(char_length > 0) | (chars == NULL)) {
@@ -28,8 +28,8 @@ int char_to_uint32_array(char *chars, int char_length, uint32_t* new_array){
 
 int main(){
 	//char test[64] = {"abcdefghijklmnopqrstuvwxyz"};
-	char test[64] = {"abc"};
-	char message[64] = {"abc"};
+  char test[64] = {"abc"};
+	unsigned char message[64] = {"abc"};
 
 	//test[0]= ''; //hash of "a" is
 	//ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb
@@ -43,9 +43,12 @@ int main(){
 	printf("\n");
 	sha256(test);
 
-	/*SHA256_CTX *ctx;
+  unsigned char hash[32];
+	SHA256_CTX *ctx;
 	sha256_init(ctx);
-	sha256_update(ctx, )*/
+	sha256_update(ctx, message, 3);
+  sha256_final(ctx, hash);
+
 
 
 	/*char *test2 = "abcdefghijklmnoq";
