@@ -9,7 +9,7 @@
 class DeviceInterface {
 public:
   DeviceInterface() = default;
-  DeviceInterface(struct buffer **bufs);
+  DeviceInterface(struct chunk *buffer0, struct chunk *buffer1, struct buffer **bufs);
   // result written directly to buf
   struct chunk *run_fpga(int num_chunks, int active_buf);
   void read_last_result(int active_buf);

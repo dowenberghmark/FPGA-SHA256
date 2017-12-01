@@ -28,12 +28,15 @@
 
 DoubleBuffer::DoubleBuffer() {
   // Which buffer to process. 0 -> buffer0 & 1 -> buffer1
-  glob_head.active_buf = 0;
+  host_bufs[0] = (struct chunk *) aligned_alloc(4096, BUFFER_SIZE);
+  host_bufs[1] = (struct chunk *) aligned_alloc(4096, BUFFER_SIZE);
 
+  glob_head.active_buf = 0;
+  
   bufs[0].num_chunks = 0;
   bufs[1].num_chunks = 0;
 
-  dev_if = new DeviceInterface(&bufs);
+  dev_if = new DeviceInterface(host_bufs[0], host_bufs[1], (struct buffer **)&bufs);
   chunk_to_write = bufs[0].chunks;
 
   flip_flag = 0;
@@ -73,5 +76,7 @@ struct buffer DoubleBuffer::get_last_result() {
 
 DoubleBuffer::~DoubleBuffer() {
   dev_if->unmap_last_result(glob_head.active_buf);
+  free(host_bufs[0]);
+  free(host_bufs[1]);
   delete dev_if;
 }

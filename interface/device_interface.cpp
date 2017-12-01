@@ -6,7 +6,7 @@
 #include "xcl2.hpp"
 
 
-DeviceInterface::DeviceInterface(struct buffer **bufs) {
+DeviceInterface::DeviceInterface(struct chunk *buffer0, struct chunk *buffer1, struct buffer **bufs) {
   host_bufs = bufs;
   first_flag = 1;
   // The get_xil_devices will return vector of Xilinx Devices
@@ -31,15 +31,15 @@ DeviceInterface::DeviceInterface(struct buffer **bufs) {
   cl_mem_ext_ptr_t buffer_ext0, buffer_ext1;  // Declaring two extensions for both buffers
   buffer_ext0.flags  = XCL_MEM_DDR_BANK0; // Specify Bank0 Memory for input memory
   buffer_ext1.flags = XCL_MEM_DDR_BANK1; // Specify Bank1 Memory for output Memory
-  buffer_ext0.obj   = inputImage.data();
-  buffer_ext1.obj  = outImage.data(); // Setting Obj and Param to Zero
+  buffer_ext0.obj   = buffer0;
+  buffer_ext1.obj  = buffer1; // Setting Obj and Param to Zero
   buffer_ext0.param = 0 ; buffer_ext1.param = 0;
 
   ocl_bufs[0] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX, BUFFER_SIZE, &buffer_ext0);
   ocl_bufs[1] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX, BUFFER_SIZE, &buffer_ext1);
 
 
-  host_bufs[0]->chunks = q.enqueueMapBuffer(ocl_bufs[0], CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, BUFFER_SIZE);
+  host_bufs[0]->chunks = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[0], CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, BUFFER_SIZE);
   host_bufs[1]->chunks = nullptr;
 
   // This call will extract a kernel out of the program we loaded in the
@@ -68,7 +68,7 @@ struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   // first_flag causes us to not read result buffer first time
   if (!first_flag) {
     // blocking.
-    host_bufs[1 - active_buf]->chunks = q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, BUFFER_SIZE);
+    host_bufs[1 - active_buf]->chunks = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, BUFFER_SIZE);
     host_bufs[1 - active_buf]->num_chunks = 0;
   } else {
     first_flag = 0;
@@ -80,11 +80,11 @@ struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
 
 void DeviceInterface::read_last_result(int active_buf) {
   // unmap buffer with last result, which will not have input written to it
-  host_bufs[1 - active_buf]->chunks = q.enqueueUnmapMemObject(ocl_bufs[1 - active_buf], host_bufs[1 - active_buf]->chunks);
+  q.enqueueUnmapMemObject(ocl_bufs[1 - active_buf], host_bufs[1 - active_buf]->chunks);
   // map last result, such that it can be read.
-  host_bufs[active_buf]->chunks = q.enqueueMapBuffer(ocl_bufs[active_buf], CL_TRUE, CL_MAP_READ, 0, BUFFER_SIZE);
+  host_bufs[active_buf]->chunks = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[active_buf], CL_TRUE, CL_MAP_READ, 0, BUFFER_SIZE);
 }
 
 void DeviceInterface::unmap_last_result(int active_buf) {
-  host_bufs[active_buf]->chunks = q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf]->chunks);
+  q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf]->chunks);
 }
