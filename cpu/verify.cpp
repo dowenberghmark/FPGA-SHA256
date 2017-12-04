@@ -3,18 +3,21 @@
 #include <string>
 #include <fstream>
 #include "sha256.hpp"
+#include "verify.hpp"
 
-using namespace std;
+using std::cout;
+using std::string;
+using std::endl;
+using std::cout;
+using std::vector;
+using std::ifstream;
 
-
-int main() {
-
+int verify(std::string filename){
   //Get vector with hashed passwords from an extrernal SHA-256 hasher
-  vector<string>pass_vec = SHA256_CPU_vec("password.txt");
+  vector<string>pass_vec = SHA256_CPU_benchmark("password.txt");
 
   ifstream file;
-  //Uses dummie file until we get our own results
-  file.open("hashed_passwords.txt");
+  file.open(filename);
   string element;
   int counter = 0;
   while(!file.eof()){
