@@ -22,7 +22,7 @@ DeviceInterface::DeviceInterface(struct chunk *buffer0, struct chunk *buffer1) {
   // xocc compiler load into OpenCL Binary and return as Binaries
   // OpenCL and it can contain many functions which can be executed on the
   // device.
-  std::string binaryFile = xcl::find_binary_file(device_name,"device_kernel");
+  std::string binaryFile = xcl::find_binary_file(device_name, "device_kernel");
   cl::Program::Binaries bins = xcl::import_binary_file(binaryFile);
   devices.resize(1);
   program = cl::Program(context, devices, bins);
