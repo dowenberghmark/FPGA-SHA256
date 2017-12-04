@@ -4,34 +4,26 @@
 #include <cstdlib>
 
 #include "defs.hpp"
-#include "fpga.hpp"
+#include "device_interface.hpp"
+
 
 class DoubleBuffer {
  public:
-  char *get_chunk();
-  void start_processing();
-  char *get_result();
-  void done();
+  struct chunk *get_chunk();
+  struct buffer start_processing();
 
-  DoubleBuffer(char const *fpga_path);
+  DoubleBuffer();
   ~DoubleBuffer();
 
  private:
-  char *buf; // start of the data in buffers
-  char *chunk_to_write; // chunk to write in active buffer
-  // dummy variables for 'emulated' fpga thread
-  Fpga fpga;
-  std::thread t;
+  struct chunk *chunk_to_write; // chunk to write in active buffer
 
-  global_header *glob_head;
-  buffer_header *buf_head;
-  uint32_t chunk_counter;
+  struct global_header glob_head;
+  struct buffer bufs[BUFFER_COUNT];
 
-  int dram_fd;
-  // physical addresses to buffer headers in dram
-  long int dram_glob_head;
-  long int dram_buf_heads[BUFFER_COUNT];
-  long int dram_bufs[BUFFER_COUNT];
+  DeviceInterface *dev_if;
+  // used to signal that we have to reset num_chunks after a flip
+  int flip_flag;
 };
 
 #endif

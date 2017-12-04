@@ -9,28 +9,19 @@
 
 class InterfaceTest {
 private:
-  DoubleBuffer *our_double_buffer; //= new DoubleBuffer(4);
+  DoubleBuffer *our_double_buffer;
   std::vector<std::string> string_array;
   char *chunk_placement_ptr;
 
   void test_switch_buffer_n_times(int amount_buffer_switches, int number_of_strings);
-  void deploy_work(int total_chunks, int chunks_per_buffer);
-  void deploy_chunk(std::string current);
 public:
   void run_tests();
   InterfaceTest();
   ~InterfaceTest();
 };
 
-InterfaceTest::InterfaceTest(){
-  char const *dram_path;
-  if (MODE == LOCAL) {
-    dram_path = "dram.hex";
-  } else if (MODE == AWS) {
-    dram_path = "/dev/edma0_queue_0";
-  }
-
-  our_double_buffer = new DoubleBuffer(dram_path);
+InterfaceTest::InterfaceTest() {
+  our_double_buffer = new DoubleBuffer();
 
   string_array.push_back("1111111111111111111111111111111111111111111111111111111111111111");
   string_array.push_back("2222222222222222222222222222222222222222222222222222222222222222");
@@ -39,42 +30,12 @@ InterfaceTest::InterfaceTest(){
   string_array.push_back("5555555555555555555555555555555555555555555555555555555555555555");
 }
 
-InterfaceTest::~InterfaceTest(){
-
+void InterfaceTest::run_tests() {
+  this->test_switch_buffer_n_times(5, string_array.size());
 }
 
-void InterfaceTest::run_tests(){
-  this->test_switch_buffer_n_times(10,string_array.size());
-}
-
-void InterfaceTest::deploy_chunk(std::string current){
-  chunk_placement_ptr = our_double_buffer->get_chunk();
-  if(chunk_placement_ptr != nullptr){
-
-    std::cout << chunk_placement_ptr << "\n";
-  }
-}
-
-void InterfaceTest::deploy_work(int total_chunks, int chunks_per_buffer){
-  char *result;
-  int counter = 0;
-  while (counter < total_chunks) {
-    for (int i = 0; i < chunks_per_buffer; i++) {
-      std::cout << "The number: " << counter+i << "\n";
-      deploy_chunk(string_array[i]);
-      //counter++;
-    }
-
-    our_double_buffer->start_processing();
-    std::cout << "start_proc\n" ;
-    result = our_double_buffer->get_result();
-    std::cout << "res\n" ;
-    counter+= chunks_per_buffer;
-  }
-}
-
-void InterfaceTest::test_switch_buffer_n_times(int amount_buffer_switches, int number_of_strings){
-  char *result;
+void InterfaceTest::test_switch_buffer_n_times(int amount_buffer_switches, int number_of_strings) {
+  struct buffer result;
   bool not_at_end_of_buffer;
   int counter_flips = 0;
   int counter_chunks = 0;
@@ -82,23 +43,36 @@ void InterfaceTest::test_switch_buffer_n_times(int amount_buffer_switches, int n
   while (counter_flips < amount_buffer_switches) {
     not_at_end_of_buffer = true;
     while (not_at_end_of_buffer) {
-      chunk_placement_ptr = our_double_buffer->get_chunk();
+      chunk_placement_ptr = (char *) our_double_buffer->get_chunk()->data;
       if (chunk_placement_ptr == nullptr) {
-        our_double_buffer->start_processing();
-        result = our_double_buffer->get_result();
+        result = our_double_buffer->start_processing();
+	for (int i = 0; i < result.num_chunks; i++) {
+	  result.chunks[i].data[63] = '\0';
+	  puts(result.chunks[i].data);
+	}
+
         not_at_end_of_buffer = false;
-      }else{
+      } else {
         strncpy(chunk_placement_ptr, string_array[counter_chunks % number_of_strings].c_str(), 64);
         counter_chunks++;
       }
     }
     counter_flips++;
   }
+  result = our_double_buffer->start_processing();
+  for (int i = 0; i < result.num_chunks; i++) {
+    result.chunks[i].data[63] = '\0';
+    puts(result.chunks[i].data);
+  }
 }
 
-int main(int argc, char *argv[])
-{
-  InterfaceTest tester = InterfaceTest();
-  tester.run_tests();
+InterfaceTest::~InterfaceTest() {
+  delete our_double_buffer;
+}
+
+int main(int argc, char *argv[]) {
+  InterfaceTest *tester = new InterfaceTest();
+  tester->run_tests();
+  delete tester;
   return 0;
 }

@@ -1,3 +1,12 @@
+# SDaccel files
+.Xil
+_xocc_*
+*.json
+sdaccel*
+sha256
+xclbin/
+emulation_debug.log
+
 # Runnable
 main
 fpga_main
