@@ -164,7 +164,7 @@ time_total = end - start;
 if(MODE == AWS || bopt == 1) { 
  std::cout << "Running sha256 CPU program..." << std::endl;
  auto start = std::chrono::system_clock::now();
- SHA256_CPU_benchmark(filename);
+ //SHA256_CPU_benchmark(filename); Function non-existent 
  auto end = std::chrono::system_clock::now();
  std::chrono::duration<double> cpu_program_time = end - start;
  std::cout << std::endl;
