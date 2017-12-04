@@ -3,6 +3,6 @@
 
 #include <string.h>
  int SHA256_CPU_debug(std::string filename);
- std::vector<std::string> SHA256_CPU_benchmark(std::string filename);
+ std::vector<std::string> SHA256_CPU_verify(std::string filename);
 
  #endif
