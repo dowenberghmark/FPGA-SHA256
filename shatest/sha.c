@@ -43,16 +43,6 @@ int main(){
 	printf("\n");
 	sha256(test);
 
-  printf("Using library:\n");
-  unsigned char hash[32];
-	SHA256_CTX *ctx;
-  printf("%x\n", ctx -> datalen);
-	sha256_init(ctx);
-	sha256_update(ctx, message, 3);
-  sha256_final(ctx, hash);
-
-
-
 	/*char *test2 = "abcdefghijklmnoq";
 	int strlenw = 16;
 	uint32_t test3[strlenw/4];
@@ -66,7 +56,7 @@ int main(){
 		print_bits(test, 32);
 	}
 	for(int i = 0; i < 32; i++){
-		printf("%x", (unsigned char)test[i]);
+		printf("%02x", (unsigned char)test[i]);
 	}
 	printf("\n");
 	return 0;
