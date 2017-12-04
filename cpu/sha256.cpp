@@ -184,7 +184,7 @@ string SHA256(char* data) {
  	return 0;
  }
 
- int SHA256_CPU_benchmark(string filename){
+ std::vector<string> SHA256_CPU_verify(string filename){
  	vector<string> vector_array;
  	ifstream file;
    	file.open(filename);
@@ -195,6 +195,6 @@ string SHA256(char* data) {
   		s = &element[0u];
   		vector_array.push_back (SHA256(s));
 	}
- 	return 0;
+ 	return vector_array;
  }
  

@@ -140,7 +140,7 @@ int main(int argc, char ** argv) {
       time_retrive_result += end_retrive_result - start_retrive_result;
 
       if (dopt == 1) {
-	std::cout << "get_chunk() returned: " << &chunk_placement_ptr << std::endl;
+	     std::cout << "get_chunk() returned: " << &chunk_placement_ptr << std::endl;
       }
 
       chunk_placement_ptr = our_double_buffer->get_chunk();
@@ -165,7 +165,7 @@ int main(int argc, char ** argv) {
   if (bopt == 1) { 
     std::cout << "Running sha256 CPU program..." << std::endl;
     auto start = std::chrono::system_clock::now();
-    SHA256_CPU_benchmark(filename);
+    //SHA256_CPU_benchmark(filename);
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> cpu_program_time = end - start;
     std::cout << std::endl;
@@ -184,4 +184,4 @@ int main(int argc, char ** argv) {
     std::cout << "================================================================" << std::endl;
   }
   return 0;
-}
+
