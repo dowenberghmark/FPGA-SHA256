@@ -45,15 +45,16 @@ uint zigma1(uint x) {
   return (ROTR(x, 6))^(ROTR(x, 11))^(ROTR(x, 25));
 }
 
-void sha256(chunk chunk_address) {
+void sha256(__global char *chunk_address) {
   //Prepare Message Schedule
   uint H0[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
   uint W[64];
   uint a,b,c,d,e,f,g,h,t1,t2;
-  
+  int j = 0;
   //  __attribute__((opencl_unroll_hint(n)))
-  for (int i = 0, int j = 0; i < 16; i++, j += 4) {
-    W[i] = ((unsigned char) chunk_address[j] << 24) | ((unsigned char) chunk_address[j+1] << 16) | ((unsigned char) chunk_address[j+2] << 8) | ((unsigned char) chunk_address[j+3]);
+  for (int i = 0;  i < 16; i++) {
+    W[i] = ((__global unsigned char) chunk_address[j] << 24) | ((__global unsigned char) chunk_address[j+1] << 16) | ((__global unsigned char) chunk_address[j+2] << 8) | ((__global unsigned char) chunk_address[j+3]);
+    j += 4;
   }
   
   //__attribute__((opencl_unroll_hint(n)))
@@ -97,7 +98,7 @@ void sha256(chunk chunk_address) {
   //Store hash in input buffer
   //__attribute__((opencl_unroll_hint(n)))
   for (int i = 0; i < 8; i++) {
-    ((uint *) chunk_address)[i] = (((unsigned char *) H0)[i*4] << 24) | (((unsigned char *) H0)[i*4+1] << 16) | (((unsigned char *) H0)[i*4+2] << 8) | (((unsigned char *) H0)[i*4+3]);
+    ((__global uint *) chunk_address)[i] = (((unsigned char *) H0)[i*4] << 24) | (((unsigned char *) H0)[i*4+1] << 16) | (((unsigned char *) H0)[i*4+2] << 8) | (((unsigned char *) H0)[i*4+3]);
   }
 }
 
@@ -109,11 +110,11 @@ void fpga_sha(global struct chunk *chunk_buffer, const int n_elements) {
   __attribute__((opencl_unroll_hint(n)))
     for (int i = 0; i < n_elements; i++) {
       // __attribute__((xcl_pipeline_loop))
-      __attribute__((opencl_unroll_hint(n)))
+      //      __attribute__((opencl_unroll_hint(n)))
 
 	//Do SHA-256 here
-	for (int j = 0; j < DATA_TO_TOUCH; j++) {
-	  sha256(chunk_buffer[i].data[j]);
-	}
+          //for (int j = 0; j < DATA_TO_TOUCH; j++) {
+      sha256(chunk_buffer[i].data);
+      
     }
 }
