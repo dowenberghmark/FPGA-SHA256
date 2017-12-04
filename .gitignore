@@ -1,9 +1,12 @@
 # Runnable
 main
 fpga_main
+
+app
 interface_main
 aws_interface_main
 dram.hex
+
 
 # TAGS
 TAGS

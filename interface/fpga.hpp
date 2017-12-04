@@ -24,7 +24,6 @@ class Fpga {
   };
 
   struct global_header glob_head;
-  struct buffer_header buf_head;
   struct fpga_buffer buf;
   long int dram_bufs[BUFFER_COUNT];
   long int dram_buf_heads[BUFFER_COUNT];

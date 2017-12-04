@@ -11,7 +11,7 @@ int open_file(char const *path) {
   int fd;
 
   if (MODE == LOCAL) {
-    fd = open(path, O_RDWR | O_CREAT | O_TRUNC);
+    fd = open(path, O_RDWR | O_CREAT | O_TRUNC, 0666);
   } else if (MODE == AWS) {
     fd = open(path, O_RDWR);
   }
