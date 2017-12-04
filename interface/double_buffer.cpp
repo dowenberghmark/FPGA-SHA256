@@ -33,7 +33,7 @@ DoubleBuffer::DoubleBuffer() {
   bufs[0].num_chunks = 0;
   bufs[1].num_chunks = 0;
 
-  dev_if = new DeviceInterface((struct buffer **)&bufs);
+  dev_if = new DeviceInterface(&bufs[0].chunks, &bufs[1].chunks);
   chunk_to_write = bufs[0].chunks;
 
   flip_flag = 0;
