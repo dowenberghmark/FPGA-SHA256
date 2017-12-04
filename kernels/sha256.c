@@ -14,11 +14,11 @@ const uint32_t K[64] = {
   0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
 };
 
-uint32_t Ch(uint32_t x, uint32_t y, uint32_t z) {
+uint32_t ch(uint32_t x, uint32_t y, uint32_t z) {
   return (x & y)^(~x & z);
 }
 
-uint32_t Maj(uint32_t x, uint32_t y, uint32_t z) { 
+uint32_t maj(uint32_t x, uint32_t y, uint32_t z) { 
   return (x & y)^(x & z)^(y & z);
 }
 
@@ -66,8 +66,8 @@ void sha256(char* chunk_address) {
 
   //Compute Hash
   for (int i = 0; i < 64; i++) {
-    t1 = h + zigma1(e) + Ch(e, f, g) + K[i] + W[i];
-    t2 = zigma0(a) + Maj(a, b, c);
+    t1 = h + zigma1(e) + ch(e, f, g) + K[i] + W[i];
+    t2 = zigma0(a) + maj(a, b, c);
     h = g;
     g = f;
     f = e;
