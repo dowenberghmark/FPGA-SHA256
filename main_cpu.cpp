@@ -40,17 +40,9 @@ void sha256_cpu(std::string filename,int lines_to_read,int dopt){
 void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
   DoubleBuffer *our_double_buffer;
   char *chunk_placement_ptr;
-  char const *dram_path;
   char element[64];
 
-  if (MODE == LOCAL) {
-    dram_path = "dram.hex";
-    std::cout << "LOCAL MODE" << std::endl;
-  } else if (MODE == AWS) {
-    dram_path = "/dev/edma0_queue_0";
-    std::cout << "AWS MODE" << std::endl;
-  }
-  our_double_buffer = new DoubleBuffer(dram_path);
+  our_double_buffer = new DoubleBuffer();
   std::fstream file;
   file.open(filename);
 
