@@ -16,10 +16,12 @@
 #include "cpu/sha_preprocess.hpp"
 #include "cpu/verify.hpp"
 
-void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
+struct buffer sha256_fpga(std::string filename,int lines_to_read,int dopt) {
   DoubleBuffer *our_double_buffer;
   char *chunk_placement_ptr;
   char element[64];
+  Buffer result;
+  int total_chunks = 0;
 
   our_double_buffer = new DoubleBuffer();
   std::fstream file;
@@ -37,18 +39,21 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
     if (chunk_placement_ptr == nullptr) {
       if (dopt == 1) {
         std::cout << "get_chunk() returned nullptr" << std::endl;
-        std::cout << "running start_processing() & get_result().." << std::endl;
+        std::cout << "running start_processing().." << std::endl;
       }
-      our_double_buffer->start_processing();
-
+      result = our_double_buffer->start_processing().num_chunks;
       if (dopt == 1) {
-	std::cout << "get_chunk() returned: " << &chunk_placement_ptr << std::endl;
+        for (int i=0;i<result.num_chunks;i++) {
+          printf("%.*s\n", 32, result.chunks[i]);
+        }
       }
+
       chunk_placement_ptr = (char *) our_double_buffer->get_chunk();
     }
-
+      if (dopt == 1) {
+  std::cout << "get_chunk() returned value " << std::endl;
+      }
     /* should always run this part */
-
     pre_process(element);
     memcpy(chunk_placement_ptr,element,sizeof(element));
     lines_to_read--;
@@ -56,6 +61,7 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
     if (lines_to_read == 0) {
       break;
     }
+    return result
   }
   // our_double_buffer->done();
   file.close();
@@ -63,11 +69,8 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
 
 int main(int argc, char ** argv) {
   /*Initialization*/
-  int c;
+  int c, svalue, filesize, lines_to_read;
   int bopt = 0, dopt = 0, sopt = 0, fopt = 0, vopt = 0;
-  int svalue;
-  int filesize;
-  int lines_to_read = 0;
   char *fvalue = NULL;
   std::string filename;
   std::chrono::duration<double> time_total;
@@ -156,7 +159,7 @@ int main(int argc, char ** argv) {
   if (bopt == 1) {
     std::cout << "Running sha256 CPU program..." << std::endl;
     auto start = std::chrono::system_clock::now();
-    // sha256_cpu(filename,lines_to_read,dopt); //benchmark runs sha256_cpu
+    //benchmark program specified for hardware
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> cpu_program_time = end - start;
     std::cout << std::endl;
@@ -172,5 +175,6 @@ int main(int argc, char ** argv) {
     verify(filename);
     std::cout << "================================================================" << std::endl;
   }
+
   return 0;
 }
