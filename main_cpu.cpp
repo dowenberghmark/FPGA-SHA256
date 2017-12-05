@@ -11,7 +11,7 @@
 #include "interface/defs.hpp"
 #include "cpu/sha256.hpp"
 #include "cpu/sha_preprocess.hpp"
-#include "shatest/sha256.h"
+#include "kernels/sha256.h"
 #include "cpu/verify.hpp"
 
 void sha256_cpu(std::string filename,int lines_to_read,int dopt){
