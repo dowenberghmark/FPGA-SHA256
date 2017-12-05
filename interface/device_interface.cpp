@@ -13,18 +13,15 @@ void check(cl_int err) {
   }
 }
 
-
-DeviceInterface::DeviceInterface(struct chunk **buffer0, struct chunk **buffer1) {
-  host_bufs[0] = buffer0;
-  host_bufs[1] = buffer1;
+DeviceInterface::DeviceInterface() {
   first_flag = 1;
 
   // The get_xil_devices will return vector of Xilinx Devices
-  std::vector<cl::Device> devices = xcl::get_xil_devices();
-  cl::Device device = devices[0];
+  devices = xcl::get_xil_devices();
+  device = devices[0];
 
   //Creating Context and Command Queue for selected Device
-  cl::Context context(device);
+  context = cl::Context(device);
   q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE);
   std::string device_name = device.getInfo<CL_DEVICE_NAME>();
   std::cout << "Found Device=" << device_name.c_str() << std::endl;
@@ -34,9 +31,13 @@ DeviceInterface::DeviceInterface(struct chunk **buffer0, struct chunk **buffer1)
   // OpenCL and it can contain many functions which can be executed on the
   // device.
   std::string binaryFile = xcl::find_binary_file(device_name, "device_kernel");
-  cl::Program::Binaries bins = xcl::import_binary_file(binaryFile);
+  bins = xcl::import_binary_file(binaryFile);
   devices.resize(1);
   program = cl::Program(context, devices, bins);
+  // This call will extract a kernel out of the program we loaded in the
+  // previous line. A kernel is an OpenCL function that is executed on the
+  // FPGA. This function is defined in the interface/device_kernel.cl file.
+  krnl_sha = cl::Kernel(program, "device_kernel");
 
   buffer_ext0.flags = XCL_MEM_DDR_BANK0; // Specify Bank0 Memory for input memory
   buffer_ext1.flags = XCL_MEM_DDR_BANK1; // Specify Bank1 Memory for output Memory
@@ -48,67 +49,76 @@ DeviceInterface::DeviceInterface(struct chunk **buffer0, struct chunk **buffer1)
   int err;
   ocl_bufs[0] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX, BUFFER_SIZE, &buffer_ext0, &err);
   if (err != CL_SUCCESS) {
-    printf("Error: Failed to allocate buffer0 in DDR bank %zu\n", BUFFER_SIZE);
+    printf("Error: Failed to allocate buffer0 in DDR bank 0 %zu\n", BUFFER_SIZE);
   }
   ocl_bufs[1] = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX, BUFFER_SIZE, &buffer_ext1, &err);
   if (err != CL_SUCCESS) {
-    printf("Error: Failed to allocate buffer1 in DDR bank %zu\n", BUFFER_SIZE);
+    printf("Error: Failed to allocate buffer1 in DDR bank 1 %zu\n", BUFFER_SIZE);
   }
 
-  *host_bufs[0] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[0], CL_TRUE, CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
+  host_bufs[0] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[0], CL_TRUE, CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
   if (err != CL_SUCCESS) {
-    printf("Error: Failed to enqueuemapbuffer\n");
+    printf("ERROR: Operation Failed: %d\n", err);
   }
 
-  printf("host_bufs[0]: %p\n", *host_bufs[0]);
-  *host_bufs[1] = nullptr;
-
-  // This call will extract a kernel out of the program we loaded in the
-  // previous line. A kernel is an OpenCL function that is executed on the
-  // FPGA. This function is defined in the interface/device_kernel.cl file.
-  krnl_sha = cl::Kernel(program, "device_kernel");
+  host_bufs[1] = nullptr;
 }
+
+struct chunk *DeviceInterface::get_first_buffer() {
+  return (struct chunk *) host_bufs[0];
+}
+
 
 struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   cl_int err;
-  printf("running fpga: %d, %d %p\n", num_chunks, active_buf, *host_bufs[active_buf]);
+  printf("running fpga: %d, %d %p\n", num_chunks, active_buf, host_bufs[active_buf]);
   // The data will be be transferred from system memory over PCIe to the FPGA on-board
   // DDR memory. blocking.
-  q.enqueueUnmapMemObject(ocl_bufs[active_buf], (void *) *host_bufs[active_buf], NULL, NULL);
-  res_num_chunks[active_buf] = num_chunks;
+  q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf], NULL, NULL);
+  q.finish();
 
   //set the kernel Arguments
   int narg=0;
   krnl_sha.setArg(narg++, ocl_bufs[0]);
   krnl_sha.setArg(narg++, ocl_bufs[1]);
-  krnl_sha.setArg(narg++, active_buf);
   krnl_sha.setArg(narg++, num_chunks);
+  krnl_sha.setArg(narg++, active_buf);
 
   //Launch the Kernel
   q.enqueueTask(krnl_sha);
+  q.finish();
 
   // The result of the previous kernel execution will need to be retrieved in
   // order to view the results. This call will write the data from the
   // buffer_result cl_mem object to the source_results vector
   // first_flag causes us to not read result buffer first time
-
   // blocking.
-  *host_bufs[1 - active_buf] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, BUFFER_SIZE, NULL, NULL, &err);
+  host_bufs[1 - active_buf] = q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, BUFFER_SIZE, NULL, NULL, &err);
   check(err);
-  res_num_chunks[1 - active_buf] = 0;
+  printf("returned host buf: %d, %p\n", 1 - active_buf, host_bufs[1-active_buf]);
 
   q.finish();
 
-  return *host_bufs[1 - active_buf];
+  return (struct chunk *) host_bufs[1 - active_buf];
 }
 
-void DeviceInterface::read_last_result(int active_buf) {
-  // unmap buffer with last result, which will not have input written to it
-  q.enqueueUnmapMemObject(ocl_bufs[1 - active_buf], *host_bufs[1 - active_buf]);
-  // map last result, such that it can be read.
-  *host_bufs[active_buf] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[active_buf], CL_TRUE, CL_MAP_READ, 0, BUFFER_SIZE);
+struct chunk *DeviceInterface::read_last_result(int active_buf) {
+
+  int err;
+  printf("read_last_results, unmapping: %d, mapping: %d\n", active_buf, 1 - active_buf);
+  q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf], NULL, NULL);
+  q.finish();
+
+  host_bufs[1 - active_buf] = q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, BUFFER_SIZE, NULL, NULL, &err);
+  check(err);
+  printf("returned host buf: %d, %p\n", 1 - active_buf, host_bufs[1-active_buf]);
+
+  q.finish();
+
+  return (struct chunk *) host_bufs[1 - active_buf];
 }
 
 void DeviceInterface::unmap_last_result(int active_buf) {
-  q.enqueueUnmapMemObject(ocl_bufs[active_buf], (void *) *host_bufs[active_buf]);
+  printf("unmap_last_results, unmapping: %d\n", 1 - active_buf);
+  q.enqueueUnmapMemObject(ocl_bufs[1 - active_buf], host_bufs[1 - active_buf]);
 }

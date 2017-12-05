@@ -27,14 +27,13 @@
  */
 
 DoubleBuffer::DoubleBuffer() {
-  // Which buffer to process. 0 -> buffer0 & 1 -> buffer1
   glob_head.active_buf = 0;
 
   bufs[0].num_chunks = 0;
   bufs[1].num_chunks = 0;
 
-  dev_if = new DeviceInterface(&bufs[0].chunks, &bufs[1].chunks);
-  chunk_to_write = bufs[0].chunks;
+  dev_if = new DeviceInterface();
+  chunk_to_write = dev_if->get_first_buffer();
 
   flip_flag = 0;
 }
@@ -57,7 +56,7 @@ struct chunk *DoubleBuffer::get_chunk() {
 
 struct buffer DoubleBuffer::start_processing() {
   // run kernel
-  dev_if->run_fpga(bufs[glob_head.active_buf].num_chunks, glob_head.active_buf);
+  bufs[1 - glob_head.active_buf].chunks = dev_if->run_fpga(bufs[glob_head.active_buf].num_chunks, glob_head.active_buf);
   // flip buffers
   glob_head.active_buf = 1 - glob_head.active_buf;
   flip_flag = 1;
@@ -67,7 +66,7 @@ struct buffer DoubleBuffer::start_processing() {
 }
 
 struct buffer DoubleBuffer::get_last_result() {
-  dev_if->read_last_result(1 - glob_head.active_buf);
+  bufs[glob_head.active_buf].chunks = dev_if->read_last_result(glob_head.active_buf);
   return bufs[glob_head.active_buf];
 }
 

@@ -26,8 +26,6 @@ XOS=device_kernel
 
 device_kernel_XOS=device_kernel
 device_kernel_LDCLFLAGS=--xp misc:map_connect=add.kernel.device_kernel_1.M_AXI_GMEM0.core.OCL_REGION_0.M00_AXI --xp misc:map_connect=add.kernel.device_kernel_1.M_AXI_GMEM1.core.OCL_REGION_0.M01_AXI
-device_kernel_NDEVICES=xilinx:adm-pcie-7v3:1ddr
-
 
 XCLBINS=device_kernel
 
