@@ -6,8 +6,8 @@ include $(COMMON_REPO)/libs/xcl2/xcl2.mk
 include $(COMMON_REPO)/libs/opencl/opencl.mk
 
 SRC_DIR=./interface
-SRCS=$(SRC_DIR)/cpu_dummy.cpp $(SRC_DIR)/device_interface.cpp $(SRC_DIR)/double_buffer.cpp
-HDRS=$(SRC_DIR)/device_interface.hpp $(SRC_DIR)/double_buffer.hpp
+SRCS=$(SRC_DIR)/cpu_dummy.cpp $(SRC_DIR)/device_interface.cpp $(SRC_DIR)/double_buffer.cpp ./cpu/sha_preprocess.cpp
+HDRS=$(SRC_DIR)/device_interface.hpp $(SRC_DIR)/double_buffer.hpp ./cpu/sha_preprocess.hpp
 
 # Host Application
 sha256_SRCS=$(SRCS) $(oclHelper_SRCS) $(xcl2_SRCS)

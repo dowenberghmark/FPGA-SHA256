@@ -5,12 +5,12 @@
 
 #include "double_buffer.hpp"
 #include "defs.hpp"
-
+#include "../cpu/sha_preprocess.hpp"
 
 class InterfaceTest {
 private:
   DoubleBuffer *our_double_buffer;
-  std::vector<std::string> string_array;
+  std::vector<char *> string_array;
   char *chunk_placement_ptr;
 
   void test_switch_buffer_n_times(int amount_buffer_switches, int number_of_strings);
@@ -22,16 +22,25 @@ public:
 
 InterfaceTest::InterfaceTest() {
   our_double_buffer = new DoubleBuffer();
-
+  char test1[64] = {"testing"};
+  pre_process(test1, 7);
+  printf("\n");
+  for(int j = 0; j < 64; j++){
+    printf("%02x", ((unsigned char *)test1)[j]);
+  }
+  //printf("%.*s\n", test1);
+  string_array.push_back((test1));
+  /*
   string_array.push_back("1111111111111111111111111111111111111111111111111111111111111111");
   string_array.push_back("2222222222222222222222222222222222222222222222222222222222222222");
   string_array.push_back("3333333333333333333333333333333333333333333333333333333333333333");
   string_array.push_back("4444444444444444444444444444444444444444444444444444444444444444");
-  string_array.push_back("5555555555555555555555555555555555555555555555555555555555555555");
+  */
+
 }
 
 void InterfaceTest::run_tests() {
-  this->test_switch_buffer_n_times(5, string_array.size());
+  this->test_switch_buffer_n_times(1, string_array.size());
 }
 
 void InterfaceTest::test_switch_buffer_n_times(int amount_buffer_switches, int number_of_strings) {
@@ -46,14 +55,24 @@ void InterfaceTest::test_switch_buffer_n_times(int amount_buffer_switches, int n
       chunk_placement_ptr = (char *) our_double_buffer->get_chunk()->data;
       if (chunk_placement_ptr == nullptr) {
         result = our_double_buffer->start_processing();
-	for (int i = 0; i < result.num_chunks; i++) {
-	  result.chunks[i].data[63] = '\0';
-	  puts(result.chunks[i].data);
-	}
+        for (int i = 0; i < result.num_chunks; i++) {
+          //result.chunks[i].data[63] = '\0';
+         //puts(result.chunks[i].data);
+          printf("%s\n", "Results: ");
+          for(int j = 0; j < 32; j++){
+            printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
+          }
+          printf("\n");
+        }
 
         not_at_end_of_buffer = false;
       } else {
-        strncpy(chunk_placement_ptr, string_array[counter_chunks % number_of_strings].c_str(), 64);
+        printf("\nData before strncpy:\n");
+        for(int j = 0; j < 64; j++){
+          printf("%02x", ((unsigned char *)string_array[counter_chunks % number_of_strings])[j]);
+        }
+        printf("\n");
+        memcpy(chunk_placement_ptr, string_array[counter_chunks % number_of_strings], 64);
         counter_chunks++;
       }
     }

@@ -25,7 +25,7 @@ uint ch(uint x, uint y, uint z) {
   return (x & y)^(~x & z);
 }
 
-uint maj(uint x, uint y, uint z) { 
+uint maj(uint x, uint y, uint z) {
   return (x & y)^(x & z)^(y & z);
 }
 
@@ -46,6 +46,11 @@ uint zigma1(uint x) {
 }
 
 void sha256(__global char *chunk_address) {
+  printf("%s\n", "From inside sha256, input:");
+  for(int j = 0; j < 64; j++){
+    printf("%02x", ((__global unsigned char *)chunk_address)[j]);
+  }
+  printf("\n");
   //Prepare Message Schedule
   uint H0[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
   uint W[64];
@@ -56,7 +61,7 @@ void sha256(__global char *chunk_address) {
     W[i] = ((__global unsigned char) chunk_address[j] << 24) | ((__global unsigned char) chunk_address[j+1] << 16) | ((__global unsigned char) chunk_address[j+2] << 8) | ((__global unsigned char) chunk_address[j+3]);
     j += 4;
   }
-  
+
   //__attribute__((opencl_unroll_hint(n)))
   for (int i = 16; i < 64; i++) {
     W[i] = sigma1(W[i-2]) + W[i-7] + sigma0(W[i-15]) + W[i-16];
@@ -115,6 +120,6 @@ void fpga_sha(global struct chunk *chunk_buffer, const int n_elements) {
 	//Do SHA-256 here
           //for (int j = 0; j < DATA_TO_TOUCH; j++) {
       sha256(chunk_buffer[i].data);
-      
+
     }
 }
