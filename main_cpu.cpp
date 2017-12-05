@@ -29,7 +29,7 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
   while (!file.eof()) {
     memset(element,0,64);
     file >> element;
-    chunk_placement_ptr = (char *) our_double_buffer->get_chunk();
+    chunk_placement_ptr = our_double_buffer->get_chunk().data;
 
     if (dopt == 1) {
       std::cout << "reading string: " << element << std::endl;
@@ -47,7 +47,7 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
         }
       }
 
-      chunk_placement_ptr = (char *) our_double_buffer->get_chunk();
+      chunk_placement_ptr = our_double_buffer->get_chunk().data;
     }
       if (dopt == 1) {
   std::cout << "get_chunk() returned value " << std::endl;
@@ -61,7 +61,6 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
       break;
     }
   }
-  // our_double_buffer->done();
   file.close();
 }
 
@@ -107,11 +106,11 @@ int main(int argc, char ** argv) {
       std::cout << "f : define file to read. Will read password.txt if not specified" << std::endl;
       std::cout << "h : help page" << std::endl;
       std::cout << "==============================================================================" << std::endl;
-      std::exit(EXIT_SUCCESS);
+      std::exit(EXIT_FAILURE);
     }
     default: {
       std::cout << "Input was not recoqnized" << std::endl;
-      std::exit(EXIT_SUCCESS);
+      std::exit(EXIT_FAILURE);
     }
     }
   }
