@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <stdint.h>
 #include <iostream>
 #include <fstream>
@@ -7,35 +6,15 @@
 #include <ctime>
 #include <cmath>
 
+#include <iostream>
+#include <unistd.h>
+#include <cstdlib>
+
 #include "interface/double_buffer.hpp"
 #include "interface/defs.hpp"
 #include "cpu/sha256.hpp"
 #include "cpu/sha_preprocess.hpp"
-#include "kernels/sha256.h"
 #include "cpu/verify.hpp"
-
-void sha256_cpu(std::string filename,int lines_to_read,int dopt){
-  char element[64];
-  std::fstream file;
-  file.open(filename);
-  
-  while (!file.eof()) {
-    memset(element,0,64);
-    file >> element;
-    
-    if (dopt == 1) {
-      std::cout << "reading string: " << element << std::endl;
-    }
-    pre_process(element);
-    sha256((uint32_t*)element);
-    lines_to_read--;
-
-    if (lines_to_read == 0) {
-      break;
-    }
-  }
-  file.close();
-}
 
 void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
   DoubleBuffer *our_double_buffer;
@@ -49,7 +28,7 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
   while (!file.eof()) {
     memset(element,0,64);
     file >> element;
-    chunk_placement_ptr = our_double_buffer->get_chunk();
+    chunk_placement_ptr = (char *) our_double_buffer->get_chunk();
 
     if (dopt == 1) {
       std::cout << "reading string: " << element << std::endl;
@@ -60,16 +39,16 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
         std::cout << "get_chunk() returned nullptr" << std::endl;
         std::cout << "running start_processing() & get_result().." << std::endl;
       }
-      our_double_buffer->start_processing(); 
-      our_double_buffer->get_result();
+      our_double_buffer->start_processing();
 
       if (dopt == 1) {
 	std::cout << "get_chunk() returned: " << &chunk_placement_ptr << std::endl;
       }
-      chunk_placement_ptr = our_double_buffer->get_chunk();
-    } 
+      chunk_placement_ptr = (char *) our_double_buffer->get_chunk();
+    }
 
     /* should always run this part */
+
     pre_process(element);
     memcpy(chunk_placement_ptr,element,sizeof(element));
     lines_to_read--;
@@ -78,7 +57,7 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
       break;
     }
   }
-  our_double_buffer->done();
+  // our_double_buffer->done();
   file.close();
 }
 
@@ -107,7 +86,7 @@ int main(int argc, char ** argv) {
     case 'd': {
       dopt = 1;
       break;
-    } 
+    }
     case 'f': {
       fopt = 1;
       fvalue = optarg;
@@ -160,7 +139,7 @@ int main(int argc, char ** argv) {
   if (sopt == 1) { //size flag
     filesize = svalue * 1000;
     lines_to_read = trunc(filesize/64);
-    std::cout << "size: " << filesize << "MB" << std::endl; 
+    std::cout << "size: " << filesize << "MB" << std::endl;
     std::cout << "lines_to_read: " << lines_to_read << std::endl;
   } else {
     std::cout << "size: whole file will be read" << std::endl;
@@ -177,7 +156,7 @@ int main(int argc, char ** argv) {
   if (bopt == 1) {
     std::cout << "Running sha256 CPU program..." << std::endl;
     auto start = std::chrono::system_clock::now();
-    sha256_cpu(filename,lines_to_read,dopt); //benchmark runs sha256_cpu
+    // sha256_cpu(filename,lines_to_read,dopt); //benchmark runs sha256_cpu
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> cpu_program_time = end - start;
     std::cout << std::endl;
@@ -195,4 +174,3 @@ int main(int argc, char ** argv) {
   }
   return 0;
 }
-

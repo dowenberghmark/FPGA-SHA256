@@ -3,6 +3,8 @@
 #include <string>
 #include <sstream>
 #include <bitset>
+#include <stdio.h>
+#include <string.h>
 
 #define uchar unsigned char
 #define uint unsigned int
@@ -21,5 +23,5 @@ void pre_process(char *element){
   element[60] = (element_length_append >> 24) & 0xFF;
   element[61] = (element_length_append >> 16) & 0xFF;
   element[62] = (element_length_append >> 8) & 0xFF;
-  element[63] = element_length_append & 0xFF;  
+  element[63] = element_length_append & 0xFF;
 }
