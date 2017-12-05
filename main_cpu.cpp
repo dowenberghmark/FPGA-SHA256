@@ -16,12 +16,11 @@
 #include "cpu/sha_preprocess.hpp"
 #include "cpu/verify.hpp"
 
-struct buffer sha256_fpga(std::string filename,int lines_to_read,int dopt) {
+void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
   DoubleBuffer *our_double_buffer;
   char *chunk_placement_ptr;
   char element[64];
-  Buffer result;
-  int total_chunks = 0;
+  struct buffer result;
 
   our_double_buffer = new DoubleBuffer();
   std::fstream file;
@@ -41,10 +40,10 @@ struct buffer sha256_fpga(std::string filename,int lines_to_read,int dopt) {
         std::cout << "get_chunk() returned nullptr" << std::endl;
         std::cout << "running start_processing().." << std::endl;
       }
-      result = our_double_buffer->start_processing().num_chunks;
+      result = our_double_buffer->start_processing();
       if (dopt == 1) {
         for (int i=0;i<result.num_chunks;i++) {
-          printf("%.*s\n", 32, result.chunks[i]);
+          printf("%.*s\n", 32, result.chunks[i].data);
         }
       }
 
@@ -61,7 +60,6 @@ struct buffer sha256_fpga(std::string filename,int lines_to_read,int dopt) {
     if (lines_to_read == 0) {
       break;
     }
-    return result
   }
   // our_double_buffer->done();
   file.close();
