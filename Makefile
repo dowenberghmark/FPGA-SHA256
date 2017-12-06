@@ -12,7 +12,7 @@ HDRS=$(SRC_DIR)/device_interface.hpp $(SRC_DIR)/double_buffer.hpp ./cpu/sha_prep
 # Host Application
 sha256_SRCS=$(SRCS) $(oclHelper_SRCS) $(xcl2_SRCS)
 sha256_HDRS=$(xcl2_HDRS) $(HDRS)
-sha256_CXXFLAGS=-I$(SRC_DIR)/ $(opencl_CXXFLAGS) $(xcl2_CXXFLAGS) $(oclHelper_CXXFLAGS) -std=c++0x
+sha256_CXXFLAGS=-I$(SRC_DIR)/ $(opencl_CXXFLAGS) $(xcl2_CXXFLAGS) $(oclHelper_CXXFLAGS) -std=c++0x -g
 sha256_LDFLAGS=$(opencl_LDFLAGS)
 
 EXES=sha256
