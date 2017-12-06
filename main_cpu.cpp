@@ -27,7 +27,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
   file.open(filename);
   std::fstream verify_file("result.txt");
 
-  while (!file.eof()) {
+  while (!file.eof() && lines_to_read != 0) {
     memset(element,0,64);
     file >> element;
     chunk_placement_ptr = double_buffer->get_chunk()->data;
