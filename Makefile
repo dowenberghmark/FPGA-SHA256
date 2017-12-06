@@ -5,8 +5,9 @@ include $(COMMON_REPO)/utility/boards.mk
 include $(COMMON_REPO)/libs/xcl2/xcl2.mk
 include $(COMMON_REPO)/libs/opencl/opencl.mk
 
+
 SRC_DIR=./interface
-SRCS=$(SRC_DIR)/cpu_dummy.cpp $(SRC_DIR)/device_interface.cpp $(SRC_DIR)/double_buffer.cpp
+SRCS=$(SRC_DIR)/double_buffer.cpp $(SRC_DIR)/device_interface.cpp cpu/sha256.cpp cpu/sha_preprocess.cpp main_cpu.cpp cpu/verify.cpp
 HDRS=$(SRC_DIR)/device_interface.hpp $(SRC_DIR)/double_buffer.hpp
 
 # Host Application
