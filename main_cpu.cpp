@@ -27,10 +27,10 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
   file.open(filename);
 
   while (!file.eof()) {
-    memset(chunk_placement_ptr,0,64);
-    //file >> double_buffer->get_chunk()->data;
-    //chunk_placement_ptr = file >> double_buffer->get_chunk()->data;
-//change element to directly char *data			
+    memset(element,0,64);
+    file >> element;
+    chunk_placement_ptr = double_buffer->get_chunk()->data;
+   //change element to directly char *data			
     if (dopt == 1) {
       std::cout << "reading string: " << element << std::endl;
     }
@@ -47,7 +47,7 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
         }
       }
 
-      chunk_placement_ptr = our_double_buffer->get_chunk()->data;
+      chunk_placement_ptr = double_buffer->get_chunk()->data;
     }
       if (dopt == 1) {
   	std::cout << "get_chunk() returned value " << std::endl;
