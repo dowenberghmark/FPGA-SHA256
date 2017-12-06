@@ -112,8 +112,6 @@ void fpga_sha(global struct chunk *chunk_buffer, const int n_elements) {
       //      __attribute__((opencl_unroll_hint(n)))
 
       //Do SHA-256 here
-      //for (int j = 0; j < DATA_TO_TOUCH; j++) {
       sha256(chunk_buffer[i].data);
-
     }
 }
