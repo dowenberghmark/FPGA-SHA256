@@ -16,7 +16,7 @@
 #include "cpu/sha_preprocess.hpp"
 #include "cpu/verify.hpp"
 
-void sha256_verify(std::string filename,int lines_to_read) {
+void sha256_verify(std::string filename, int lines_to_read) {
   DoubleBuffer *double_buffer;
   char *chunk_placement_ptr;
   char element[64];
@@ -49,6 +49,7 @@ void sha256_verify(std::string filename,int lines_to_read) {
     }
   }
   file.close();
+
 }
 
 void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
@@ -167,7 +168,7 @@ int main(int argc, char ** argv) {
     filename = fvalue;
     std::cout << "filename: " << filename << std::endl;
   } else {
-    filename = "password.txt";
+    filename = "hashed_passwords.txt";
     std::cout << "filename: " << filename << std::endl;
   }
 
@@ -204,7 +205,7 @@ int main(int argc, char ** argv) {
 
   if (vopt == 1) {
     std::cout << "====================== VERIFICATION RESULTS =======================" << std::endl;
-    verify(filename);
+    sha256_verify(filename, 5);
     std::cout << "================================================================" << std::endl;
   }
 
