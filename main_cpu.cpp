@@ -36,7 +36,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
       result = double_buffer->start_processing();
       for (int i=0;i<result.num_chunks;i++) {
         verify_file << result.chunks[i].data << std::endl;
-        //fprintf(verify_file,result.chunks[i].data);
+        printf("%.*s\n", 32, result.chunks[i].data);
       }
 
       chunk_placement_ptr = double_buffer->get_chunk()->data;
