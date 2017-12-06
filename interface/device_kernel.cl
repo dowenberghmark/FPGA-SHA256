@@ -46,11 +46,6 @@ uint zigma1(uint x) {
 }
 
 void sha256(__global char *chunk_address) {
-  printf("%s\n", "From inside sha256, input:");
-  for(int j = 0; j < 64; j++){
-    printf("%02x", ((__global unsigned char *)chunk_address)[j]);
-  }
-  printf("\n");
   //Prepare Message Schedule
   uint H0[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
   uint W[64];
@@ -110,15 +105,14 @@ void sha256(__global char *chunk_address) {
 // https://www.xilinx.com/html_docs/xilinx2017_2/sdaccel_doc/topics/pragmas/concept-Intro_to_OpenCL_attributes.html
 kernel __attribute__((reqd_work_group_size(1, 1, 1)))
 void fpga_sha(global struct chunk *chunk_buffer, const int n_elements) {
-  printf("HELLO FROM FPGA\n");
   //__attribute__((xcl_pipeline_loop))
   __attribute__((opencl_unroll_hint(n)))
     for (int i = 0; i < n_elements; i++) {
       // __attribute__((xcl_pipeline_loop))
       //      __attribute__((opencl_unroll_hint(n)))
 
-	//Do SHA-256 here
-          //for (int j = 0; j < DATA_TO_TOUCH; j++) {
+      //Do SHA-256 here
+      //for (int j = 0; j < DATA_TO_TOUCH; j++) {
       sha256(chunk_buffer[i].data);
 
     }
