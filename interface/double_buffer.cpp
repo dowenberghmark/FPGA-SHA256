@@ -33,14 +33,14 @@ DoubleBuffer::DoubleBuffer() {
   bufs[1].num_chunks = 0;
 
   dev_if = new DeviceInterface();
-  chunk_to_write = dev_if->get_first_buffer();
 
-  flip_flag = 0;
+  flip_flag = 1;
 }
 
 struct chunk *DoubleBuffer::get_chunk() {
   if (flip_flag) {
     bufs[glob_head.active_buf].num_chunks = 0;
+    chunk_to_write = dev_if->get_write_buffer(glob_head.active_buf);
     flip_flag = 0;
   }
 
@@ -72,5 +72,7 @@ struct buffer DoubleBuffer::get_last_result() {
 
 DoubleBuffer::~DoubleBuffer() {
   dev_if->unmap_last_result(glob_head.active_buf);
+  printf("before delete dev_if\n");
   delete dev_if;
+  printf("after delete dev_if\n");
 }

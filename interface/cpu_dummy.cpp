@@ -48,8 +48,7 @@ void InterfaceTest::test_switch_buffer_n_times(int amount_buffer_switches, int n
         result = our_double_buffer->start_processing();
 	printf("CPU dummy got num_results: %d\n", result.num_chunks);
 	for (int i = 0; i < result.num_chunks; i++) {
-	  result.chunks[i].data[63] = '\0';
-	  puts(result.chunks[i].data);
+	  printf("%.*s\n", 32, result.chunks[i].data);
 	}
 
         not_at_end_of_buffer = false;
@@ -63,8 +62,7 @@ void InterfaceTest::test_switch_buffer_n_times(int amount_buffer_switches, int n
   }
   result = our_double_buffer->get_last_result();
   for (int i = 0; i < result.num_chunks; i++) {
-    result.chunks[i].data[63] = '\0';
-    puts(result.chunks[i].data);
+    printf("%.*s\n", 32, result.chunks[i].data);
   }
 }
 
