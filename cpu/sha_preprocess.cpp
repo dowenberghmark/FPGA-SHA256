@@ -6,9 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define uchar unsigned char
-#define uint unsigned int
-
 void pre_process(char *element){
   /*Initilaize*/
   int str_len = strlen(element);
