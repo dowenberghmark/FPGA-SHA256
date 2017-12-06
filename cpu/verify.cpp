@@ -14,7 +14,7 @@ using std::ifstream;
 
 int verify(std::string filename){
   //Get vector with hashed passwords from an extrernal SHA-256 hasher
-  vector<string>pass_vec = SHA256_CPU_verify("password.txt");
+  vector<string>pass_vec = SHA256_CPU_verify("random_passwords.txt");
 
   ifstream file;
   file.open(filename);

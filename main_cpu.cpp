@@ -17,20 +17,20 @@
 #include "cpu/verify.hpp"
 
 void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
-  DoubleBuffer *our_double_buffer;
+  DoubleBuffer *double_buffer;
   char *chunk_placement_ptr;
   char element[64];
   struct buffer result;
 
-  our_double_buffer = new DoubleBuffer();
+  double_buffer = new DoubleBuffer();
   std::fstream file;
   file.open(filename);
 
   while (!file.eof()) {
-    memset(element,0,64);
-    file >> element;
-    chunk_placement_ptr = our_double_buffer->get_chunk().data;
-
+    memset(chunk_placement_ptr,0,64);
+    //file >> double_buffer->get_chunk()->data;
+    //chunk_placement_ptr = file >> double_buffer->get_chunk()->data;
+//change element to directly char *data			
     if (dopt == 1) {
       std::cout << "reading string: " << element << std::endl;
     }
@@ -40,17 +40,17 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
         std::cout << "get_chunk() returned nullptr" << std::endl;
         std::cout << "running start_processing().." << std::endl;
       }
-      result = our_double_buffer->start_processing();
+      result = double_buffer->start_processing();
       if (dopt == 1) {
         for (int i=0;i<result.num_chunks;i++) {
           printf("%.*s\n", 32, result.chunks[i].data);
         }
       }
 
-      chunk_placement_ptr = our_double_buffer->get_chunk().data;
+      chunk_placement_ptr = our_double_buffer->get_chunk()->data;
     }
       if (dopt == 1) {
-  std::cout << "get_chunk() returned value " << std::endl;
+  	std::cout << "get_chunk() returned value " << std::endl;
       }
     /* should always run this part */
     pre_process(element);
