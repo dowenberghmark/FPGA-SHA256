@@ -16,6 +16,41 @@
 #include "cpu/sha_preprocess.hpp"
 #include "cpu/verify.hpp"
 
+void sha256_verify(std::string filename,int lines_to_read) {
+  DoubleBuffer *double_buffer;
+  char *chunk_placement_ptr;
+  char element[64];
+  struct buffer result;
+
+  double_buffer = new DoubleBuffer();
+  std::fstream file;
+  file.open(filename);
+  std::fstream verify_file;
+
+  while (!file.eof()) {
+    memset(element,0,64);
+    file >> element;
+    chunk_placement_ptr = double_buffer->get_chunk()->data;
+
+    if (chunk_placement_ptr == nullptr) {
+      result = double_buffer->start_processing();
+      for (int i=0;i<result.num_chunks;i++) {
+        fprintf(verify_file,result.chunks[i].data);
+      }
+
+      chunk_placement_ptr = double_buffer->get_chunk()->data;
+    }
+    pre_process(element);
+    memcpy(chunk_placement_ptr,element,sizeof(element));
+    lines_to_read--;
+
+    if (lines_to_read == 0) {
+      break;
+    }
+  }
+  file.close();
+}
+
 void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
   DoubleBuffer *double_buffer;
   char *chunk_placement_ptr;
@@ -49,19 +84,19 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
 
       chunk_placement_ptr = double_buffer->get_chunk()->data;
     }
-      if (dopt == 1) {
-  	std::cout << "get_chunk() returned value " << std::endl;
-      }
+    if (dopt == 1) {
+     std::cout << "get_chunk() returned value " << std::endl;
+   }
     /* should always run this part */
-    pre_process(element);
-    memcpy(chunk_placement_ptr,element,sizeof(element));
-    lines_to_read--;
+   pre_process(element);
+   memcpy(chunk_placement_ptr,element,sizeof(element));
+   lines_to_read--;
 
-    if (lines_to_read == 0) {
-      break;
-    }
+   if (lines_to_read == 0) {
+    break;
   }
-  file.close();
+}
+file.close();
 }
 
 int main(int argc, char ** argv) {
@@ -75,43 +110,43 @@ int main(int argc, char ** argv) {
   /*Getopt flags*/
   while ((c = getopt (argc,argv,"v,b,d,h,f:s:")) != -1) {
     switch (c) {
-    case 'v': {
-      vopt = 1;
-      break;
-    }
-    case 'b': {
-      bopt = 1;
-      break;
-    }
-    case 'd': {
-      dopt = 1;
-      break;
-    }
-    case 'f': {
-      fopt = 1;
-      fvalue = optarg;
-      break;
-    }
-    case 's': {
-      sopt = 1;
-      svalue = std::stoi(optarg);
-      break;
-    }
-    case 'h': {
-      std::cout << "=============================== HELP PAGE ===================================" << std::endl;
-      std::cout << "usage: ./main [-d] [-s size in MB] [-f filepath]" << std::endl;
-      std::cout << "v : verification mode. Verifies results to a third-party program" << std::endl;
-      std::cout << "d : debug mode. Displays print for the process of the program" << std::endl;
-      std::cout << "s : define file size. Will read the whole file if not specified" << std::endl;
-      std::cout << "f : define file to read. Will read password.txt if not specified" << std::endl;
-      std::cout << "h : help page" << std::endl;
-      std::cout << "==============================================================================" << std::endl;
-      std::exit(EXIT_FAILURE);
-    }
-    default: {
-      std::cout << "Input was not recoqnized" << std::endl;
-      std::exit(EXIT_FAILURE);
-    }
+      case 'v': {
+        vopt = 1;
+        break;
+      }
+      case 'b': {
+        bopt = 1;
+        break;
+      }
+      case 'd': {
+        dopt = 1;
+        break;
+      }
+      case 'f': {
+        fopt = 1;
+        fvalue = optarg;
+        break;
+      }
+      case 's': {
+        sopt = 1;
+        svalue = std::stoi(optarg);
+        break;
+      }
+      case 'h': {
+        std::cout << "=============================== HELP PAGE ===================================" << std::endl;
+        std::cout << "usage: ./main [-d] [-s size in MB] [-f filepath]" << std::endl;
+        std::cout << "v : verification mode. Verifies results to a third-party program" << std::endl;
+        std::cout << "d : debug mode. Displays print for the process of the program" << std::endl;
+        std::cout << "s : define file size. Will read the whole file if not specified" << std::endl;
+        std::cout << "f : define file to read. Will read password.txt if not specified" << std::endl;
+        std::cout << "h : help page" << std::endl;
+        std::cout << "==============================================================================" << std::endl;
+        std::exit(EXIT_FAILURE);
+      }
+      default: {
+        std::cout << "Input was not recoqnized" << std::endl;
+        std::exit(EXIT_FAILURE);
+      }
     }
   }
 
