@@ -25,7 +25,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
   double_buffer = new DoubleBuffer();
   std::fstream file;
   file.open(filename);
-  std::fstream verify_file("result.txt");
+  std::ofstream verify_file ("result.txt");
 
   while (!file.eof() && lines_to_read != 0) {
     memset(element,0,64);
