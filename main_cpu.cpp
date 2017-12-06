@@ -47,7 +47,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
     if (lines_to_read == 0) {
       break;
     }
-  }
+  }c
   file.close();
 
 }
@@ -168,7 +168,7 @@ int main(int argc, char ** argv) {
     filename = fvalue;
     std::cout << "filename: " << filename << std::endl;
   } else {
-    filename = "hashed_passwords.txt";
+    filename = "cpu/random_passwords.txt";
     std::cout << "filename: " << filename << std::endl;
   }
 
