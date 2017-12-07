@@ -17,7 +17,7 @@ int verify(std::vector<std::string> fpga_hash_vec){
   vector<string>ext_hash_vec = SHA256_CPU_verify("random_passwords.txt");
   int error_row = 0;
 
-  for(auto i = fpga_hash_vec.begin(); i != fpga_hash_vec.end(); ++i){
+  for(unsigned i=0; i<fpga_hash_vec.size(); i++){
     string s = fpga_hash_vec[i];
     if (s.compare(ext_hash_vec[i]) != 0){
       error_row = i+1;
