@@ -5,11 +5,9 @@
 #include <chrono>
 #include <ctime>
 #include <cmath>
-
-#include <iostream>
+#include <vector>
 #include <unistd.h>
 #include <cstdlib>
-
 #include "interface/double_buffer.hpp"
 #include "interface/defs.hpp"
 #include "cpu/sha256.hpp"
@@ -25,7 +23,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
   double_buffer = new DoubleBuffer();
   std::fstream file;
   file.open(filename);
-  std::ofstream verify_file ("result.txt");
+  std::vector<char *> verify_vec;
 
   while (!file.eof()) {
     memset(element,0,64);
@@ -36,8 +34,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
       result = double_buffer->start_processing();
       for (int i=0;i<result.num_chunks;i++) {
         result.chunks[i].data[32] = '\0';
-        verify_file << "Test" << std::endl;
-        verify_file << result.chunks[i].data << std::endl;
+        verify_vec.push_back (result.chunks[i].data);
         printf("%s\n", result.chunks[i].data);
       }
 
@@ -52,8 +49,6 @@ void sha256_verify(std::string filename, int lines_to_read) {
     }
   }
   file.close();
-  verify_file.close();
-  //verify("../result.txt");
 }
 
 void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
