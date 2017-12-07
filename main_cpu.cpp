@@ -27,9 +27,6 @@ void sha256_verify(std::string filename, int lines_to_read) {
   std::vector<std::string> verify_vec;
 
   while (!file.eof()) {
-    memset(element,0,64);
-    file >> element;
-    printf("%s\n", element);
     chunk_placement_ptr = double_buffer->get_chunk()->data;
 
     if (chunk_placement_ptr == nullptr) {
@@ -42,8 +39,11 @@ void sha256_verify(std::string filename, int lines_to_read) {
         printf("%s\n", result.chunks[i].data);
       }
 
-      chunk_placement_ptr = double_buffer->get_chunk()->data;
+      //chunk_placement_ptr = double_buffer->get_chunk()->data;
     }
+    memset(element,0,64);
+    file >> element;
+    printf("%s\n", element);
     pre_process(element);
     memcpy(chunk_placement_ptr,element,sizeof(element));
     lines_to_read--;
