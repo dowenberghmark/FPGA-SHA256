@@ -35,8 +35,9 @@ void sha256_verify(std::string filename, int lines_to_read) {
     if (chunk_placement_ptr == nullptr) {
       result = double_buffer->start_processing();
       for (int i=0;i<result.num_chunks;i++) {
+        result.chunks[i].data[32] = '\0';
         verify_file << result.chunks[i].data << std::endl;
-        printf("%.*s\n", 32, result.chunks[i].data);
+        printf("%s\n", result.chunks[i].data);
       }
 
       chunk_placement_ptr = double_buffer->get_chunk()->data;
@@ -51,7 +52,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
   }
   file.close();
   verify_file.close();
-
+  //verify("../result.txt");
 }
 
 void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
