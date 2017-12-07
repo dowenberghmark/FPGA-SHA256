@@ -37,7 +37,6 @@ void sha256_verify(std::string filename, int lines_to_read) {
         result.chunks[i].data[32] = '\0';
         std::cout << "Pushing to vector" << std::endl;
         verify_vec.push_back (result.chunks[i].data);
-        verify_vec.push_back ("Test");
         for (int j = 0; j < 32; j++) {
           printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
         }
@@ -62,9 +61,9 @@ void sha256_verify(std::string filename, int lines_to_read) {
     }
   }
   file.close();
-  for(int i=0; i<verify_vec.size(); ++i){
-    std::cout << verify_vec[i] << std::endl;
-  }
+  // for(int i=0; i<verify_vec.size(); ++i){
+  //   std::cout << verify_vec[i] << std::endl;
+  // }
   verify(verify_vec);
 }
 
