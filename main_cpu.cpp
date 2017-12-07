@@ -41,15 +41,17 @@ void sha256_verify(std::string filename, int lines_to_read) {
 
       //chunk_placement_ptr = double_buffer->get_chunk()->data;
     }
-    memset(element,0,64);
-    file >> element;
-    printf("%s\n", element);
-    pre_process(element);
-    memcpy(chunk_placement_ptr,element,sizeof(element));
-    lines_to_read--;
+    else{
+      memset(element,0,64);
+      file >> element;
+      printf("%s\n", element);
+      pre_process(element);
+      memcpy(chunk_placement_ptr,element,sizeof(element));
+      lines_to_read--;
 
-    if (lines_to_read == 0) {
-      break;
+      if (lines_to_read == 0) {
+        break;
+      }
     }
   }
   file.close();
