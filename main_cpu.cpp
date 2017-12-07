@@ -31,6 +31,8 @@ void sha256_verify(std::string filename, int lines_to_read) {
 
     if (chunk_placement_ptr == nullptr) {
       result = double_buffer->start_processing();
+      std::cout << result.num_chunks << std::endl;
+
       for (int i=0;i<result.num_chunks;i++) {
         result.chunks[i].data[32] = '\0';
         std::cout << "Pushing to vector" << std::endl;
@@ -50,6 +52,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
       lines_to_read--;
 
       if (lines_to_read == 0) {
+        result = double_buffer->start_processing();
         break;
       }
     }
