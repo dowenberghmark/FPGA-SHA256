@@ -72,7 +72,5 @@ struct buffer DoubleBuffer::get_last_result() {
 
 DoubleBuffer::~DoubleBuffer() {
   dev_if->unmap_last_result(glob_head.active_buf);
-  printf("before delete dev_if\n");
   delete dev_if;
-  printf("after delete dev_if\n");
 }
