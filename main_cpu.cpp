@@ -38,7 +38,11 @@ void sha256_verify(std::string filename, int lines_to_read) {
         std::cout << "Pushing to vector" << std::endl;
         verify_vec.push_back (result.chunks[i].data);
         verify_vec.push_back ("Test");
-        printf("%s\n", result.chunks[i].data);
+        for (int j = 0; j < 32; j++) {
+          printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
+        }
+        std::cout << std::endl;
+        //printf("%s\n", result.chunks[i].data);
       }
 
       //chunk_placement_ptr = double_buffer->get_chunk()->data;
