@@ -15,7 +15,7 @@ using std::ifstream;
 int verify(std::vector<std::string> fpga_hash_vec){
   //Get vector with hashed passwords from an extrernal SHA-256 hasher
   cout << "Trying to verify" << endl;
-  vector<string>ext_hash_vec = SHA256_CPU_verify("random_passwords.txt");
+  vector<string>ext_hash_vec = SHA256_CPU_verify("cpu/random_passwords.txt");
   int error_row = 0;
 
   for(unsigned i=0; i<fpga_hash_vec.size(); i++){
