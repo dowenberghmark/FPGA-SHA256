@@ -49,6 +49,9 @@ void sha256_verify(std::string filename, int lines_to_read) {
     }
   }
   file.close();
+  for(int i=0; i<verify_vec.size(); ++i){
+    std::cout << verify_vec[i] << std::endl;
+  }
 }
 
 void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
@@ -185,7 +188,7 @@ int main(int argc, char ** argv) {
   
   if (vopt == 1) {
     std::cout << "====================== VERIFICATION RESULTS =======================" << std::endl;
-    sha256_verify(filename, 5);
+    sha256_verify(filename, 8);
     std::cout << "================================================================" << std::endl;
   }
   else {
