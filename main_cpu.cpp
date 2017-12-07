@@ -22,13 +22,14 @@ void sha256_verify(std::string filename, int lines_to_read) {
   struct buffer result;
 
   double_buffer = new DoubleBuffer();
-  std::fstream file;
+  std::ifstream file;
   file.open(filename);
   std::vector<std::string> verify_vec;
 
   while (!file.eof()) {
     memset(element,0,64);
     file >> element;
+    printf("%s\n", element);
     chunk_placement_ptr = double_buffer->get_chunk()->data;
 
     if (chunk_placement_ptr == nullptr) {
