@@ -62,11 +62,11 @@ void DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   krnl_sha.setArg(narg++, num_chunks);
 
   //Launch the Kernel
-  q.enqueueTask(krnl_sha);
+  q.enqueueTask(krnl_sha, NULL, &event_compute);
 
    // Event profiling computing
-  event_w_buffer.getProfilingInfo<uint64_t>(CL_PROFILING_COMMAND_START,&nstimestart);
-  event_w_buffer.getProfilingInfo<uint64_t>(CL_PROFILING_COMMAND_END,&nstimeend);
+  event_compute.getProfilingInfo<uint64_t>(CL_PROFILING_COMMAND_START,&nstimestart);
+  event_compute.getProfilingInfo<uint64_t>(CL_PROFILING_COMMAND_END,&nstimeend);
   duration_nanosec = nstimeend-nstimestart;
   std::cout << " **** Computing: " << (duration_nanosec * (1.0e-6) ) << " ms **** " << std::endl;
 
