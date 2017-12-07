@@ -186,11 +186,7 @@ int main(int argc, char ** argv) {
 
   std::cout << "================================================================" << std::endl;
 
-  /*run sha256 fpga*/
-  auto start = std::chrono::system_clock::now();
-  sha256_fpga(filename,lines_to_read,dopt);
-  auto end = std::chrono::system_clock::now();
-  time_total = end - start;
+  
 
   if (bopt == 1) {
     std::cout << "Running sha256 CPU program..." << std::endl;
@@ -210,6 +206,14 @@ int main(int argc, char ** argv) {
     std::cout << "====================== VERIFICATION RESULTS =======================" << std::endl;
     sha256_verify(filename, 5);
     std::cout << "================================================================" << std::endl;
+  }
+  else {
+    /*run sha256 fpga*/
+    auto start = std::chrono::system_clock::now();
+    sha256_fpga(filename,lines_to_read,dopt);
+    auto end = std::chrono::system_clock::now();
+    time_total = end - start;
+
   }
 
   return 0;
