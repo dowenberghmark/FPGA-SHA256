@@ -36,6 +36,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
       result = double_buffer->start_processing();
       for (int i=0;i<result.num_chunks;i++) {
         result.chunks[i].data[32] = '\0';
+        verify << "Test" << std::endl
         verify_file << result.chunks[i].data << std::endl;
         printf("%s\n", result.chunks[i].data);
       }
@@ -187,21 +188,6 @@ int main(int argc, char ** argv) {
   std::cout << "================================================================" << std::endl;
 
   
-
-  if (bopt == 1) {
-    std::cout << "Running sha256 CPU program..." << std::endl;
-    auto start = std::chrono::system_clock::now();
-    //benchmark program specified for hardware
-    auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> cpu_program_time = end - start;
-    std::cout << std::endl;
-    std::cout << "====================== BENCHMARK RESULTS =======================" << std::endl;
-    std::cout << "FPGA sha256 program time: "<< time_total.count() << "s" << std::endl;
-    std::cout << std::endl;
-    std::cout << "CPU sha256 program time: " <<  cpu_program_time.count() << "s" << std::endl;
-    std::cout << "================================================================" << std::endl;
-  }
-
   if (vopt == 1) {
     std::cout << "====================== VERIFICATION RESULTS =======================" << std::endl;
     sha256_verify(filename, 5);
@@ -213,7 +199,20 @@ int main(int argc, char ** argv) {
     sha256_fpga(filename,lines_to_read,dopt);
     auto end = std::chrono::system_clock::now();
     time_total = end - start;
-
+    
+    if (bopt == 1) {
+      std::cout << "Running sha256 CPU program..." << std::endl;
+      auto start = std::chrono::system_clock::now();
+      //benchmark program specified for hardware
+      auto end = std::chrono::system_clock::now();
+      std::chrono::duration<double> cpu_program_time = end - start;
+      std::cout << std::endl;
+      std::cout << "====================== BENCHMARK RESULTS =======================" << std::endl;
+      std::cout << "FPGA sha256 program time: "<< time_total.count() << "s" << std::endl;
+      std::cout << std::endl;
+      std::cout << "CPU sha256 program time: " <<  cpu_program_time.count() << "s" << std::endl;
+      std::cout << "================================================================" << std::endl;
+    }
   }
 
   return 0;
