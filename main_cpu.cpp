@@ -6,6 +6,7 @@
 #include <ctime>
 #include <cmath>
 #include <vector>
+#include <string>
 #include <unistd.h>
 #include <cstdlib>
 #include "interface/double_buffer.hpp"
@@ -23,7 +24,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
   double_buffer = new DoubleBuffer();
   std::fstream file;
   file.open(filename);
-  std::vector<char *> verify_vec;
+  std::vector<std::string> verify_vec;
 
   while (!file.eof()) {
     memset(element,0,64);
