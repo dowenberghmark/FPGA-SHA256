@@ -16,10 +16,10 @@
 #include "cpu/verify.hpp"
 
 void sha256_verify(std::string filename, int lines_to_read) {
-  DoubleBuffer double_buffer;
+  DoubleBuffer *double_buffer;
   char *chunk_placement_ptr;
   char element[64];
-  struct buffer *result;
+  struct buffer result;
 
   double_buffer = new DoubleBuffer();
   std::ifstream file;
