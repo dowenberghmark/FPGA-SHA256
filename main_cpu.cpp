@@ -197,7 +197,7 @@ int main(int argc, char ** argv) {
   
   if (vopt == 1) {
     std::cout << "====================== VERIFICATION RESULTS =======================" << std::endl;
-    sha256_verify(filename, 8);
+    sha256_verify(filename, 16);
     std::cout << "================================================================" << std::endl;
   }
   else {
