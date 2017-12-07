@@ -36,7 +36,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
       result = double_buffer->start_processing();
       for (int i=0;i<result.num_chunks;i++) {
         result.chunks[i].data[32] = '\0';
-        verify << "Test" << std::endl
+        verify_file << "Test" << std::endl
         verify_file << result.chunks[i].data << std::endl;
         printf("%s\n", result.chunks[i].data);
       }
@@ -199,7 +199,7 @@ int main(int argc, char ** argv) {
     sha256_fpga(filename,lines_to_read,dopt);
     auto end = std::chrono::system_clock::now();
     time_total = end - start;
-    
+
     if (bopt == 1) {
       std::cout << "Running sha256 CPU program..." << std::endl;
       auto start = std::chrono::system_clock::now();
