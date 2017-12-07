@@ -18,8 +18,9 @@ int verify(std::vector<std::string> fpga_hash_vec){
   int error_row;
 
   for(auto i = fpga_hash_vec.begin(); i != fpga_hash_vec.end(); ++i){
-    if (fpga_hash_vec[i].compare(ext_hash_vec[i]) != 0){
-      error_row = i + 1;
+    string s = fpga_hash_vec[i]
+    if (s.compare(ext_hash_vec[i]) != 0){
+      error_row = i+1;
       cout << "Line " << error_row << " is incorrect" << endl;
     }
   }
