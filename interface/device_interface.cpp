@@ -32,12 +32,9 @@ DeviceInterface::DeviceInterface() {
   // OpenCL and it can contain many functions which can be executed on the
   // device.
   std::string binaryFile = xcl::find_binary_file(device_name, "device_kernel");
-  // std::string binaryFile2 = xcl::find_binary_file(device_name, "device_kernel2");
   cl::Program::Binaries bins = xcl::import_binary_file(binaryFile);
-  //cl::Program::Binaries bins2 = xcl::import_binary_file(binaryFile2);
   devices.resize(1);
   program = cl::Program(context, devices, bins);
-  //program2 = cl::Program(context, devices, bins2);
   // This call will extract a kernel out of the program we loaded in the
   // previous line. A kernel is an OpenCL function that is executed on the
   // FPGA. This function is defined in the interface/device_kernel.cl file.
