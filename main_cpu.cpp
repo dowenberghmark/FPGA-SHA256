@@ -43,7 +43,10 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
       result = double_buffer->start_processing();
       if (dopt == 1) {
         for (int i=0;i<result.num_chunks;i++) {
-          printf("%.*s\n", 32, result.chunks[i].data);
+	  for (int j = 0; j < 32; j++) {
+	    printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
+	  }
+	  printf("\n");
         }
       }
 
@@ -62,6 +65,7 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
     }
   }
   file.close();
+  delete double_buffer;
 }
 
 int main(int argc, char ** argv) {
@@ -172,6 +176,5 @@ int main(int argc, char ** argv) {
     verify(filename);
     std::cout << "================================================================" << std::endl;
   }
-
   return 0;
 }
