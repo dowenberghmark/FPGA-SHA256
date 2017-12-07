@@ -40,11 +40,22 @@ DeviceInterface::DeviceInterface(struct chunk *buffer0, struct chunk *buffer1) {
 }
 
 void DeviceInterface::run_fpga(int num_chunks, int active_buf) {
+  cl::Event event_w_buffer, event_r_buffer, event_compute;
+  uint64_t nstimestart, nstimeend;
+  
+  
   // The data will be be transferred from system memory over PCIe to the FPGA on-board
   // DDR memory. blocking.
-  q.enqueueWriteBuffer(ocl_bufs[active_buf], CL_TRUE, 0, num_chunks*CHUNK_SIZE, host_bufs[active_buf].chunks, NULL, NULL);
+  q.enqueueWriteBuffer(ocl_bufs[active_buf], CL_TRUE, 0, num_chunks*CHUNK_SIZE, host_bufs[active_buf].chunks, NULL, &event_w_buffer);
   host_bufs[active_buf].num_chunks = num_chunks;
+  
+  // Event profiling write
+  event_w_buffer.getProfilingInfo<uint64_t>(CL_PROFILING_COMMAND_START,&nstimestart);
+  event_w_buffer.getProfilingInfo<uint64_t>(CL_PROFILING_COMMAND_END,&nstimeend);
+  auto duration_nanosec = nstimeend-nstimestart;
+  std::cout << " **** Writting to buffer: " << (duration_nanosec * (1.0e-6) ) << " ms **** " << std::endl;
 
+  
   //set the kernel Arguments
   int narg=0;
   krnl_sha.setArg(narg++, ocl_bufs[active_buf]);
@@ -53,14 +64,30 @@ void DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   //Launch the Kernel
   q.enqueueTask(krnl_sha);
 
+   // Event profiling computing
+  event_w_buffer.getProfilingInfo<uint64_t>(CL_PROFILING_COMMAND_START,&nstimestart);
+  event_w_buffer.getProfilingInfo<uint64_t>(CL_PROFILING_COMMAND_END,&nstimeend);
+  duration_nanosec = nstimeend-nstimestart;
+  std::cout << " **** Computing: " << (duration_nanosec * (1.0e-6) ) << " ms **** " << std::endl;
+
+
+  
   // The result of the previous kernel execution will need to be retrieved in
   // order to view the results. This call will write the data from the
   // buffer_result cl_mem object to the source_results vector
   // first_flag causes us to not read result buffer first time
   if (!first_flag) {
     // blocking.
-    q.enqueueReadBuffer(ocl_bufs[1 - active_buf], CL_TRUE, 0, host_bufs[1 - active_buf].num_chunks*CHUNK_SIZE, host_bufs[1 - active_buf].chunks, NULL, NULL);
+    q.enqueueReadBuffer(ocl_bufs[1 - active_buf], CL_TRUE, 0, host_bufs[1 - active_buf].num_chunks*CHUNK_SIZE, host_bufs[1 - active_buf].chunks, NULL, &event_r_buffer);
     host_bufs[1 - active_buf].num_chunks = 0;
+
+    // Event profiling reading
+    event_r_buffer.getProfilingInfo<uint64_t>(CL_PROFILING_COMMAND_START,&nstimestart);
+    event_r_buffer.getProfilingInfo<uint64_t>(CL_PROFILING_COMMAND_END,&nstimeend);
+    duration_nanosec = nstimeend-nstimestart;
+    std::cout << " **** Reading from buffer: " << (duration_nanosec * (1.0e-6) ) << " ms **** " << std::endl;
+
+    
   } else {
     first_flag = 0;
   }
