@@ -19,7 +19,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
   DoubleBuffer *double_buffer;
   char *chunk_placement_ptr;
   char element[64];
-  struct buffer result;
+  struct buffer *result;
 
   double_buffer = new DoubleBuffer();
   std::ifstream file;
@@ -31,14 +31,14 @@ void sha256_verify(std::string filename, int lines_to_read) {
 
     if (chunk_placement_ptr == nullptr) {
       result = double_buffer->start_processing();
-      std::cout << result.num_chunks << std::endl;
+      std::cout << result->num_chunks << std::endl;
 
-      for (int i=0;i<result.num_chunks;i++) {
-        result.chunks[i].data[32] = '\0';
+      for (int i=0;i<result->num_chunks;i++) {
+        result->chunks[i].data[32] = '\0';
         std::cout << "Pushing to vector" << std::endl;
-        verify_vec.push_back (result.chunks[i].data);
+        //verify_vec.push_back (result.chunks[i].data);
         verify_vec.push_back ("Test");
-        printf("%s\n", result.chunks[i].data);
+        printf("%s\n", result->chunks[i].data);
       }
 
       //chunk_placement_ptr = double_buffer->get_chunk()->data;
