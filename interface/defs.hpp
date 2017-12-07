@@ -6,7 +6,7 @@
 #define BUFFER_HEADER_SIZE sizeof(struct buffer_header)
 #define GLOBAL_HEADER_SIZE sizeof(struct global_header)
 #define CHUNK_SIZE sizeof(struct chunk)
-#define CHUNKS_PER_BUFFER 1024 * 1024
+#define CHUNKS_PER_BUFFER 16
 #define BUFFER_SIZE (CHUNKS_PER_BUFFER * CHUNK_SIZE)
 
 
