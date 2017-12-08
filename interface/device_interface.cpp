@@ -6,10 +6,10 @@
 #include "xcl2.hpp"
 
 // offset to the read buffer
-#define READ(x) (x+2)
+#define READ(x) (x + 2)
 
 
-void check(cl_int err) {
+void check_error(cl_int err) {
   if (err) {
     printf("ERROR: Operation Failed: %d\n", err);
     exit(EXIT_FAILURE);
@@ -83,7 +83,7 @@ struct chunk *DeviceInterface::get_write_buffer(int active_buf) {
   // CL_MAP_WRITE_INVALIDATE_REGION makes it such that the returned memory
   // region doesnt have to be up to date. We will just overwrite it so it doesn't matter.
   host_bufs[active_buf] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[active_buf], CL_TRUE, CL_MAP_WRITE_INVALIDATE_REGION, 0, BUFFER_SIZE, NULL, NULL, &err);
-  check(err);
+  check_error(err);
   return (struct chunk *) host_bufs[active_buf];
 }
 
@@ -112,7 +112,7 @@ struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
 
   // previous computations result
   host_bufs[READ(1-active_buf)] = q.enqueueMapBuffer(ocl_bufs[READ(1-active_buf)], CL_TRUE, CL_MAP_READ, 0, BUFFER_SIZE, NULL, NULL, &err);
-  check(err);
+  check_error(err);
 
   // possibly remove this to allow for multiple kernels to run simultaneously
   q.finish();
@@ -126,7 +126,7 @@ struct chunk *DeviceInterface::read_last_result(int active_buf) {
   q.enqueueUnmapMemObject(ocl_bufs[READ(active_buf)], host_bufs[READ(active_buf)], NULL, NULL);
 
   host_bufs[READ(1-active_buf)] = q.enqueueMapBuffer(ocl_bufs[READ(1-active_buf)], CL_TRUE, CL_MAP_READ, 0, BUFFER_SIZE, NULL, NULL, &err);
-  check(err);
+  check_error(err);
 
   return (struct chunk *) host_bufs[READ(1-active_buf)];
 }
