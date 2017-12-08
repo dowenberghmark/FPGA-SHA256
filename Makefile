@@ -8,7 +8,7 @@ include $(COMMON_REPO)/libs/opencl/opencl.mk
 
 SRC_DIR=./interface
 
-SRCS=$(SRC_DIR)/double_buffer.cpp $(SRC_DIR)/device_interface.cpp cpu/sha256.cpp cpu/sha_preprocess.cpp main_cpu.cpp cpu/verify.cpp
+SRCS=$(SRC_DIR)/double_buffer.cpp $(SRC_DIR)/device_interface.cpp cpu/sha256.cpp cpu/sha_preprocess.cpp main_cpu.cpp cpu/verify.cpp $(SRC_DIR)/defs.hpp
 HDRS=$(SRC_DIR)/device_interface.hpp $(SRC_DIR)/double_buffer.hpp
 
 
@@ -23,12 +23,12 @@ EXES=sha256
 # Kernel
 device_kernel_SRCS=$(SRC_DIR)/device_kernel.cl
 
-device_kernel_CLFLAGS= -I$(SRC_DIR)/ --max_memory_ports hashing_kernel0 --max_memory_ports hashing_kernel1
+device_kernel_CLFLAGS= -I$(SRC_DIR)/ --max_memory_ports hashing_kernel
 
 XOS=device_kernel
 
 device_kernel_XOS=device_kernel
-device_kernel_LDCLFLAGS=--xp misc:map_connect=add.kernel.hashing_kernel0_1.M_AXI_GMEM0.core.OCL_REGION_0.M00_AXI --xp misc:map_connect=add.kernel.hashing_kernel0_1.M_AXI_GMEM1.core.OCL_REGION_0.M02_AXI --xp misc:map_connect=add.kernel.hashing_kernel1_1.M_AXI_GMEM0.core.OCL_REGION_0.M01_AXI --xp misc:map_connect=add.kernel.hashing_kernel1_1.M_AXI_GMEM1.core.OCL_REGION_0.M03_AXI
+device_kernel_LDCLFLAGS=--xp misc:map_connect=add.kernel.hashing_kernel_1.M_AXI_GMEM0.core.OCL_REGION_0.M00_AXI --xp misc:map_connect=add.kernel.hashing_kernel_1.M_AXI_GMEM1.core.OCL_REGION_0.M01_AXI --xp misc:map_connect=add.kernel.hashing_kernel_1.M_AXI_GMEM2.core.OCL_REGION_0.M02_AXI --xp misc:map_connect=add.kernel.hashing_kernel_1.M_AXI_GMEM3.core.OCL_REGION_0.M03_AXI
 
 XCLBINS=device_kernel
 

@@ -19,7 +19,7 @@ class DeviceInterface {
  private:
   cl::CommandQueue q;
   cl::Program program;
-  cl::Kernel krnl_sha[2];
+  cl::Kernel krnl_sha;
 
   cl::Buffer ocl_bufs[BUFFER_COUNT*2];
   void *host_bufs[BUFFER_COUNT*2];

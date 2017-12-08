@@ -6,8 +6,8 @@
 #include "xcl2.hpp"
 
 // offset to the read buffer
-#define READ(x) (x+2)
-
+#define READ(x) (x+0)
+#define PREV(x) (((x-1) % BUFFER_COUNT + BUFFER_COUNT) % BUFFER_COUNT)
 
 void check(cl_int err) {
   if (err) {
@@ -15,6 +15,7 @@ void check(cl_int err) {
     exit(EXIT_FAILURE);
   }
 }
+
 
 DeviceInterface::DeviceInterface() {
   // The get_xil_devices will return vector of Xilinx Devices
@@ -38,8 +39,8 @@ DeviceInterface::DeviceInterface() {
   // This call will extract a kernel out of the program we loaded in the
   // previous line. A kernel is an OpenCL function that is executed on the
   // FPGA. This function is defined in the interface/device_kernel.cl file.
-  krnl_sha[0] = cl::Kernel(program, "hashing_kernel0");
-  krnl_sha[1] = cl::Kernel(program, "hashing_kernel1");
+  krnl_sha = cl::Kernel(program, "hashing_kernel");
+  // krnl_sha[1] = cl::Kernel(program, "hashing_kernel1");
 
   unsigned xcl_banks[4] = {
     XCL_MEM_DDR_BANK0,
@@ -48,7 +49,7 @@ DeviceInterface::DeviceInterface() {
     XCL_MEM_DDR_BANK3
   };
 
-  for (int i = 0; i < BUFFER_COUNT*2; i++) {
+  for (int i = 0; i < BUFFER_COUNT; i++) {
     buffer_ext[i].flags = xcl_banks[i];
     buffer_ext[i].obj = NULL;
     buffer_ext[i].param = 0;
@@ -57,33 +58,31 @@ DeviceInterface::DeviceInterface() {
   // first half of buffers are only read by kernel
   // second half of buffers should only be written by kernel (not atm)
   int err;
-  unsigned flags = CL_MEM_READ_ONLY | CL_MEM_EXT_PTR_XILINX;
-  for (int i = 0; i < BUFFER_COUNT*2; i++) {
-    if (i == BUFFER_COUNT) {
-      flags = CL_MEM_WRITE_ONLY | CL_MEM_EXT_PTR_XILINX;
-    }
-
+  unsigned flags = CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX;
+  for (int i = 0; i < BUFFER_COUNT; i++) {
     ocl_bufs[i] = cl::Buffer(context, flags, BUFFER_SIZE, &buffer_ext[i], &err);
     if (err != CL_SUCCESS) {
       printf("Error: Failed to allocate buffer in DDR bank %d %zu\n", i, BUFFER_SIZE);
     }
   }
 
-  for (int i = 0; i < BUFFER_COUNT*2; i++) {
+  for (int i = 0; i < BUFFER_COUNT; i++) {
     host_bufs[i] = nullptr;
   }
+
+  puts("host bufs 0");
+  host_bufs[0] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[0], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
 }
 
 struct chunk *DeviceInterface::get_write_buffer(int active_buf) {
-  int err;
-  if (host_bufs[active_buf+2]) {
-    q.enqueueUnmapMemObject(ocl_bufs[READ(active_buf)], host_bufs[READ(active_buf)], NULL, NULL);
-  }
+  //if (host_bufs[active_buf+2]) {
+  //  q.enqueueUnmapMemObject(ocl_bufs[READ(active_buf)], host_bufs[READ(active_buf)], NULL, NULL);
+  //}
 
   // CL_MAP_WRITE_INVALIDATE_REGION makes it such that the returned memory
   // region doesnt have to be up to date. We will just overwrite it so it doesn't matter.
-  host_bufs[active_buf] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[active_buf], CL_TRUE, CL_MAP_WRITE_INVALIDATE_REGION, 0, BUFFER_SIZE, NULL, NULL, &err);
-  check(err);
+  //host_bufs[active_buf] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[active_buf], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
+  // check(err);
   return (struct chunk *) host_bufs[active_buf];
 }
 
@@ -91,33 +90,37 @@ struct chunk *DeviceInterface::get_write_buffer(int active_buf) {
 struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   cl_int err;
   // unmap input buffer
+  printf("unmapping: %d\n", active_buf);
   q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf], NULL, NULL);
   q.finish();
 
   //set the kernel Arguments
   int narg = 0;
-  krnl_sha[active_buf].setArg(narg++, ocl_bufs[active_buf]);
-  krnl_sha[active_buf].setArg(narg++, ocl_bufs[READ(active_buf)]);
-  krnl_sha[active_buf].setArg(narg++, num_chunks);
+  krnl_sha.setArg(narg++, ocl_bufs[0]);
+  krnl_sha.setArg(narg++, ocl_bufs[1]);
+  krnl_sha.setArg(narg++, ocl_bufs[2]);
+  krnl_sha.setArg(narg++, ocl_bufs[3]);
+  krnl_sha.setArg(narg++, num_chunks);
+  krnl_sha.setArg(narg++, active_buf);
 
   //Launch the Kernel
-  q.enqueueTask(krnl_sha[active_buf]);
+  q.enqueueTask(krnl_sha);
 
   // previous computations result
-  host_bufs[READ(1-active_buf)] = q.enqueueMapBuffer(ocl_bufs[READ(1-active_buf)], CL_TRUE, CL_MAP_READ, 0, BUFFER_SIZE, NULL, NULL, &err);
+  printf("mapping: %d\n", PREV(active_buf));
+host_bufs[1-active_buf] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[PREV(active_buf)], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
   check(err);
-
   // possibly remove this to allow for multiple kernels to run simultaneously
   q.finish();
 
-  return (struct chunk *) host_bufs[READ(1-active_buf)];
+  return (struct chunk *) host_bufs[1-active_buf];
 }
 
 struct chunk *DeviceInterface::read_last_result(int active_buf) {
   int err;
   q.enqueueUnmapMemObject(ocl_bufs[READ(active_buf)], host_bufs[READ(active_buf)], NULL, NULL);
 
-  host_bufs[READ(1-active_buf)] = q.enqueueMapBuffer(ocl_bufs[READ(1-active_buf)], CL_TRUE, CL_MAP_READ, 0, BUFFER_SIZE, NULL, NULL, &err);
+  host_bufs[READ(1-active_buf)] = q.enqueueMapBuffer(ocl_bufs[READ(1-active_buf)], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
   check(err);
 
   return (struct chunk *) host_bufs[READ(1-active_buf)];

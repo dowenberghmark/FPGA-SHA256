@@ -84,7 +84,7 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
 int main(int argc, char ** argv) {
   /*Initialization*/
   int c, svalue, filesize, lines_to_read = -1;
-  int bopt = 0, dopt = 0, sopt = 0, fopt = 0, vopt = 0;
+  int bopt = 0, dopt = 1, sopt = 0, fopt = 0, vopt = 0;
   char *fvalue = NULL;
   std::string filename;
   std::chrono::duration<double> time_total;

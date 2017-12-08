@@ -25,14 +25,15 @@
    8. CPU calls get_result and receives result from interface.
    9. goto 1.
  */
+#define NEXT(x) (((x+1) % BUFFER_COUNT + BUFFER_COUNT) % BUFFER_COUNT)
 
 DoubleBuffer::DoubleBuffer() {
   glob_head.active_buf = 0;
-  bufs[0].num_chunks = 0;
-  bufs[1].num_chunks = 0;
+  for (int i = 0; i < BUFFER_COUNT; i++) {
+    bufs[i].num_chunks = 0;
+  }
 
   dev_if = new DeviceInterface();
-
   flip_flag = 1;
 }
 
@@ -56,9 +57,9 @@ struct chunk *DoubleBuffer::get_chunk() {
 
 struct buffer DoubleBuffer::start_processing() {
   // run kernel
-  bufs[1 - glob_head.active_buf].chunks = dev_if->run_fpga(bufs[glob_head.active_buf].num_chunks, glob_head.active_buf);
+  bufs[NEXT(glob_head.active_buf)].chunks = dev_if->run_fpga(bufs[glob_head.active_buf].num_chunks, glob_head.active_buf);
   // flip buffers
-  glob_head.active_buf = 1 - glob_head.active_buf;
+  glob_head.active_buf = NEXT(glob_head.active_buf);
   flip_flag = 1;
   // result is in our new active buffer, which is also where we write new data.
   chunk_to_write = bufs[glob_head.active_buf].chunks;
