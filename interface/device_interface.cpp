@@ -9,7 +9,8 @@
 #define READ(x) (x+0)
 #define PREV(x) (((x-1) % BUFFER_COUNT + BUFFER_COUNT) % BUFFER_COUNT)
 
-void check(cl_int err) {
+
+void check_error(cl_int err) {
   if (err) {
     printf("ERROR: Operation Failed: %d\n", err);
     exit(EXIT_FAILURE);
