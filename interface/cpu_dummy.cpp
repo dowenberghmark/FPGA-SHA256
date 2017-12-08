@@ -6,12 +6,12 @@
 #include "../cpu/sha_preprocess.hpp"
 
 class InterfaceTest {
-private:
+ private:
   DoubleBuffer *our_double_buffer;
   chunk test_chunks[10] = {"testing", "adam", "sara", "emil", "oliver", "daniel", "carl", "andy", "jeff", "viktor"};
   char *chunk_placement_ptr;
   void test_switch_buffer_n_times(int amount_buffer_switches, int number_of_strings);
-public:
+ public:
   void run_tests();
   InterfaceTest();
   ~InterfaceTest();
@@ -55,13 +55,15 @@ void InterfaceTest::test_switch_buffer_n_times(int amount_buffer_switches, int n
       } else {
 	//put data chunks from test chunks into chunk buffer, wraparound when out of test chunks
         memcpy(chunk_placement_ptr, test_chunks[counter_chunks % number_of_strings].data, 64);
+
         counter_chunks++;
       }
     }
     counter_flips++;
   }
-  
-  result = our_double_buffer->start_processing();
+
+  result = our_double_buffer->get_last_result();
+
   //print resulting hash
   for (int i = 0; i < result.num_chunks; i++) {
     puts("Hash output:");
