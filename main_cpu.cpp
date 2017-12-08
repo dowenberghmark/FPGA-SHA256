@@ -56,8 +56,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
     }
   }
   file.close();
-  std::vector<std::string> test_vec = {"eca4e50292507332886044d18e7597facf781f79f5aa070ae3ac8610ec0c62fc", "f16149e85ce8c6006a786dd9856eea92d5ec4b001f9556f09b7a9ec5fef0584e", "59098defea81f1b896dd62c9994111750cadf37faea3c2382d2614145ecedc44", "f4fdc64479b96076809e14b4bbf1aa28c80298d7a8840fbfc2f8f5082ed2e7c5", "hmzxugcktezoyktwkpurlvddbxetuw", "rcwgdorwpvxxmgbxcdigevqeixakje", "qaixfxhhldktppnzoqukfpkzjwkgmf", "kirtipdkubzmqwtpaouapermecrkpl", "llgqtrexvgvqyjkwqryrpdftdhxdnv", "lvmktitkxtvbbkujqtjopfyzeekboz", "rmocfslicxyzeghafykfikmmijfzwg", "xbnomwjzazwozlwytdrweuivmfxlfa"};
-  verify(test_vec);
+  verify(verify_vec);
 }
 
 void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
