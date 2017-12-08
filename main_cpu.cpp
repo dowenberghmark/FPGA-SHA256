@@ -16,6 +16,7 @@
 #include "cpu/sha_preprocess.hpp"
 #include "cpu/verify.hpp"
 
+
 void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
   DoubleBuffer *double_buffer;
   char *chunk_placement_ptr;
@@ -30,7 +31,7 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
     memset(element,0,64);
     file >> element;
     chunk_placement_ptr = double_buffer->get_chunk()->data;
-   //change element to directly char *data			
+   //change element to directly char *data
     if (dopt == 1) {
       std::cout << "reading string: " << element << std::endl;
     }
