@@ -1,2 +1,15 @@
+#!/usr/bin/env bash
+flag=sw_emu
+
+if [ $# > 0 ]
+then
+    if [ $1 == 'hw' ]
+    then
+	flag=hw_emu
+    fi
+fi
+echo
+echo Running with flag $flag
+echo
 make clean
-make check TARGETS=sw_emu DEVICES=$AWS_PLATFORM
+make check TARGETS=$flag DEVICES=$AWS_PLATFORM
