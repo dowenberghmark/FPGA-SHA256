@@ -7,7 +7,7 @@
 
 
 class DeviceInterface {
-public:
+ public:
   DeviceInterface();
   // result written directly to buf
   struct chunk *get_write_buffer(int active_buf);
@@ -16,7 +16,7 @@ public:
   void unmap_last_result(int active_buf);
   ~DeviceInterface() = default;
 
-private:
+ private:
   cl::CommandQueue q;
   cl::Program program;
   cl::Kernel krnl_sha[2];
@@ -24,8 +24,6 @@ private:
   cl::Buffer ocl_bufs[BUFFER_COUNT*2];
   void *host_bufs[BUFFER_COUNT*2];
   cl_mem_ext_ptr_t buffer_ext[BUFFER_COUNT*2];  // Declaring two extensions for both buffers
-
 };
-
 
 #endif

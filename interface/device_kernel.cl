@@ -9,7 +9,6 @@ struct chunk{
 };
 
 
-
 //auxiliary functions for the hashing algorithm
 uint ch(uint x, uint y, uint z) {
   return (x & y)^(~x & z);
@@ -48,7 +47,7 @@ void sha256(__global char *input_address, __global char *output_address) {
   0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
 };
 
-  
+
   //Prepare Message Schedule
   uint H0[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
   uint W[64];
@@ -105,10 +104,8 @@ void sha256(__global char *input_address, __global char *output_address) {
   }
 }
 
-
 // https://www.xilinx.com/html_docs/xilinx2017_2/sdaccel_doc/topics/pragmas/concept-Intro_to_OpenCL_attributes.html
 kernel __attribute__((reqd_work_group_size(1, 1, 1)))
-
 void hashing_kernel0(__global struct chunk * __restrict input_buffer,
 		     __global struct chunk * __restrict output_buffer,
 		     const int n_elements) {
@@ -123,7 +120,6 @@ void hashing_kernel0(__global struct chunk * __restrict input_buffer,
 
 
 kernel __attribute__((reqd_work_group_size(1, 1, 1)))
-
 void hashing_kernel1(__global struct chunk * __restrict input_buffer,
 		     __global struct chunk * __restrict output_buffer,
 		     const int n_elements) {
@@ -135,4 +131,3 @@ void hashing_kernel1(__global struct chunk * __restrict input_buffer,
       sha256(input_buffer[i].data, output_buffer[i].data);
     }
 }
-
