@@ -29,8 +29,10 @@
 DoubleBuffer::DoubleBuffer() {
   glob_head.active_buf = 0;
 
+
   bufs[0].num_chunks = 0;
   bufs[1].num_chunks = 0;
+
 
   dev_if = new DeviceInterface();
 
@@ -43,6 +45,7 @@ struct chunk *DoubleBuffer::get_chunk() {
     chunk_to_write = dev_if->get_write_buffer(glob_head.active_buf);
     flip_flag = 0;
   }
+
 
   if (bufs[glob_head.active_buf].num_chunks >= CHUNKS_PER_BUFFER) {
     return nullptr;

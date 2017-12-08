@@ -79,7 +79,7 @@ struct chunk *DeviceInterface::get_write_buffer(int active_buf) {
   if (host_bufs[active_buf+2]) {
     q.enqueueUnmapMemObject(ocl_bufs[READ(active_buf)], host_bufs[READ(active_buf)], NULL, NULL);
   }
-
+  
   // CL_MAP_WRITE_INVALIDATE_REGION makes it such that the returned memory
   // region doesnt have to be up to date. We will just overwrite it so it doesn't matter.
   host_bufs[active_buf] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[active_buf], CL_TRUE, CL_MAP_WRITE_INVALIDATE_REGION, 0, BUFFER_SIZE, NULL, NULL, &err);
@@ -90,19 +90,24 @@ struct chunk *DeviceInterface::get_write_buffer(int active_buf) {
 
 struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   cl_int err;
+
+  
+
   // unmap input buffer
   q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf], NULL, NULL);
 
   q.finish();
 
+  
   //set the kernel Arguments
   int narg = 0;
   krnl_sha[active_buf].setArg(narg++, ocl_bufs[active_buf]);
   krnl_sha[active_buf].setArg(narg++, ocl_bufs[READ(active_buf)]);
   krnl_sha[active_buf].setArg(narg++, num_chunks);
-  krnl_sha[active_buf].setArg(narg++, active_buf);
+
 
   //Launch the Kernel
+
   q.enqueueTask(krnl_sha[active_buf]);
 
   // previous computations result
@@ -130,3 +135,5 @@ void DeviceInterface::unmap_last_result(int active_buf) {
   q.enqueueUnmapMemObject(ocl_bufs[READ(1-active_buf)], host_bufs[READ(1-active_buf)]);
   q.finish();
 }
+
+

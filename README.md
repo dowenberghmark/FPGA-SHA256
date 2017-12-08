@@ -12,6 +12,28 @@ Code is mostly self-documenting.
 
 Notes from daily and weekly scrum together with other various information can be found in our [blog](https://pineappleblogg.wordpress.com/).
 
+## Building PineappleExpress
+In short... From a shell, switch into the root PineappleExpress directory and run:
+
+```
+make clean
+make all
+
+```
+
+## Run PineappleExpress
+Use .PineappleExpress/main -h for more help on how to run the program.
+
+```
+Example:
+./main -d -f foo.txt -s 100
+```
+```
+Useful options:
+-f  Specify which file to read. The program will read password.txt if the flag is not specified.
+-s  Specify how many Megabyte to read. The whole file will be read if the flag is not specified.
+-d  Activates debug mode.
+```
 
 ## Code standard
 
@@ -27,8 +49,10 @@ Indentation level is two spaces.
 
 ```
 
-void foo(){
-  if(!coffee){
+void foo() {
+  if (!coffee) {
+    make_coffee();
+  } else {
     make_coffee();
   }
 }

@@ -24,6 +24,7 @@ private:
   cl::Buffer ocl_bufs[BUFFER_COUNT*2];
   void *host_bufs[BUFFER_COUNT*2];
   cl_mem_ext_ptr_t buffer_ext[BUFFER_COUNT*2];  // Declaring two extensions for both buffers
+
 };
 
 
