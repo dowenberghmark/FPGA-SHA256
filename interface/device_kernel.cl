@@ -11,21 +11,15 @@ struct chunk{
 kernel __attribute__((reqd_work_group_size(1, 1, 1)))
 void hashing_kernel(__global struct chunk * __restrict buffer0,
 		    __global struct chunk * __restrict buffer1,
-		    __global struct chunk * __restrict buffer2,
-		    __global struct chunk * __restrict buffer3,
 		    const int n_elements,
 		    const int active_buf) {
-  printf("HELLO FROM FPGA KERNEL 0\n");
+  printf("HELLO FROM FPGA KERNEL\n");
 
   __global struct chunk *buffer;
   if (active_buf == 0) {
     buffer = buffer0;
   } else if (active_buf == 1) {
     buffer = buffer1;
-  } else if (active_buf == 2) {
-    buffer = buffer2;
-  } else if (active_buf == 3) {
-    buffer = buffer3;
   }
 
   //__attribute__((opencl_unroll_hint(n)))

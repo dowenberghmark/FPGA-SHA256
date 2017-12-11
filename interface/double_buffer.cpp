@@ -25,7 +25,7 @@
    8. CPU calls get_result and receives result from interface.
    9. goto 1.
  */
-#define NEXT(x) (((x+1) % BUFFER_COUNT + BUFFER_COUNT) % BUFFER_COUNT)
+
 
 DoubleBuffer::DoubleBuffer() {
   glob_head.active_buf = 0;
@@ -34,13 +34,14 @@ DoubleBuffer::DoubleBuffer() {
   }
 
   dev_if = new DeviceInterface();
+  bufs[glob_head.active_buf].chunks = dev_if->fetch_buffer(glob_head.active_buf);
+  chunk_to_write = bufs[glob_head.active_buf].chunks;
   flip_flag = 1;
 }
 
 struct chunk *DoubleBuffer::get_chunk() {
   if (flip_flag) {
     bufs[glob_head.active_buf].num_chunks = 0;
-    chunk_to_write = dev_if->get_write_buffer(glob_head.active_buf);
     flip_flag = 0;
   }
 
@@ -57,9 +58,9 @@ struct chunk *DoubleBuffer::get_chunk() {
 
 struct buffer DoubleBuffer::start_processing() {
   // run kernel
-  bufs[NEXT(glob_head.active_buf)].chunks = dev_if->run_fpga(bufs[glob_head.active_buf].num_chunks, glob_head.active_buf);
+  bufs[1 - glob_head.active_buf].chunks = dev_if->run_fpga(bufs[glob_head.active_buf].num_chunks, glob_head.active_buf);
   // flip buffers
-  glob_head.active_buf = NEXT(glob_head.active_buf);
+  glob_head.active_buf = 1 - glob_head.active_buf;
   flip_flag = 1;
   // result is in our new active buffer, which is also where we write new data.
   chunk_to_write = bufs[glob_head.active_buf].chunks;
