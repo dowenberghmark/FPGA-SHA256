@@ -20,7 +20,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
   char *chunk_placement_ptr;
   char element[64];
   struct buffer result;
-  char hashed_pass[65];
+  char hashed_pass[64];
 
   double_buffer = new DoubleBuffer();
   std::fstream file;
@@ -42,7 +42,8 @@ void sha256_verify(std::string filename, int lines_to_read) {
         for (int j = 0; j < 32; j++) {
           c += snprintf(hashed_pass + c, 64-c, "%02x", ((unsigned char *)result.chunks[i].data)[j]);        
         }
-        verify_vec.push_back (std::string(hashed_pass));
+        hashed_pass[64] = '\0';
+        verify_vec.push_back (hashed_pass);
         std::cout << std::endl;
       }
       chunk_placement_ptr = double_buffer->get_chunk()->data;
@@ -64,8 +65,8 @@ void sha256_verify(std::string filename, int lines_to_read) {
     for (int j = 0; j < 32; j++) {
       c += snprintf(hashed_pass + c, 64-c, "%02x", ((unsigned char *)result.chunks[i].data)[j]);        
     }
-
-    verify_vec.push_back (std::string(hashed_pass));
+    hashed_pass[64] = '\0';
+    verify_vec.push_back (hashed_pass);
     std::cout << std::endl;
   }
   result = double_buffer->get_last_result();
@@ -76,7 +77,8 @@ void sha256_verify(std::string filename, int lines_to_read) {
     for (int j = 0; j < 32; j++) {
       c += snprintf(hashed_pass + c, 64-c, "%02x", ((unsigned char *)result.chunks[i].data)[j]);        
     }
-    verify_vec.push_back (std::string(hashed_pass));
+    hashed_pass[64] = '\0';
+    verify_vec.push_back (hashed_pass);
     std::cout << std::endl;
   }
 
