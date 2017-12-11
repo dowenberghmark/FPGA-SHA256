@@ -52,12 +52,22 @@ void sha256_verify(std::string filename, int lines_to_read) {
       if (lines_to_read == 0) {
         result = double_buffer->start_processing();
         result = double_buffer->get_last_result();
+        for (int i=0;i<result.num_chunks;i++) {
+          result.chunks[i].data[32] = '\0';
+          verify_vec.push_back (result.chunks[i].data);
+          // Decomment  for printing result
+          // for (int j = 0; j < 32; j++) {
+          //   printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
+          // }
+          // std::cout << std::endl;
+      }
         break;
       }
     }
   }
   file.close();
   verify(verify_vec);
+  delete double_buffer;
 }
 
 void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
