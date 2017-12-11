@@ -132,6 +132,12 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt, int vopt) {
   }
 
   result = double_buffer->start_processing();
+  for (int i=0;i<result.num_chunks;i++) {
+    if (vopt == 1) {
+      std::cout << "Pushing to verify_vec " << std::endl;
+      verify_vec.push_back (result.chunks[i].data);
+    }
+  }
   result = double_buffer->get_last_result();
   for (int i=0;i<result.num_chunks;i++) {
     if (vopt == 1) {
