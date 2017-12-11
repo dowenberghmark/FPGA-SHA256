@@ -41,7 +41,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
         result.chunks[i].data[32] = '\0';
     
         for (int j = 0; j < 32; j++) {
-          snprintf(&(hashed_char), 1, "%02x", ((unsigned char *)result.chunks[i].data)[j]);
+          snprintf(hashed_char, 1, "%02x", ((unsigned char *)result.chunks[i].data)[j]);
           printf("%s\n", hashed_char);
           hashed_pass[j] = *hashed_char;
         }
