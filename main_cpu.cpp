@@ -75,7 +75,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
   delete double_buffer;
 }
 
-void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
+void sha256_fpga(std::string filename,int lines_to_read,int dopt, int vopt) {
   DoubleBuffer *double_buffer;
   char *chunk_placement_ptr;
   char element[64];
@@ -84,6 +84,7 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
   double_buffer = new DoubleBuffer();
   std::fstream file;
   file.open(filename);
+  std::vector<std::string> verify_vec;
 
   while (!file.eof()) {
     memset(element,0,64);
@@ -98,6 +99,10 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
       if (dopt == 1) {
         std::cout << "get_chunk() returned nullptr" << std::endl;
         std::cout << "running start_processing().." << std::endl;
+      }
+      if (vopt == 1) {
+        std::cout << "Pushing to verify_vec " << std::endl;
+        verify_vec.push_back (result.chunks[i].data);
       }
       result = double_buffer->start_processing();
       if (dopt == 1) {
@@ -136,6 +141,7 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
     }
   }
   file.close();
+  verify(verify_vec);
   delete double_buffer;
 }
 
@@ -223,7 +229,7 @@ int main(int argc, char ** argv) {
   std::cout << "================================================================" << std::endl;
 
   
-  if (vopt == 1) {
+  if (0 == 1) {
     std::cout << "====================== VERIFICATION RESULTS =======================" << std::endl;
     sha256_verify(filename, 12);
     std::cout << "================================================================" << std::endl;
@@ -231,7 +237,7 @@ int main(int argc, char ** argv) {
   else {
     /*run sha256 fpga*/
     auto start = std::chrono::system_clock::now();
-    sha256_fpga(filename,lines_to_read,dopt);
+    sha256_fpga(filename,lines_to_read,dopt, vopt);
     auto end = std::chrono::system_clock::now();
     time_total = end - start;
 
