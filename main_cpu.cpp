@@ -100,14 +100,17 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt, int vopt) {
         std::cout << "get_chunk() returned nullptr" << std::endl;
         std::cout << "running start_processing().." << std::endl;
       }
-
       result = double_buffer->start_processing();
+
+      if (vopt == 1) {
+        for (int i=0;i<result.num_chunks;i++) {
+          std::cout << "Pushing to verify_vec " << std::endl;
+          verify_vec.push_back (result.chunks[i].data);
+        }
+      }
+
       if (dopt == 1) {
         for (int i=0;i<result.num_chunks;i++) {
-          if (vopt == 1) {
-            std::cout << "Pushing to verify_vec " << std::endl;
-            verify_vec.push_back (result.chunks[i].data);
-          }
           for (int j = 0; j < 32; j++) {
             printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
           }
@@ -130,6 +133,12 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt, int vopt) {
 
   result = double_buffer->start_processing();
   result = double_buffer->get_last_result();
+  for (int i=0;i<result.num_chunks;i++) {
+    if (vopt == 1) {
+      std::cout << "Pushing to verify_vec " << std::endl;
+      verify_vec.push_back (result.chunks[i].data);
+    }
+  }
 
   if (dopt == 1) {
     for (int i=0;i<result.num_chunks;i++) {
@@ -238,7 +247,7 @@ int main(int argc, char ** argv) {
   else {
     /*run sha256 fpga*/
     auto start = std::chrono::system_clock::now();
-    sha256_fpga(filename,lines_to_read,dopt, vopt);
+    sha256_fpga(filename,lines_to_read,dopt,vopt);
     auto end = std::chrono::system_clock::now();
     time_total = end - start;
 
