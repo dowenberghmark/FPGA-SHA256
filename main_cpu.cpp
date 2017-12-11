@@ -38,6 +38,9 @@ void sha256_verify(std::string filename, int lines_to_read) {
         std::cout << "Pushing to verify_vec " << std::endl;
         result.chunks[i].data[32] = '\0';
         verify_vec.push_back (result.chunks[i].data);
+        for (int j = 0; j < 32; j++) {
+          printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
+        }
       }
       chunk_placement_ptr = double_buffer->get_chunk()->data;
     }
@@ -55,12 +58,18 @@ void sha256_verify(std::string filename, int lines_to_read) {
     std::cout << "Pushing to verify_vec " << std::endl;
     result.chunks[i].data[32] = '\0';
     verify_vec.push_back (result.chunks[i].data);
+    for (int j = 0; j < 32; j++) {
+      printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
+    }
   }
   result = double_buffer->get_last_result();
   for (int i=0;i<result.num_chunks;i++) {
     std::cout << "Pushing last chunk to verify_vec " << std::endl;
     result.chunks[i].data[32] = '\0';
     verify_vec.push_back (result.chunks[i].data);
+    for (int j = 0; j < 32; j++) {
+      printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
+    }
   }
 
   file.close();
