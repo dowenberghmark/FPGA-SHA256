@@ -61,7 +61,6 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
 	std::cout << "get_chunk() returned ptr" << std::endl;
 	std::cout << "reading string from file: " << chunk_placement_ptr << std::endl;
       }
-
       pre_process(chunk_placement_ptr);
       lines_to_read--;
     }
@@ -78,8 +77,9 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
 
 int main(int argc, char ** argv) {
   /*Initialization*/
-  int c, svalue, filesize, lines_to_read = -1;
+  int c, filesize, lines_to_read = -1;
   int bopt = 0, dopt = 0, sopt = 0, fopt = 0, vopt = 0;
+  double svalue;
   char *fvalue = NULL;
   std::string filename;
   std::chrono::duration<double> time_total;
@@ -106,7 +106,7 @@ int main(int argc, char ** argv) {
     }
     case 's': {
       sopt = 1;
-      svalue = std::stoi(optarg);
+      svalue = std::stod(optarg);
       break;
     }
     case 'h': {
@@ -149,9 +149,9 @@ int main(int argc, char ** argv) {
   }
 
   if (sopt) { //size flag
-    filesize = svalue * 1000;
+    filesize = svalue * 1000 * 1000;
     lines_to_read = trunc(filesize/64);
-    std::cout << "size: " << filesize << "MB" << std::endl;
+    std::cout << "size: " << svalue << "MB" << std::endl;
     std::cout << "lines_to_read: " << lines_to_read << std::endl;
   } else {
     std::cout << "size: whole file will be read" << std::endl;
