@@ -20,7 +20,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
   char *chunk_placement_ptr;
   char element[64];
   struct buffer result;
-  char hashed_pass[64];
+  char hashed_pass[65];
 
   double_buffer = new DoubleBuffer();
   std::fstream file;
