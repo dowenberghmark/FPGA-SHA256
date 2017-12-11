@@ -45,7 +45,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
           printf("%c\n", hashed_char);
           hashed_pass[j] = hashed_char;
         }
-        verify_vec.push_back (std::string(hashed_pass));¶
+        verify_vec.push_back (std::string(hashed_pass));
         std::cout << std::endl;
       }
       chunk_placement_ptr = double_buffer->get_chunk()->data;
