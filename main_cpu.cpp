@@ -21,10 +21,12 @@ void sha256_verify(std::string filename, int lines_to_read) {
   char element[64];
   struct buffer result;
 
+  std::cout << "Attempting to create double buffer" << std:endl;
   double_buffer = new DoubleBuffer();
   std::fstream file;
   file.open(filename);
   std::vector<std::string> verify_vec;
+  std::cout << "Initialization complete" << std:endl;
 
   while (!file.eof()) {
     chunk_placement_ptr = double_buffer->get_chunk()->data;
