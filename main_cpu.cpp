@@ -51,6 +51,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
 
       if (lines_to_read == 0) {
         result = double_buffer->start_processing();
+        result = double_buffer->get_last_result();
         break;
       }
     }
