@@ -16,6 +16,9 @@
 #include "cpu/sha_preprocess.hpp"
 #include "cpu/verify.hpp"
 
+struct pre_settings {
+
+}
 
 void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
   DoubleBuffer *double_buffer;
@@ -78,6 +81,53 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
 
   file.close();
   delete double_buffer;
+}
+
+void pre_settings(){
+  std::cout << "======================== PRE SETTINGS ==========================" << std::endl;
+  if (vopt == 1) {
+    std::cout << "verification mode is on" << std::endl;
+  }
+
+  if (dopt == 1) {
+    std::cout << "debug mode is on" << std::endl;
+  }
+
+  if (bopt == 1) {
+    std::cout << "benchmark mode is on" << std::endl;
+  }
+
+  if (fopt == 1) { //filename flag
+    filename = fvalue;
+    std::cout << "filename: " << filename << std::endl;
+  } else {
+    filename = "password.txt";
+    std::cout << "filename: " << filename << std::endl;
+  }
+
+  if (sopt == 1) { //size flag
+    filesize = svalue * 1000; //2pow20
+    lines_to_read = trunc(filesize/64);
+    std::cout << "size: " << filesize << "MB" << std::endl;
+    std::cout << "lines_to_read: " << lines_to_read << std::endl;
+  } else {
+    std::cout << "size: whole file will be read" << std::endl;
+  }
+  std::cout << "================================================================" << std::endl;
+}
+
+void benchmark(int time_diff){
+   std::cout << "Running sha256 CPU program..." << std::endl;
+    auto start = std::chrono::system_clock::now();
+    //benchmark program specified for hardware
+    auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> cpu_program_time = end - start;
+    std::cout << std::endl;
+    std::cout << "====================== BENCHMARK RESULTS =======================" << std::endl;
+    std::cout << "FPGA sha256 program time: "<< time_diff.count() << "s" << std::endl;
+    std::cout << std::endl;
+    std::cout << "CPU sha256 program time: " <<  cpu_program_time.count() << "s" << std::endl;
+    std::cout << "================================================================" << std::endl;
 }
 
 int main(int argc, char ** argv) {
@@ -153,14 +203,13 @@ int main(int argc, char ** argv) {
   }
 
   if (sopt == 1) { //size flag
-    filesize = svalue * 1000;
+    filesize = svalue * 1000; //2pow20
     lines_to_read = trunc(filesize/64);
     std::cout << "size: " << filesize << "MB" << std::endl;
     std::cout << "lines_to_read: " << lines_to_read << std::endl;
   } else {
     std::cout << "size: whole file will be read" << std::endl;
   }
-
   std::cout << "================================================================" << std::endl;
 
   /*run sha256 fpga*/
@@ -170,17 +219,7 @@ int main(int argc, char ** argv) {
   time_total = end - start;
 
   if (bopt == 1) {
-    std::cout << "Running sha256 CPU program..." << std::endl;
-    auto start = std::chrono::system_clock::now();
-    //benchmark program specified for hardware
-    auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> cpu_program_time = end - start;
-    std::cout << std::endl;
-    std::cout << "====================== BENCHMARK RESULTS =======================" << std::endl;
-    std::cout << "FPGA sha256 program time: "<< time_total.count() << "s" << std::endl;
-    std::cout << std::endl;
-    std::cout << "CPU sha256 program time: " <<  cpu_program_time.count() << "s" << std::endl;
-    std::cout << "================================================================" << std::endl;
+    benchmark(int time_total);
   }
 
   if (vopt == 1) {
