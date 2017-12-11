@@ -68,8 +68,8 @@ struct buffer DoubleBuffer::start_processing() {
 }
 
 struct buffer DoubleBuffer::get_last_result() {
-  bufs[glob_head.active_buf].chunks = dev_if->read_last_result(glob_head.active_buf);
-  return bufs[glob_head.active_buf];
+  bufs[1 - glob_head.active_buf].chunks = dev_if->read_last_result(glob_head.active_buf);
+  return bufs[1 - glob_head.active_buf];
 }
 
 DoubleBuffer::~DoubleBuffer() {

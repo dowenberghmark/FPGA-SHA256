@@ -66,7 +66,6 @@ DeviceInterface::DeviceInterface() {
     host_bufs[i] = nullptr;
   }
 
-  puts("host bufs 0");
   host_bufs[0] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[0], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
 }
 
@@ -77,8 +76,6 @@ struct chunk *DeviceInterface::fetch_buffer(int active_buf) {
 
 struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   cl_int err;
-  // unmap input buffer
-  printf("unmapping: %d\n", active_buf);
   q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf], NULL, NULL);
   q.finish();
 
@@ -93,21 +90,18 @@ struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   q.enqueueTask(krnl_sha);
 
   // previous computations result
-  printf("mapping: %d\n", 1 - active_buf);
-host_bufs[1-active_buf] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
+host_bufs[1 - active_buf] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
   check_error(err);
   // possibly remove this to allow for multiple kernels to run simultaneously
   q.finish();
 
-  return (struct chunk *) host_bufs[1-active_buf];
+  return (struct chunk *) host_bufs[1 - active_buf];
 }
 
 struct chunk *DeviceInterface::read_last_result(int active_buf) {
   int err;
-  printf("unmapping: %d\n", active_buf);
   q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf], NULL, NULL);
 
-  printf("mapping: %d\n", 1 - active_buf);
   host_bufs[1-active_buf] = q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
   check_error(err);
 
@@ -115,7 +109,6 @@ struct chunk *DeviceInterface::read_last_result(int active_buf) {
 }
 
 void DeviceInterface::unmap_last_result(int active_buf) {
-  printf("unmapping: %d\n", 1 - active_buf);
   q.enqueueUnmapMemObject(ocl_bufs[1-active_buf], host_bufs[1 - active_buf]);
   q.finish();
 }
