@@ -44,7 +44,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
           snprintf(&(hashed_char), 1, "%02x", ((unsigned char *)result.chunks[i].data)[j]);
           hashed_pass[j] = hashed_char;
         }
-        verify_vec.push_back (hashed_pass);
+        verify_vec.push_back (std::string(hashed_pass));
         std::cout << std::endl;
       }
       chunk_placement_ptr = double_buffer->get_chunk()->data;
@@ -66,7 +66,8 @@ void sha256_verify(std::string filename, int lines_to_read) {
       snprintf(&(hashed_char), 1, "%02x", ((unsigned char *)result.chunks[i].data)[j]);
       hashed_pass[j] = hashed_char;
     }
-    verify_vec.push_back (hashed_pass);
+
+    verify_vec.push_back (std::string(hashed_pass));
     std::cout << std::endl;
   }
   result = double_buffer->get_last_result();
@@ -77,7 +78,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
       snprintf(&(hashed_char), 1, "%02x", ((unsigned char *)result.chunks[i].data)[j]);
       hashed_pass[j] = hashed_char;
     }
-    verify_vec.push_back (result.chunks[i].data);
+    verify_vec.push_back (std::string(hashed_pass));
     std::cout << std::endl;
   }
 
@@ -85,55 +86,6 @@ void sha256_verify(std::string filename, int lines_to_read) {
   verify(verify_vec);
   delete double_buffer;
 }
-//   DoubleBuffer *double_buffer;
-//   char *chunk_placement_ptr;
-//   char element[64];
-//   struct buffer result;
-
-//   std::cout << "Attempting to create double buffer" << std::endl;
-//   double_buffer = new DoubleBuffer();
-//   std::fstream file;
-//   file.open(filename);
-//   std::vector<std::string> verify_vec;
-//   std::cout << "Initialization complete" << std::endl;
-
-//   while (!file.eof()) {
-//     chunk_placement_ptr = double_buffer->get_chunk()->data;
-
-//     if (chunk_placement_ptr == nullptr) {
-//       std::cout << "Start processing" << std::endl;
-//       result = double_buffer->start_processing();
-
-//       for (int i=0;i<result.num_chunks;i++) {
-//         verify_vec.push_back (result.chunks[i].data);
-//       }
-//     }
-//     else{
-//       memset(element,0,64);
-//       file >> element;
-//       pre_process(element);
-//       memcpy(chunk_placement_ptr,element,sizeof(element));
-//       lines_to_read--;
-//     }
-//     if (lines_to_read == 0) {
-//       break;
-//     }
-//   }
-
-//   std::cout << "Start processing" << std::endl;
-//   result = double_buffer->start_processing();
-//   for (int i=0;i<result.num_chunks;i++) {
-//     verify_vec.push_back (result.chunks[i].data);
-//   }
-//   std::cout << "Get last chunk" << std::endl;
-//   result = double_buffer->get_last_result();
-//   for (int i=0;i<result.num_chunks;i++) {
-//     verify_vec.push_back (result.chunks[i].data);
-//   }
-//   file.close();
-//   verify(verify_vec);
-//   delete double_buffer;
-// }
 
 void sha256_fpga(std::string filename,int lines_to_read,int dopt, int vopt) {
   DoubleBuffer *double_buffer;
