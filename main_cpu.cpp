@@ -140,7 +140,9 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt, int vopt) {
     }
   }
   file.close();
-  verify(verify_vec);
+  if (vopt == 1){
+    verify(verify_vec);
+  }
   delete double_buffer;
 }
 
