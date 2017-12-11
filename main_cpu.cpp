@@ -22,7 +22,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
   struct buffer result;
 
   double_buffer = new DoubleBuffer();
-  std::ifstream file;
+  std::fstream file;
   file.open(filename);
   std::vector<std::string> verify_vec;
 
@@ -30,6 +30,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
     chunk_placement_ptr = double_buffer->get_chunk()->data;
 
     if (chunk_placement_ptr == nullptr) {
+      std::cout << "Start processing" << std::endl;
       result = double_buffer->start_processing();
 
       for (int i=0;i<result.num_chunks;i++) {
@@ -50,7 +51,9 @@ void sha256_verify(std::string filename, int lines_to_read) {
       lines_to_read--;
 
       if (lines_to_read == 0) {
+        std::cout << "Start processing" << std::endl;
         result = double_buffer->start_processing();
+        std::cout << "Get last chunk" << std::endl;
         result = double_buffer->get_last_result();
         for (int i=0;i<result.num_chunks;i++) {
           result.chunks[i].data[32] = '\0';
@@ -220,7 +223,7 @@ int main(int argc, char ** argv) {
   
   if (vopt == 1) {
     std::cout << "====================== VERIFICATION RESULTS =======================" << std::endl;
-    sha256_verify(filename, 16);
+    sha256_verify(filename, 12);
     std::cout << "================================================================" << std::endl;
   }
   else {
