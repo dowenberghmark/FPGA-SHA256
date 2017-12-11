@@ -26,6 +26,6 @@ int verify(std::vector<std::string> fpga_hash_vec){
       errors++;
     }
   }
-  cout << "Comparison completed. " << errors << "nr of errors." << endl;
+  cout << "Comparison completed. " << errors << " errors." << endl;
   return 0;
 }
