@@ -27,38 +27,26 @@
  */
 
 DoubleBuffer::DoubleBuffer() {
-
-
-  bufs[0].chunks = (struct chunk *) aligned_alloc(4096, BUFFER_SIZE);
-  bufs[1].chunks = (struct chunk *) aligned_alloc(4096, BUFFER_SIZE);
-
-  if (!bufs[0].chunks || !bufs[1].chunks) {
-    throw std::runtime_error("Can't allocate enough memory.");
-  }
-  // Which buffer to process. 0 -> buffer0 & 1 -> buffer1
   glob_head.active_buf = 0;
-
-
   bufs[0].num_chunks = 0;
   bufs[1].num_chunks = 0;
 
+  dev_if = new DeviceInterface();
 
-  chunk_to_write = bufs[0].chunks;;
-
-  dev_if = new DeviceInterface(bufs[0].chunks, bufs[1].chunks);
-
-  flip_flag = 0;
+  flip_flag = 1;
 }
 
 struct chunk *DoubleBuffer::get_chunk() {
   if (flip_flag) {
     bufs[glob_head.active_buf].num_chunks = 0;
+    chunk_to_write = dev_if->get_write_buffer(glob_head.active_buf);
     flip_flag = 0;
   }
 
-
-  if(bufs[glob_head.active_buf].num_chunks >= CHUNKS_PER_BUFFER){    return nullptr;
+  if (bufs[glob_head.active_buf].num_chunks >= CHUNKS_PER_BUFFER) {
+    return nullptr;
   }
+
   bufs[glob_head.active_buf].num_chunks++;
   struct chunk *old_buf_ptr = chunk_to_write;
   // hops to next chunk 64 bytes forward
@@ -68,7 +56,7 @@ struct chunk *DoubleBuffer::get_chunk() {
 
 struct buffer DoubleBuffer::start_processing() {
   // run kernel
-  dev_if->run_fpga(bufs[glob_head.active_buf].num_chunks, glob_head.active_buf);
+  bufs[1 - glob_head.active_buf].chunks = dev_if->run_fpga(bufs[glob_head.active_buf].num_chunks, glob_head.active_buf);
   // flip buffers
   glob_head.active_buf = 1 - glob_head.active_buf;
   flip_flag = 1;
@@ -77,8 +65,12 @@ struct buffer DoubleBuffer::start_processing() {
   return bufs[glob_head.active_buf];
 }
 
+struct buffer DoubleBuffer::get_last_result() {
+  bufs[glob_head.active_buf].chunks = dev_if->read_last_result(glob_head.active_buf);
+  return bufs[glob_head.active_buf];
+}
+
 DoubleBuffer::~DoubleBuffer() {
-  free(bufs[0].chunks);
-  free(bufs[1].chunks);
+  dev_if->unmap_last_result(glob_head.active_buf);
   delete dev_if;
 }

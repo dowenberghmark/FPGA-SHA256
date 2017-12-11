@@ -73,7 +73,7 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
     memset(element,0,64);
     file >> element;
     chunk_placement_ptr = double_buffer->get_chunk()->data;
-   //change element to directly char *data			
+   //change element to directly char *data
     if (dopt == 1) {
       std::cout << "reading string: " << element << std::endl;
     }
@@ -86,7 +86,10 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
       result = double_buffer->start_processing();
       if (dopt == 1) {
         for (int i=0;i<result.num_chunks;i++) {
-          printf("%.*s\n", 32, result.chunks[i].data);
+	  for (int j = 0; j < 32; j++) {
+	    printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
+	  }
+	  printf("\n");
         }
       }
 
@@ -103,20 +106,33 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
    if (lines_to_read == 0) {
     break;
   }
-}
-file.close();
+
+  result = double_buffer->start_processing();
+  result = double_buffer->get_last_result();
+
+  if (dopt == 1) {
+    for (int i=0;i<result.num_chunks;i++) {
+      for (int j = 0; j < 32; j++) {
+        printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
+      }
+      printf("\n");
+    }
+  }
+
+  file.close();
+  delete double_buffer;
 }
 
 int main(int argc, char ** argv) {
   /*Initialization*/
-  int c, svalue, filesize, lines_to_read;
+  int c, svalue, filesize, lines_to_read = -1;
   int bopt = 0, dopt = 0, sopt = 0, fopt = 0, vopt = 0;
   char *fvalue = NULL;
   std::string filename;
   std::chrono::duration<double> time_total;
 
   /*Getopt flags*/
-  while ((c = getopt (argc,argv,"v,b,d,h,f:s:")) != -1) {
+  while ((c = getopt(argc,argv,"v,b,d,h,f:s:")) != -1) {
     switch (c) {
       case 'v': {
         vopt = 1;

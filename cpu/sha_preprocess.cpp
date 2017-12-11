@@ -1,17 +1,12 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <sstream>
-#include <bitset>
-#include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
-void pre_process(char *element){
+void pre_process(char *element) {
   /*Initilaize*/
   int str_len = strlen(element);
   uint64_t element_length_append;
   element_length_append = str_len*8;
-  element[str_len++] = 0x80;
+  element[str_len] = 0x80;
 
   element[56] = (element_length_append >> 56) & 0xFF;
   element[57] = (element_length_append >> 48) & 0xFF;
