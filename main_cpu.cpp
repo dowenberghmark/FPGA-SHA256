@@ -26,7 +26,7 @@ void print_result(struct buffer result) {
   }
 }
 
-void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
+void sha256_fpga(std::string filename, int lines_to_read, int dopt) {
   DoubleBuffer *double_buffer;
   char *chunk_placement_ptr;
   struct buffer result;
