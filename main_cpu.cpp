@@ -100,32 +100,31 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt, int vopt) {
         std::cout << "get_chunk() returned nullptr" << std::endl;
         std::cout << "running start_processing().." << std::endl;
       }
-      if (vopt == 1) {
-        std::cout << "Pushing to verify_vec " << std::endl;
-        verify_vec.push_back (result.chunks[i].data);
-      }
+
       result = double_buffer->start_processing();
       if (dopt == 1) {
         for (int i=0;i<result.num_chunks;i++) {
-	  for (int j = 0; j < 32; j++) {
-	    printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
-	  }
-	  printf("\n");
+          if (vopt == 1) {
+            std::cout << "Pushing to verify_vec " << std::endl;
+            verify_vec.push_back (result.chunks[i].data);
+          }
+          for (int j = 0; j < 32; j++) {
+            printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
+          }
+          printf("\n");
         }
       }
-
       chunk_placement_ptr = double_buffer->get_chunk()->data;
     }
     if (dopt == 1) {
-     std::cout << "get_chunk() returned value " << std::endl;
-   }
+      std::cout << "get_chunk() returned value " << std::endl;
+    }
     /* should always run this part */
-   pre_process(element);
-   memcpy(chunk_placement_ptr,element,sizeof(element));
-   lines_to_read--;
-
-   if (lines_to_read == 0) {
-    break;
+    pre_process(element);
+    memcpy(chunk_placement_ptr,element,sizeof(element));
+    lines_to_read--;
+    if (lines_to_read == 0) {
+      break;
     }
   }
 
