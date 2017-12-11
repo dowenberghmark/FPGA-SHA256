@@ -20,7 +20,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
   char *chunk_placement_ptr;
   char element[64];
   struct buffer result;
-  unsigned char hashed_pass[32];
+  char hashed_pass[32];
 
   double_buffer = new DoubleBuffer();
   std::fstream file;
@@ -40,7 +40,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
         result.chunks[i].data[32] = '\0';
     
         for (int j = 0; j < 32; j++) {
-          sprintf(&(hashed_pass[j]), "%02x", ((unsigned char *)result.chunks[i].data)[j]);
+          sprintf(hashed_pass[j], "%02x", ((unsigned char *)result.chunks[i].data)[j]);
         }
         verify_vec.push_back (hashed_pass);
         std::cout << std::endl;
@@ -61,7 +61,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
     std::cout << "Pushing to verify_vec " << std::endl;
     result.chunks[i].data[32] = '\0';
     for (int j = 0; j < 32; j++) {
-      sprintf(&(hashed_pass[j]), "%02x", ((unsigned char *)result.chunks[i].data)[j]);
+      sprintf(hashed_pass[j], "%02x", ((unsigned char *)result.chunks[i].data)[j]);
     }
     verify_vec.push_back (hashed_pass);
     std::cout << std::endl;
@@ -71,7 +71,7 @@ void sha256_verify(std::string filename, int lines_to_read) {
     std::cout << "Pushing last chunk to verify_vec " << std::endl;
     result.chunks[i].data[32] = '\0';
     for (int j = 0; j < 32; j++) {
-      sprintf(&(hashed_pass[j]), "%02x", ((unsigned char *)result.chunks[i].data)[j]);
+      sprintf(hashed_pass[j], "%02x", ((unsigned char *)result.chunks[i].data)[j]);
     }
     verify_vec.push_back (result.chunks[i].data);
     std::cout << std::endl;
