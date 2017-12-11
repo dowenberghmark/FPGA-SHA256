@@ -42,7 +42,6 @@ void sha256_verify(std::string filename, int lines_to_read) {
         for (int j = 0; j < 32; j++) {
           c += snprintf(hashed_pass + c, 65-c, "%02x", ((unsigned char *)result.chunks[i].data)[j]);        
         }
-        hashed_pass[64] = '\0';
         verify_vec.push_back (hashed_pass);
         std::cout << std::endl;
       }
@@ -65,7 +64,6 @@ void sha256_verify(std::string filename, int lines_to_read) {
     for (int j = 0; j < 32; j++) {
       c += snprintf(hashed_pass + c, 65-c, "%02x", ((unsigned char *)result.chunks[i].data)[j]);        
     }
-    hashed_pass[64] = '\0';
     verify_vec.push_back (hashed_pass);
     std::cout << std::endl;
   }
@@ -77,7 +75,6 @@ void sha256_verify(std::string filename, int lines_to_read) {
     for (int j = 0; j < 32; j++) {
       c += snprintf(hashed_pass + c, 65-c, "%02x", ((unsigned char *)result.chunks[i].data)[j]);        
     }
-    hashed_pass[64] = '\0';
     verify_vec.push_back (hashed_pass);
     std::cout << std::endl;
   }
