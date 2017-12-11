@@ -51,24 +51,23 @@ void sha256_verify(std::string filename, int lines_to_read) {
       pre_process(element);
       memcpy(chunk_placement_ptr,element,sizeof(element));
       lines_to_read--;
-
-      if (lines_to_read == 0) {
-        std::cout << "Start processing" << std::endl;
-        result = double_buffer->start_processing();
-        std::cout << "Get last chunk" << std::endl;
-        result = double_buffer->get_last_result();
-        for (int i=0;i<result.num_chunks;i++) {
-          result.chunks[i].data[32] = '\0';
-          verify_vec.push_back (result.chunks[i].data);
-          // Decomment  for printing result
-          // for (int j = 0; j < 32; j++) {
-          //   printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
-          // }
-          // std::cout << std::endl;
-        }
-        break;
-      }
     }
+    if (lines_to_read == 0) {
+      break;
+    }
+  }
+
+  std::cout << "Start processing" << std::endl;
+  result = double_buffer->start_processing();
+  for (int i=0;i<result.num_chunks;i++) {
+    result.chunks[i].data[32] = '\0';
+    verify_vec.push_back (result.chunks[i].data);
+  }
+  std::cout << "Get last chunk" << std::endl;
+  result = double_buffer->get_last_result();
+  for (int i=0;i<result.num_chunks;i++) {
+    result.chunks[i].data[32] = '\0';
+    verify_vec.push_back (result.chunks[i].data);
   }
   file.close();
   verify(verify_vec);
@@ -245,9 +244,9 @@ int main(int argc, char ** argv) {
   std::cout << "================================================================" << std::endl;
 
   
-  if (0 == 1) {
+  if (vopt == 1) {
     std::cout << "====================== VERIFICATION RESULTS =======================" << std::endl;
-    sha256_verify(filename, 12);
+    sha256_verify(filename, lines_to_read);
     std::cout << "================================================================" << std::endl;
   }
   else {
