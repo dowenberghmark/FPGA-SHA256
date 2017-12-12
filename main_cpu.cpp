@@ -113,44 +113,52 @@ void sha256_fpga(settings p) {
 
   double_buffer = new DoubleBuffer();
   std::fstream file;
+  std::cout << "TESTING" << std::endl;
   file.open(p.filename);
+  std::cout << "TESTING 2" << std::endl;
   struct buffer result;
-
+  std::cout << "TESTING 3" << std::endl;
   while (!file.eof()) {
+    std::cout << "TESTING 4" << std::endl;
 
-    chunk_placement_ptr = double_buffer->get_chunk()->data;
-
+    //chunk_placement_ptr = double_buffer->get_chunk()->data;
+    std::cout << "TESTING 4.5" << std::endl;
 
     if (chunk_placement_ptr == nullptr) {
-      if (p.dopt == 1) {
-        std::cout << "get_chunk() returned nullptr" << std::endl;
-        std::cout << "running start_processing().." << std::endl;
-      }
-      result = double_buffer->start_processing();
-      if (p.dopt == 1) {
-        for (int i=0;i<result.num_chunks;i++) {
-         for (int j = 0; j < 32; j++) {
-           printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
+            std::cout << "TESTING 4.6" << std::endl;
+            if (p.dopt == 1) {
+              std::cout << "get_chunk() returned nullptr" << std::endl;
+              std::cout << "running start_processing().." << std::endl;
+            }
+            result = double_buffer->start_processing();
+            if (p.dopt == 1) {
+              for (int i=0;i<result.num_chunks;i++) {
+               for (int j = 0; j < 32; j++) {
+                 printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
+               }
+               printf("\n");
+             }
+           }
+           std::cout << "TESTING 4.7" << std::endl;
+           chunk_placement_ptr = double_buffer->get_chunk()->data;
+   } 
+         if (p.dopt == 1) {
+           std::cout << "get_chunk() returned value " << std::endl;
          }
-         printf("\n");
-       }
-     }
 
-     chunk_placement_ptr = double_buffer->get_chunk()->data;
-   }
-   if (p.dopt == 1) {
-     std::cout << "get_chunk() returned value " << std::endl;
-   }
+         memset(chunk_placement_ptr,0,64);
+         std::cout << "TESTING 5" << std::endl;
+         file >> chunk_placement_ptr;
+         std::cout << "TESTING 6" << std::endl;
+          /* should always run this part */
+         pre_process(chunk_placement_ptr);
+         std::cout << "TESTING 7" << std::endl;
+         p.lines_to_read--;
+         std::cout << "TESTING 8" << std::endl;
 
-   memset(chunk_placement_ptr,0,64);
-   file >> chunk_placement_ptr;
-    /* should always run this part */
-   pre_process(chunk_placement_ptr);
-   p.lines_to_read--;
-
-   if (p.lines_to_read == 0) {
-    break;
-  }
+             if (p.lines_to_read == 0) {
+              break;
+            }
 }
 result = double_buffer->start_processing();
 result = double_buffer->get_last_result();
@@ -167,6 +175,7 @@ if (p.dopt == 1) {
 file.close();
 delete double_buffer;
 }
+
 int main(int argc, char ** argv) {
   std::cout << "TESTING 1" << std::endl;
   /*Initialization*/
