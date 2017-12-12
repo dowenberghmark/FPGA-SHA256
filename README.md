@@ -32,7 +32,7 @@ Use .PineappleExpress/main -h for more help on how to run the program.
 
 ```
 Example:
-./main -d -f foo.txt -s 100
+./sha256 -d -f foo.txt -s 100
 ```
 ```
 Useful options:
