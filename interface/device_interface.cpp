@@ -90,10 +90,8 @@ struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   q.enqueueTask(krnl_sha);
 
   // previous computations result
-host_bufs[1 - active_buf] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
+  host_bufs[1 - active_buf] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
   check_error(err);
-  // possibly remove this to allow for multiple kernels to run simultaneously
-  q.finish();
 
   return (struct chunk *) host_bufs[1 - active_buf];
 }
