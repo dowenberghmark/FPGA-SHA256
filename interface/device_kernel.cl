@@ -54,7 +54,20 @@ void sha256(__global char *buffer) {
   uint H0[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
   uint W[64];
   uint a,b,c,d,e,f,g,h,t1,t2;
+
+  /*
   int j = 0;
+  //  __attribute__((opencl_unroll_hint(n)))
+  for (int i = 0;  i < 16; i++) {
+    W[i] = ((__global unsigned char) buffer[j] << 24) | ((__global unsigned char) buffer[j+1] << 16) | ((__global unsigned char) buffer[j+2] << 8) | ((__global unsigned char) buffer[j+3]);
+    j += 4;
+  }
+
+  //__attribute__((opencl_unroll_hint(n)))
+  for (int i = 16; i < 64; i++) {
+    W[i] = sigma1(W[i-2]) + W[i-7] + sigma0(W[i-15]) + W[i-16];
+  }
+  */
 
   W[0] = ((unsigned char) buffer[0] << 24) | ((unsigned char) buffer[1] << 16) | ((unsigned char) buffer[2] << 8) | ((unsigned char) buffer[3]);
   W[1] = ((unsigned char) buffer[4] << 24) | ((unsigned char) buffer[5] << 16) | ((unsigned char) buffer[6] << 8) | ((unsigned char) buffer[7]);
@@ -117,6 +130,12 @@ void sha256(__global char *buffer) {
   H0[7] = H0[7] + h;
 
   //Store hash in input buffer
+   //__attribute__((opencl_unroll_hint(n)))
+  /*
+  for (int i = 0; i < 8; i++) {
+    ((__global uint *) buffer)[i] = (((unsigned char *) H0)[i*4] << 24) | (((unsigned char *) H0)[i*4+1] << 16) | (((unsigned char *) H0)[i*4+2] << 8) | (((unsigned char *) H0)[i*4+3]);
+  }
+  */
   ((__global uint *) buffer)[0] = (((unsigned char *) H0)[0] << 24) | (((unsigned char *) H0)[1] << 16) | (((unsigned char *) H0)[2] << 8) | (((unsigned char *) H0)[3]);
   ((__global uint *) buffer)[1] = (((unsigned char *) H0)[4] << 24) | (((unsigned char *) H0)[5] << 16) | (((unsigned char *) H0)[6] << 8) | (((unsigned char *) H0)[7]);
   ((__global uint *) buffer)[2] = (((unsigned char *) H0)[8] << 24) | (((unsigned char *) H0)[9] << 16) | (((unsigned char *) H0)[10] << 8) | (((unsigned char *) H0)[11]);
@@ -142,7 +161,7 @@ void hashing_kernel(__global struct chunk * __restrict buffer0,
     buffer = buffer1;
   }
 
-  // __attribute__((xcl_pipeline_loop))
+  __attribute__((xcl_pipeline_loop))
   for (int i = 0; i < n_elements; i++) {
     sha256(buffer[i].data);
   }
