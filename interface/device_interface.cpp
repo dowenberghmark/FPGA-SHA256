@@ -100,13 +100,13 @@ struct chunk *DeviceInterface::read_last_result(int active_buf) {
   int err;
   q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf], NULL, NULL);
 
-  host_bufs[1-active_buf] = q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
+  host_bufs[1 - active_buf] = q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
   check_error(err);
 
   return (struct chunk *) host_bufs[1 - active_buf];
 }
 
 void DeviceInterface::unmap_last_result(int active_buf) {
-  q.enqueueUnmapMemObject(ocl_bufs[1-active_buf], host_bufs[1 - active_buf]);
+  q.enqueueUnmapMemObject(ocl_bufs[1 - active_buf], host_bufs[1 - active_buf]);
   q.finish();
 }
