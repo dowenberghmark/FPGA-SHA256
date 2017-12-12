@@ -73,17 +73,17 @@ void pre_settings(settings *p){
 }
 
 void benchmark(int time_diff){
- std::cout << "Running sha256 CPU program..." << std::endl;
- auto start = std::chrono::system_clock::now();
- //benchmark program specified for hardware
- auto end = std::chrono::system_clock::now();
- std::chrono::duration<double> cpu_program_time = end - start;
- std::cout << std::endl;
- std::cout << "====================== BENCHMARK RESULTS =======================" << std::endl;
- std::cout << "FPGA sha256 program time: "<< time_diff << "s" << std::endl;
- std::cout << std::endl;
- std::cout << "CPU sha256 program time: " <<  cpu_program_time.count() << "s" << std::endl;
- std::cout << "================================================================" << std::endl;
+  std::cout << "Running sha256 CPU program..." << std::endl;
+  auto start = std::chrono::system_clock::now();
+  //benchmark program specified for hardware
+  auto end = std::chrono::system_clock::now();
+  std::chrono::duration<double> cpu_program_time = end - start;
+  std::cout << std::endl;
+  std::cout << "====================== BENCHMARK RESULTS =======================" << std::endl;
+  std::cout << "FPGA sha256 program time: "<< time_diff << "s" << std::endl;
+  std::cout << std::endl;
+  std::cout << "CPU sha256 program time: " <<  cpu_program_time.count() << "s" << std::endl;
+  std::cout << "================================================================" << std::endl;
 }
 
 void help(){
@@ -98,12 +98,12 @@ void help(){
 }
 
 void print_result(struct buffer result) {
- for (int i = 0; i < result.num_chunks; i++) {
-   for (int j = 0; j < 32; j++) {
-     printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
-   }
-   printf("\n");
- }
+  for (int i = 0; i < result.num_chunks; i++) {
+    for (int j = 0; j < 32; j++) {
+      printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
+    }
+    printf("\n");
+  }
 }
 
 void sha256_fpga(settings *config) {
@@ -135,38 +135,38 @@ void sha256_fpga(settings *config) {
       }
 
       if (file.eof() || config->lines_to_read == 0) {
-       break;
-     }
-   } else {
-    file >> chunk_placement_ptr;
+	break;
+      }
+    } else {
+      file >> chunk_placement_ptr;
       // last read is eof and garbage
       // either process written chunks or exit
-    if (file.eof()) {
-     double_buffer->regret_get_chunk();
-     if (written_chunks) {
-       continue;
-     } else {
-       break;
-     }
-   }
-   written_chunks++;
-   if (config->dopt) {
-     std::cout << "get_chunk() returned ptr" << std::endl;
-     std::cout << "reading string from file: " << chunk_placement_ptr << std::endl;
-   }
-   pre_process(chunk_placement_ptr);
-   config->lines_to_read--;
- }
-}
+      if (file.eof()) {
+	double_buffer->regret_get_chunk();
+	if (written_chunks) {
+	  continue;
+	} else {
+	  break;
+	}
+      }
+      written_chunks++;
+      if (config->dopt) {
+	std::cout << "get_chunk() returned ptr" << std::endl;
+	std::cout << "reading string from file: " << chunk_placement_ptr << std::endl;
+      }
+      pre_process(chunk_placement_ptr);
+      config->lines_to_read--;
+    }
+  }
 
-result = double_buffer->get_last_result();
+  result = double_buffer->get_last_result();
 
-if (config->dopt) {
-  print_result(result);
-}
+  if (config->dopt) {
+    print_result(result);
+  }
 
-file.close();
-delete double_buffer;
+  file.close();
+  delete double_buffer;
 }
 
 int main(int argc, char ** argv) {
@@ -181,36 +181,36 @@ int main(int argc, char ** argv) {
   while ((c = getopt(argc,argv,"v,b,d,h,f:s:")) != -1) {
     switch (c) {
 
-      case 'v': {
-        pre_sets.vopt = 1;
-        break;
-      }
-      case 'b': {
-        pre_sets.bopt = 1;
-        break;
-      }
-      case 'd': {
-        pre_sets.dopt = 1;
-        break;
-      }
-      case 'f': {
-        pre_sets.fopt = 1;
-        pre_sets.fvalue = optarg;
-        break;
-      }
-      case 's': {
-        pre_sets.sopt = 1;
-        pre_sets.svalue = std::stoi(optarg);
-        break;
-      }
-      case 'h': {
-        help();
-        std::exit(EXIT_FAILURE);
-      }
-      default: {
-        std::cout << "Input was not recoqnized" << std::endl;
-        std::exit(EXIT_FAILURE);
-      }
+    case 'v': {
+      pre_sets.vopt = 1;
+      break;
+    }
+    case 'b': {
+      pre_sets.bopt = 1;
+      break;
+    }
+    case 'd': {
+      pre_sets.dopt = 1;
+      break;
+    }
+    case 'f': {
+      pre_sets.fopt = 1;
+      pre_sets.fvalue = optarg;
+      break;
+    }
+    case 's': {
+      pre_sets.sopt = 1;
+      pre_sets.svalue = std::stoi(optarg);
+      break;
+    }
+    case 'h': {
+      help();
+      std::exit(EXIT_FAILURE);
+    }
+    default: {
+      std::cout << "Input was not recoqnized" << std::endl;
+      std::exit(EXIT_FAILURE);
+    }
     }
   }
 
