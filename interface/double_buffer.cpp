@@ -26,20 +26,22 @@
    9. goto 1.
  */
 
+
 DoubleBuffer::DoubleBuffer() {
   glob_head.active_buf = 0;
-  bufs[0].num_chunks = 0;
-  bufs[1].num_chunks = 0;
+  for (int i = 0; i < BUFFER_COUNT; i++) {
+    bufs[i].num_chunks = 0;
+  }
 
   dev_if = new DeviceInterface();
-
+  bufs[glob_head.active_buf].chunks = dev_if->fetch_buffer(glob_head.active_buf);
+  chunk_to_write = bufs[glob_head.active_buf].chunks;
   flip_flag = 1;
 }
 
 struct chunk *DoubleBuffer::get_chunk() {
   if (flip_flag) {
     bufs[glob_head.active_buf].num_chunks = 0;
-    chunk_to_write = dev_if->get_write_buffer(glob_head.active_buf);
     flip_flag = 0;
   }
 
@@ -66,8 +68,13 @@ struct buffer DoubleBuffer::start_processing() {
 }
 
 struct buffer DoubleBuffer::get_last_result() {
-  bufs[glob_head.active_buf].chunks = dev_if->read_last_result(glob_head.active_buf);
-  return bufs[glob_head.active_buf];
+  bufs[1 - glob_head.active_buf].chunks = dev_if->read_last_result(glob_head.active_buf);
+  return bufs[1 - glob_head.active_buf];
+}
+
+void DoubleBuffer::regret_get_chunk() {
+  bufs[glob_head.active_buf].num_chunks--;
+  chunk_to_write -= 1;
 }
 
 DoubleBuffer::~DoubleBuffer() {

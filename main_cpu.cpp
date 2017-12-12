@@ -17,64 +17,71 @@
 #include "cpu/verify.hpp"
 
 
-void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
+void print_result(struct buffer result) {
+  for (int i = 0; i < result.num_chunks; i++) {
+    for (int j = 0; j < 32; j++) {
+      printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
+    }
+    printf("\n");
+  }
+}
+
+void sha256_fpga(std::string filename, int lines_to_read, int dopt) {
   DoubleBuffer *double_buffer;
   char *chunk_placement_ptr;
-  char element[64];
+  int written_chunks = 0;
   struct buffer result;
 
   double_buffer = new DoubleBuffer();
   std::fstream file;
   file.open(filename);
 
-  while (!file.eof()) {
-    memset(element,0,64);
-    file >> element;
-    chunk_placement_ptr = double_buffer->get_chunk()->data;
-   //change element to directly char *data
-    if (dopt == 1) {
-      std::cout << "reading string: " << element << std::endl;
+  while (1) {
+    // if we want to keep going
+    if (!file.eof() && lines_to_read != 0) {
+      chunk_placement_ptr = double_buffer->get_chunk()->data;
     }
-
-    if (chunk_placement_ptr == nullptr) {
-      if (dopt == 1) {
+    // launch fpga
+    if (chunk_placement_ptr == nullptr || file.eof() || lines_to_read == 0) {
+      if (dopt) {
         std::cout << "get_chunk() returned nullptr" << std::endl;
         std::cout << "running start_processing().." << std::endl;
       }
       result = double_buffer->start_processing();
-      if (dopt == 1) {
-        for (int i=0;i<result.num_chunks;i++) {
-	  for (int j = 0; j < 32; j++) {
-	    printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
-	  }
-	  printf("\n");
-        }
+      written_chunks = 0;
+      if (dopt) {
+	print_result(result);
       }
 
-      chunk_placement_ptr = double_buffer->get_chunk()->data;
-    }
-      if (dopt == 1) {
-  	std::cout << "get_chunk() returned value " << std::endl;
+      if (file.eof() || lines_to_read == 0) {
+	break;
       }
-    /* should always run this part */
-    pre_process(element);
-    memcpy(chunk_placement_ptr,element,sizeof(element));
-    lines_to_read--;
+    } else {
+      file >> chunk_placement_ptr;
 
-    if (lines_to_read == 0) {
-      break;
+      // last read is eof and garbage
+      // either process written chunks or exit
+      if (file.eof()) {
+	double_buffer->regret_get_chunk();
+	if (written_chunks) {
+	  continue;
+	} else {
+	  break;
+	}
+      }
+      written_chunks++;
+      if (dopt) {
+	std::cout << "get_chunk() returned ptr" << std::endl;
+	std::cout << "reading string from file: " << chunk_placement_ptr << std::endl;
+      }
+      pre_process(chunk_placement_ptr);
+      lines_to_read--;
     }
   }
-  result = double_buffer->start_processing();
-  result = double_buffer->get_last_result();
 
-  if (dopt == 1) {
-    for (int i=0;i<result.num_chunks;i++) {
-      for (int j = 0; j < 32; j++) {
-        printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
-      }
-      printf("\n");
-    }
+  result = double_buffer->get_last_result();
+  if (dopt) {
+    print_result(result);
   }
 
   file.close();
@@ -83,8 +90,9 @@ void sha256_fpga(std::string filename,int lines_to_read,int dopt) {
 
 int main(int argc, char ** argv) {
   /*Initialization*/
-  int c, svalue, filesize, lines_to_read = -1;
+  int c, filesize, lines_to_read = -1;
   int bopt = 0, dopt = 0, sopt = 0, fopt = 0, vopt = 0;
+  double svalue;
   char *fvalue = NULL;
   std::string filename;
   std::chrono::duration<double> time_total;
@@ -111,7 +119,7 @@ int main(int argc, char ** argv) {
     }
     case 's': {
       sopt = 1;
-      svalue = std::stoi(optarg);
+      svalue = std::stod(optarg);
       break;
     }
     case 'h': {
@@ -133,19 +141,19 @@ int main(int argc, char ** argv) {
   }
 
   std::cout << "======================== PRE SETTINGS ==========================" << std::endl;
-  if (vopt == 1) {
+  if (vopt) {
     std::cout << "verification mode is on" << std::endl;
   }
 
-  if (dopt == 1) {
+  if (dopt) {
     std::cout << "debug mode is on" << std::endl;
   }
 
-  if (bopt == 1) {
+  if (bopt) {
     std::cout << "benchmark mode is on" << std::endl;
   }
 
-  if (fopt == 1) { //filename flag
+  if (fopt) { //filename flag
     filename = fvalue;
     std::cout << "filename: " << filename << std::endl;
   } else {
@@ -153,10 +161,10 @@ int main(int argc, char ** argv) {
     std::cout << "filename: " << filename << std::endl;
   }
 
-  if (sopt == 1) { //size flag
-    filesize = svalue * 1000;
+  if (sopt) { //size flag
+    filesize = svalue * 1000 * 1000;
     lines_to_read = trunc(filesize/64);
-    std::cout << "size: " << filesize << "MB" << std::endl;
+    std::cout << "size: " << svalue << "MB" << std::endl;
     std::cout << "lines_to_read: " << lines_to_read << std::endl;
   } else {
     std::cout << "size: whole file will be read" << std::endl;
@@ -170,7 +178,7 @@ int main(int argc, char ** argv) {
   auto end = std::chrono::system_clock::now();
   time_total = end - start;
 
-  if (bopt == 1) {
+  if (bopt) {
     std::cout << "Running sha256 CPU program..." << std::endl;
     auto start = std::chrono::system_clock::now();
     //benchmark program specified for hardware
@@ -184,7 +192,7 @@ int main(int argc, char ** argv) {
     std::cout << "================================================================" << std::endl;
   }
 
-  if (vopt == 1) {
+  if (vopt) {
     std::cout << "====================== VERIFICATION RESULTS =======================" << std::endl;
     verify(filename);
     std::cout << "================================================================" << std::endl;
