@@ -10,6 +10,7 @@
 class DoubleBuffer {
  public:
   struct chunk *get_chunk();
+  void regret_get_chunk();
   struct buffer start_processing();
   struct buffer get_last_result();
   DoubleBuffer();

@@ -24,58 +24,48 @@ typedef struct pre_settings_t {
   std::string filename;
 }settings;
 
-void pre_settings_init(settings p) {
-
-  p.svalue = -1;
-  std::cout << "done.." << std::endl;
-  p.filesize = -1;
-  std::cout << "done.." << std::endl;
-  p.lines_to_read = -1;
-  std::cout << "done.." << std::endl;
-  p.bopt = 0;
-  std::cout << "done.." << std::endl;
-  p.dopt = 0;
-  std::cout << "done.." << std::endl;
-  p.sopt = 0;
-  std::cout << "done.." << std::endl;
-  p.fopt = 0;
-  std::cout << "done.." << std::endl;
-  p.vopt = 0;
-  std::cout << "done.." << std::endl;
-  p.fvalue = NULL;
-  std::cout << "done.." << std::endl;
-  //p.filename;
+void pre_settings_init(settings *p) {
+  p->svalue = -1;
+  p->filesize = -1;
+  p->lines_to_read = -1;
+  p->bopt = 0;
+  p->dopt = 0;
+  p->sopt = 0;
+  p->fopt = 0;
+  p->vopt = 0;
+  p->fvalue = NULL;
+  p->filename = "";
 }
 
 
 
-void pre_settings(settings p){
+void pre_settings(settings *p){
   std::cout << "======================== PRE SETTINGS ==========================" << std::endl;
-  if (p.vopt == 1) {
+  if (p->vopt == 1) {
     std::cout << "verification mode is on" << std::endl;
   }
 
-  if (p.dopt == 1) {
+  if (p->dopt == 1) {
     std::cout << "debug mode is on" << std::endl;
   }
 
-  if (p.bopt == 1) {
+  if (p->bopt == 1) {
     std::cout << "benchmark mode is on" << std::endl;
   }
 
-  if (p.fopt == 1) { //filename flag
-    p.filename = p.fvalue;
-    std::cout << "filename: " << p.filename << std::endl;
+  if (p->fopt == 1) { //filename flag
+    p->filename = p->fvalue;
+    std::cout << "filename: " << p->filename << std::endl;
   } else {
-    p.filename = "password.txt";
-    std::cout << "filename: " << p.filename << std::endl;
+    p->filename = "password.txt";
+    std::cout << "filename: " << p->filename << std::endl;
   }
 
-  if (p.sopt == 1) { //size flag
-    p.filesize = p.svalue * 1000; //2pow20
-    p.lines_to_read = trunc(p.filesize/64);
-    std::cout << "size: " << p.filesize << "MB" << std::endl;
-    std::cout << "lines_to_read: " << p.lines_to_read << std::endl;
+  if (p->sopt == 1) { //size flag
+    p->filesize = p->svalue * 1000; //2pow20
+    p->lines_to_read = trunc(p->filesize/64);
+    std::cout << "size: " << p->filesize << "MB" << std::endl;
+    std::cout << "lines_to_read: " << p->lines_to_read << std::endl;
   } else {
     std::cout << "size: whole file will be read" << std::endl;
   }
@@ -85,7 +75,7 @@ void pre_settings(settings p){
 void benchmark(int time_diff){
  std::cout << "Running sha256 CPU program..." << std::endl;
  auto start = std::chrono::system_clock::now();
-    //benchmark program specified for hardware
+ //benchmark program specified for hardware
  auto end = std::chrono::system_clock::now();
  std::chrono::duration<double> cpu_program_time = end - start;
  std::cout << std::endl;
@@ -107,69 +97,72 @@ void help(){
   std::cout << "==============================================================================" << std::endl;
 }
 
-void sha256_fpga(settings p) {
+void print_result(struct buffer result) {
+ for (int i = 0; i < result.num_chunks; i++) {
+   for (int j = 0; j < 32; j++) {
+     printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
+   }
+   printf("\n");
+ }
+}
+
+void sha256_fpga(settings *config) {
+
   DoubleBuffer *double_buffer;
   char *chunk_placement_ptr;
+  int written_chunks = 0;
+  struct buffer result;
 
   double_buffer = new DoubleBuffer();
   std::fstream file;
-  std::cout << "TESTING" << std::endl;
-  file.open(p.filename);
-  std::cout << "TESTING 2" << std::endl;
-  struct buffer result;
-  std::cout << "TESTING 3" << std::endl;
-  while (!file.eof()) {
-    std::cout << "TESTING 4" << std::endl;
+  file.open(config->filename);
 
-    //chunk_placement_ptr = double_buffer->get_chunk()->data;
-    std::cout << "TESTING 4.5" << std::endl;
+  while (1) {
+    // if we want to keep going
+    if (!file.eof() && config->lines_to_read != 0) {
+      chunk_placement_ptr = double_buffer->get_chunk()->data;
+    }
+    // launch fpga
+    if (chunk_placement_ptr == nullptr || file.eof() || config->lines_to_read == 0) {
+      if (config->dopt) {
+        std::cout << "get_chunk() returned nullptr" << std::endl;
+        std::cout << "running start_processing().." << std::endl;
+      }
+      result = double_buffer->start_processing();
+      written_chunks = 0;
+      if (config->dopt) {
+        print_result(result);
+      }
 
-    if (chunk_placement_ptr == nullptr) {
-            std::cout << "TESTING 4.6" << std::endl;
-            if (p.dopt == 1) {
-              std::cout << "get_chunk() returned nullptr" << std::endl;
-              std::cout << "running start_processing().." << std::endl;
-            }
-            result = double_buffer->start_processing();
-            if (p.dopt == 1) {
-              for (int i=0;i<result.num_chunks;i++) {
-               for (int j = 0; j < 32; j++) {
-                 printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
-               }
-               printf("\n");
-             }
-           }
-           std::cout << "TESTING 4.7" << std::endl;
-           chunk_placement_ptr = double_buffer->get_chunk()->data;
-   } 
-         if (p.dopt == 1) {
-           std::cout << "get_chunk() returned value " << std::endl;
-         }
-
-         memset(chunk_placement_ptr,0,64);
-         std::cout << "TESTING 5" << std::endl;
-         file >> chunk_placement_ptr;
-         std::cout << "TESTING 6" << std::endl;
-          /* should always run this part */
-         pre_process(chunk_placement_ptr);
-         std::cout << "TESTING 7" << std::endl;
-         p.lines_to_read--;
-         std::cout << "TESTING 8" << std::endl;
-
-             if (p.lines_to_read == 0) {
-              break;
-            }
+      if (file.eof() || config->lines_to_read == 0) {
+       break;
+     }
+   } else {
+    file >> chunk_placement_ptr;
+      // last read is eof and garbage
+      // either process written chunks or exit
+    if (file.eof()) {
+     double_buffer->regret_get_chunk();
+     if (written_chunks) {
+       continue;
+     } else {
+       break;
+     }
+   }
+   written_chunks++;
+   if (config->dopt) {
+     std::cout << "get_chunk() returned ptr" << std::endl;
+     std::cout << "reading string from file: " << chunk_placement_ptr << std::endl;
+   }
+   pre_process(chunk_placement_ptr);
+   config->lines_to_read--;
+ }
 }
-result = double_buffer->start_processing();
+
 result = double_buffer->get_last_result();
 
-if (p.dopt == 1) {
-  for (int i=0;i<result.num_chunks;i++) {
-    for (int j = 0; j < 32; j++) {
-      printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
-    }
-    printf("\n");
-  }
+if (config->dopt) {
+  print_result(result);
 }
 
 file.close();
@@ -177,20 +170,17 @@ delete double_buffer;
 }
 
 int main(int argc, char ** argv) {
-  std::cout << "TESTING 1" << std::endl;
   /*Initialization*/
-  int c;
-  std::chrono::duration<double> time_total;
 
+  std::chrono::duration<double> time_total;
   settings pre_sets;
-  std::cout << "pre_sets done" << std::endl;
-  
-  pre_settings_init(pre_sets);
-  std::cout << "init pre_sets done" << std::endl;
-  
+  pre_settings_init(&pre_sets);
+
   /*Getopt flags*/
+  int c;
   while ((c = getopt(argc,argv,"v,b,d,h,f:s:")) != -1) {
     switch (c) {
+
       case 'v': {
         pre_sets.vopt = 1;
         break;
@@ -223,25 +213,23 @@ int main(int argc, char ** argv) {
       }
     }
   }
-  std::cout << "swtich case done" << std::endl;
-  pre_settings(pre_sets);
-  std::cout << "pre_settings done" << std::endl;
 
-  /*run sha256 fpga*/
-  auto start = std::chrono::system_clock::now();
-  sha256_fpga(pre_sets);
-  auto end = std::chrono::system_clock::now();
-  std::cout << "fpga done" << std::endl;
+  pre_settings(&pre_sets);
 
-  if (pre_sets.bopt == 1) {
-    time_total = end - start;
-    benchmark(time_total.count());
-  }
 
   if (pre_sets.vopt == 1) {
     std::cout << "====================== VERIFICATION RESULTS =======================" << std::endl;
-    
     std::cout << "================================================================" << std::endl;
   }
+  else {
+    auto start = std::chrono::system_clock::now();
+    sha256_fpga(&pre_sets);
+    auto end = std::chrono::system_clock::now();
+    if (pre_sets.bopt == 1) {
+      time_total = end - start;
+      benchmark(time_total.count());
+    }
+  }
+
   return 0;
 }
