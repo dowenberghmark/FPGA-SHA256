@@ -13,13 +13,19 @@ Code is mostly self-documenting.
 Notes from daily and weekly scrum together with other various information can be found in our [blog](https://pineappleblogg.wordpress.com/).
 
 ## Building PineappleExpress
-In short... From a shell, switch into the root PineappleExpress directory and run:
+From an FPGA Developer AMI, clone the repository, cd into it and run:
 
 ```
-make clean
-make all
-
+# setup environment for building
+source source_files.sh
+# make project, will do sw emulation by default and run the program
+./run_make 
+# set up environment for stand alone program
+source enable_manual_run.sh
+# run stand alone program
+./sha256
 ```
+
 
 ## Run PineappleExpress
 Use .PineappleExpress/main -h for more help on how to run the program.
