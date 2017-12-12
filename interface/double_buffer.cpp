@@ -72,6 +72,11 @@ struct buffer DoubleBuffer::get_last_result() {
   return bufs[1 - glob_head.active_buf];
 }
 
+void DoubleBuffer::regret_get_chunk() {
+  bufs[glob_head.active_buf].num_chunks--;
+  chunk_to_write -= 1;
+}
+
 DoubleBuffer::~DoubleBuffer() {
   dev_if->unmap_last_result(glob_head.active_buf);
   delete dev_if;

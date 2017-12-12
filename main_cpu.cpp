@@ -29,6 +29,7 @@ void print_result(struct buffer result) {
 void sha256_fpga(std::string filename, int lines_to_read, int dopt) {
   DoubleBuffer *double_buffer;
   char *chunk_placement_ptr;
+  int written_chunks = 0;
   struct buffer result;
 
   double_buffer = new DoubleBuffer();
@@ -47,6 +48,7 @@ void sha256_fpga(std::string filename, int lines_to_read, int dopt) {
         std::cout << "running start_processing().." << std::endl;
       }
       result = double_buffer->start_processing();
+      written_chunks = 0;
       if (dopt) {
 	print_result(result);
       }
@@ -55,8 +57,19 @@ void sha256_fpga(std::string filename, int lines_to_read, int dopt) {
 	break;
       }
     } else {
-      memset(chunk_placement_ptr, 0, 64);
       file >> chunk_placement_ptr;
+
+      // last read is eof and garbage
+      // either process written chunks or exit
+      if (file.eof()) {
+	double_buffer->regret_get_chunk();
+	if (written_chunks) {
+	  continue;
+	} else {
+	  break;
+	}
+      }
+      written_chunks++;
       if (dopt) {
 	std::cout << "get_chunk() returned ptr" << std::endl;
 	std::cout << "reading string from file: " << chunk_placement_ptr << std::endl;

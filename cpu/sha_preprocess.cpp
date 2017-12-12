@@ -7,6 +7,7 @@ void pre_process(char *element) {
   uint64_t element_length_append;
   element_length_append = str_len*8;
   element[str_len] = 0x80;
+  memset(element+str_len+1, 0, 55-str_len);
 
   element[56] = (element_length_append >> 56) & 0xFF;
   element[57] = (element_length_append >> 48) & 0xFF;
