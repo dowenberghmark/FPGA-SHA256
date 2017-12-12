@@ -17,55 +17,55 @@
 #include "cpu/verify.hpp"
 
 typedef struct pre_settings_t {
-  int svalue;
+  double svalue;
   int filesize, lines_to_read;
   int bopt, dopt, sopt, fopt, vopt;
   char *fvalue;
   std::string filename;
 }settings;
 
-void pre_settings_init(settings *p) {
-  p->svalue = -1;
-  p->filesize = -1;
-  p->lines_to_read = -1;
-  p->bopt = 0;
-  p->dopt = 0;
-  p->sopt = 0;
-  p->fopt = 0;
-  p->vopt = 0;
-  p->fvalue = NULL;
-  p->filename = "";
+void pre_settings_init(settings *config) {
+  config->svalue = -1;
+  config->filesize = -1;
+  config->lines_to_read = -1;
+  config->bopt = 0;
+  config->dopt = 0;
+  config->sopt = 0;
+  config->fopt = 0;
+  config->vopt = 0;
+  config->fvalue = NULL;
+  config->filename = NULL;
 }
 
 
 
-void pre_settings(settings *p){
+void pre_settings(settings *config){
   std::cout << "======================== PRE SETTINGS ==========================" << std::endl;
-  if (p->vopt == 1) {
+  if (config->vopt == 1) {
     std::cout << "verification mode is on" << std::endl;
   }
 
-  if (p->dopt == 1) {
+  if (config->dopt == 1) {
     std::cout << "debug mode is on" << std::endl;
   }
 
-  if (p->bopt == 1) {
+  if (config->bopt == 1) {
     std::cout << "benchmark mode is on" << std::endl;
   }
 
-  if (p->fopt == 1) { //filename flag
-    p->filename = p->fvalue;
-    std::cout << "filename: " << p->filename << std::endl;
+  if (config->fopt == 1) { //filename flag
+    config->filename = config->fvalue;
+    std::cout << "filename: " << config->filename << std::endl;
   } else {
-    p->filename = "password.txt";
-    std::cout << "filename: " << p->filename << std::endl;
+    config->filename = "password.txt";
+    std::cout << "filename: " << config->filename << std::endl;
   }
 
-  if (p->sopt == 1) { //size flag
-    p->filesize = p->svalue * 1000; //2pow20
-    p->lines_to_read = trunc(p->filesize/64);
-    std::cout << "size: " << p->filesize << "MB" << std::endl;
-    std::cout << "lines_to_read: " << p->lines_to_read << std::endl;
+  if (config->sopt == 1) { //size flag
+    config->filesize = config->svalue * 1000 * 1000; //2pow20
+    config->lines_to_read = trunc(config->filesize/64);
+    std::cout << "size: " << config->filesize << "MB" << std::endl;
+    std::cout << "lines_to_read: " << config->lines_to_read << std::endl;
   } else {
     std::cout << "size: whole file will be read" << std::endl;
   }
@@ -200,7 +200,7 @@ int main(int argc, char ** argv) {
     }
     case 's': {
       pre_sets.sopt = 1;
-      pre_sets.svalue = std::stoi(optarg);
+      pre_sets.svalue = std::stod(optarg);
       break;
     }
     case 'h': {
