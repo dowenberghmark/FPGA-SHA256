@@ -18,7 +18,7 @@ uint32_t ch(uint32_t x, uint32_t y, uint32_t z) {
   return (x & y)^(~x & z);
 }
 
-uint32_t maj(uint32_t x, uint32_t y, uint32_t z) { 
+uint32_t maj(uint32_t x, uint32_t y, uint32_t z) {
   return (x & y)^(x & z)^(y & z);
 }
 
@@ -43,15 +43,30 @@ void sha256(char* chunk_address) {
   uint32_t H0[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
   uint32_t W[64];
   uint32_t a,b,c,d,e,f,g,h,t1,t2,i,j;
-  
+
   //  __attribute__((opencl_unroll_hint(n)))
-  for (i = 0, j = 0; i < 16; i++, j += 4) {
-    W[i] = ((unsigned char) chunk_address[j] << 24) | ((unsigned char) chunk_address[j+1] << 16) | ((unsigned char) chunk_address[j+2] << 8) | ((unsigned char) chunk_address[j+3]);
-  }
-  
-  //__attribute__((opencl_unroll_hint(n)))
-  for (int i = 16; i < 64; i++) {
+  W[0] = ((unsigned char) chunk_address[0] << 24) | ((unsigned char) chunk_address[1] << 16) | ((unsigned char) chunk_address[2] << 8) | ((unsigned char) chunk_address[3]);
+  W[1] = ((unsigned char) chunk_address[4] << 24) | ((unsigned char) chunk_address[5] << 16) | ((unsigned char) chunk_address[6] << 8) | ((unsigned char) chunk_address[7]);
+  W[2] = ((unsigned char) chunk_address[8] << 24) | ((unsigned char) chunk_address[9] << 16) | ((unsigned char) chunk_address[10] << 8) | ((unsigned char) chunk_address[11]);
+  W[3] = ((unsigned char) chunk_address[12] << 24) | ((unsigned char) chunk_address[13] << 16) | ((unsigned char) chunk_address[14] << 8) | ((unsigned char) chunk_address[15]);
+  W[4] = ((unsigned char) chunk_address[16] << 24) | ((unsigned char) chunk_address[17] << 16) | ((unsigned char) chunk_address[18] << 8) | ((unsigned char) chunk_address[19]);
+  W[5] = ((unsigned char) chunk_address[20] << 24) | ((unsigned char) chunk_address[21] << 16) | ((unsigned char) chunk_address[22] << 8) | ((unsigned char) chunk_address[23]);
+  W[6] = ((unsigned char) chunk_address[24] << 24) | ((unsigned char) chunk_address[25] << 16) | ((unsigned char) chunk_address[26] << 8) | ((unsigned char) chunk_address[27]);
+  W[7] = ((unsigned char) chunk_address[28] << 24) | ((unsigned char) chunk_address[29] << 16) | ((unsigned char) chunk_address[30] << 8) | ((unsigned char) chunk_address[31]);
+  W[8] = ((unsigned char) chunk_address[32] << 24) | ((unsigned char) chunk_address[33] << 16) | ((unsigned char) chunk_address[34] << 8) | ((unsigned char) chunk_address[35]);
+  W[9] = ((unsigned char) chunk_address[36] << 24) | ((unsigned char) chunk_address[37] << 16) | ((unsigned char) chunk_address[38] << 8) | ((unsigned char) chunk_address[39]);
+  W[10] = ((unsigned char) chunk_address[40] << 24) | ((unsigned char) chunk_address[41] << 16) | ((unsigned char) chunk_address[42] << 8) | ((unsigned char) chunk_address[43]);
+  W[11] = ((unsigned char) chunk_address[44] << 24) | ((unsigned char) chunk_address[45] << 16) | ((unsigned char) chunk_address[46] << 8) | ((unsigned char) chunk_address[47]);
+  W[12] = ((unsigned char) chunk_address[48] << 24) | ((unsigned char) chunk_address[49] << 16) | ((unsigned char) chunk_address[50] << 8) | ((unsigned char) chunk_address[51]);
+  W[13] = ((unsigned char) chunk_address[52] << 24) | ((unsigned char) chunk_address[53] << 16) | ((unsigned char) chunk_address[54] << 8) | ((unsigned char) chunk_address[55]);
+  W[14] = ((unsigned char) chunk_address[56] << 24) | ((unsigned char) chunk_address[57] << 16) | ((unsigned char) chunk_address[58] << 8) | ((unsigned char) chunk_address[59]);
+  W[15] = ((unsigned char) chunk_address[60] << 24) | ((unsigned char) chunk_address[61] << 16) | ((unsigned char) chunk_address[62] << 8) | ((unsigned char) chunk_address[63]);
+
+
+  __attribute__((xcl_pipeline_loop))
+  for (int i = 16; i < 32; i+=2) {
     W[i] = sigma1(W[i-2]) + W[i-7] + sigma0(W[i-15]) + W[i-16];
+    W[i+1] = sigma1(W[i-1]) + W[i-6] + sigma0(W[i-14]) + W[i-15];
   }
 
   //Initialize working variables
@@ -65,6 +80,7 @@ void sha256(char* chunk_address) {
   h = H0[7];
 
   //Compute Hash
+  __attribute__((xcl_pipeline_loop))
   for (int i = 0; i < 64; i++) {
     t1 = h + zigma1(e) + ch(e, f, g) + K[i] + W[i];
     t2 = zigma0(a) + maj(a, b, c);
@@ -97,7 +113,7 @@ void sha256(char* chunk_address) {
 
   //Store hash in input buffer
   //__attribute__((opencl_unroll_hint(n)))
-  
+
   for (int i = 0; i < 8; i++) {
     ((uint32_t *) chunk_address)[i] = (((unsigned char *) H0)[i*4] << 24) | (((unsigned char *) H0)[i*4+1] << 16) | (((unsigned char *) H0)[i*4+2] << 8) | (((unsigned char *) H0)[i*4+3]);
   }

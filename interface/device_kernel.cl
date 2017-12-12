@@ -53,16 +53,32 @@ void sha256(__global char *input_address, __global char *output_address) {
   uint W[64];
   uint a,b,c,d,e,f,g,h,t1,t2;
   int j = 0;
-  //  __attribute__((opencl_unroll_hint(n)))
-  for (int i = 0;  i < 16; i++) {
-    W[i] = ((__global unsigned char) input_address[j] << 24) | ((__global unsigned char) input_address[j+1] << 16) | ((__global unsigned char) input_address[j+2] << 8) | ((__global unsigned char) input_address[j+3]);
-    j += 4;
+
+  W[0] = ((unsigned char) output_address[0] << 24) | ((unsigned char) output_address[1] << 16) | ((unsigned char) output_address[2] << 8) | ((unsigned char) output_address[3]);
+  W[1] = ((unsigned char) output_address[4] << 24) | ((unsigned char) output_address[5] << 16) | ((unsigned char) output_address[6] << 8) | ((unsigned char) output_address[7]);
+  W[2] = ((unsigned char) output_address[8] << 24) | ((unsigned char) output_address[9] << 16) | ((unsigned char) output_address[10] << 8) | ((unsigned char) output_address[11]);
+  W[3] = ((unsigned char) output_address[12] << 24) | ((unsigned char) output_address[13] << 16) | ((unsigned char) output_address[14] << 8) | ((unsigned char) output_address[15]);
+  W[4] = ((unsigned char) output_address[16] << 24) | ((unsigned char) output_address[17] << 16) | ((unsigned char) output_address[18] << 8) | ((unsigned char) output_address[19]);
+  W[5] = ((unsigned char) output_address[20] << 24) | ((unsigned char) output_address[21] << 16) | ((unsigned char) output_address[22] << 8) | ((unsigned char) output_address[23]);
+  W[6] = ((unsigned char) output_address[24] << 24) | ((unsigned char) output_address[25] << 16) | ((unsigned char) output_address[26] << 8) | ((unsigned char) output_address[27]);
+  W[7] = ((unsigned char) output_address[28] << 24) | ((unsigned char) output_address[29] << 16) | ((unsigned char) output_address[30] << 8) | ((unsigned char) output_address[31]);
+  W[8] = ((unsigned char) output_address[32] << 24) | ((unsigned char) output_address[33] << 16) | ((unsigned char) output_address[34] << 8) | ((unsigned char) output_address[35]);
+  W[9] = ((unsigned char) output_address[36] << 24) | ((unsigned char) output_address[37] << 16) | ((unsigned char) output_address[38] << 8) | ((unsigned char) output_address[39]);
+  W[10] = ((unsigned char) output_address[40] << 24) | ((unsigned char) output_address[41] << 16) | ((unsigned char) output_address[42] << 8) | ((unsigned char) output_address[43]);
+  W[11] = ((unsigned char) output_address[44] << 24) | ((unsigned char) output_address[45] << 16) | ((unsigned char) output_address[46] << 8) | ((unsigned char) output_address[47]);
+  W[12] = ((unsigned char) output_address[48] << 24) | ((unsigned char) output_address[49] << 16) | ((unsigned char) output_address[50] << 8) | ((unsigned char) output_address[51]);
+  W[13] = ((unsigned char) output_address[52] << 24) | ((unsigned char) output_address[53] << 16) | ((unsigned char) output_address[54] << 8) | ((unsigned char) output_address[55]);
+  W[14] = ((unsigned char) output_address[56] << 24) | ((unsigned char) output_address[57] << 16) | ((unsigned char) output_address[58] << 8) | ((unsigned char) output_address[59]);
+  W[15] = ((unsigned char) output_address[60] << 24) | ((unsigned char) output_address[61] << 16) | ((unsigned char) output_address[62] << 8) | ((unsigned char) output_address[63]);
+
+
+
+  __attribute__((xcl_pipeline_loop))
+  for (int i = 16; i < 32; i+=2) {
+    W[i] = sigma1(W[i-2]) + W[i-7] + sigma0(W[i-15]) + W[i-16];
+    W[i+1] = sigma1(W[i-1]) + W[i-6] + sigma0(W[i-14]) + W[i-15];
   }
 
-  //__attribute__((opencl_unroll_hint(n)))
-  for (int i = 16; i < 64; i++) {
-    W[i] = sigma1(W[i-2]) + W[i-7] + sigma0(W[i-15]) + W[i-16];
-  }
 
   //Initialize working variables
   a = H0[0];
@@ -75,6 +91,7 @@ void sha256(__global char *input_address, __global char *output_address) {
   h = H0[7];
 
   //Compute Hash
+  __attribute__((xcl_pipeline_loop))
   for (int i = 0; i < 64; i++) {
     t1 = h + zigma1(e) + ch(e, f, g) + K[i] + W[i];
     t2 = zigma0(a) + maj(a, b, c);
@@ -98,10 +115,14 @@ void sha256(__global char *input_address, __global char *output_address) {
   H0[7] = H0[7] + h;
 
   //Store hash in input buffer
-  //__attribute__((opencl_unroll_hint(n)))
-  for (int i = 0; i < 8; i++) {
-    ((__global uint *) output_address)[i] = (((unsigned char *) H0)[i*4] << 24) | (((unsigned char *) H0)[i*4+1] << 16) | (((unsigned char *) H0)[i*4+2] << 8) | (((unsigned char *) H0)[i*4+3]);
-  }
+  ((__global uint *) output_address)[0] = (((unsigned char *) H0)[0] << 24) | (((unsigned char *) H0)[1] << 16) | (((unsigned char *) H0)[2] << 8) | (((unsigned char *) H0)[3]);
+  ((__global uint *) output_address)[1] = (((unsigned char *) H0)[4] << 24) | (((unsigned char *) H0)[5] << 16) | (((unsigned char *) H0)[6] << 8) | (((unsigned char *) H0)[7]);
+  ((__global uint *) output_address)[2] = (((unsigned char *) H0)[8] << 24) | (((unsigned char *) H0)[9] << 16) | (((unsigned char *) H0)[10] << 8) | (((unsigned char *) H0)[11]);
+  ((__global uint *) output_address)[3] = (((unsigned char *) H0)[12] << 24) | (((unsigned char *) H0)[13] << 16) | (((unsigned char *) H0)[14] << 8) | (((unsigned char *) H0)[15]);
+  ((__global uint *) output_address)[4] = (((unsigned char *) H0)[16] << 24) | (((unsigned char *) H0)[17] << 16) | (((unsigned char *) H0)[18] << 8) | (((unsigned char *) H0)[19]);
+  ((__global uint *) output_address)[5] = (((unsigned char *) H0)[20] << 24) | (((unsigned char *) H0)[21] << 16) | (((unsigned char *) H0)[22] << 8) | (((unsigned char *) H0)[23]);
+  ((__global uint *) output_address)[6] = (((unsigned char *) H0)[24] << 24) | (((unsigned char *) H0)[25] << 16) | (((unsigned char *) H0)[26] << 8) | (((unsigned char *) H0)[27]);
+  ((__global uint *) output_address)[7] = (((unsigned char *) H0)[28] << 24) | (((unsigned char *) H0)[29] << 16) | (((unsigned char *) H0)[30] << 8) | (((unsigned char *) H0)[31]);
 }
 
 // https://www.xilinx.com/html_docs/xilinx2017_2/sdaccel_doc/topics/pragmas/concept-Intro_to_OpenCL_attributes.html
