@@ -34,26 +34,22 @@ void pre_settings_init(settings *config) {
   config->fopt = 0;
   config->vopt = 0;
   config->fvalue = NULL;
-  config->filename = NULL;
+  //config->filename = NULL;
 }
 
-
-
-void pre_settings(settings *config){
+void pre_settings(settings *config) {
   std::cout << "======================== PRE SETTINGS ==========================" << std::endl;
-  if (config->vopt == 1) {
+  if (config->vopt) {
     std::cout << "verification mode is on" << std::endl;
   }
-
-  if (config->dopt == 1) {
+  if (config->dopt) {
     std::cout << "debug mode is on" << std::endl;
   }
-
-  if (config->bopt == 1) {
+  if (config->bopt) {
     std::cout << "benchmark mode is on" << std::endl;
   }
 
-  if (config->fopt == 1) { //filename flag
+  if (config->fopt) { //filename flag
     config->filename = config->fvalue;
     std::cout << "filename: " << config->filename << std::endl;
   } else {
@@ -61,10 +57,10 @@ void pre_settings(settings *config){
     std::cout << "filename: " << config->filename << std::endl;
   }
 
-  if (config->sopt == 1) { //size flag
+  if (config->sopt) { //size flag
     config->filesize = config->svalue * 1000 * 1000; //2pow20
     config->lines_to_read = trunc(config->filesize/64);
-    std::cout << "size: " << config->filesize << "MB" << std::endl;
+    std::cout << "size: " << config->filesize << "B" << std::endl;
     std::cout << "lines_to_read: " << config->lines_to_read << std::endl;
   } else {
     std::cout << "size: whole file will be read" << std::endl;
@@ -216,19 +212,18 @@ int main(int argc, char ** argv) {
 
   pre_settings(&pre_sets);
 
-
-  if (pre_sets.vopt == 1) {
+  if (pre_sets.vopt) {
     std::cout << "====================== VERIFICATION RESULTS =======================" << std::endl;
+    verify(pre_sets.filename);
     std::cout << "================================================================" << std::endl;
-  }
-  else {
+  } else if (pre_sets.bopt) {
     auto start = std::chrono::system_clock::now();
     sha256_fpga(&pre_sets);
     auto end = std::chrono::system_clock::now();
-    if (pre_sets.bopt == 1) {
-      time_total = end - start;
-      benchmark(time_total.count());
-    }
+    time_total = end - start;
+    benchmark(time_total.count());
+    } else {
+      sha256_fpga(&pre_sets);
   }
 
   return 0;
