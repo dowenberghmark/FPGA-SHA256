@@ -56,22 +56,22 @@ void sha256(__global char *buffer) {
   uint a,b,c,d,e,f,g,h,t1,t2;
   int j = 0;
 
-  W[0] = ((unsigned char) output_address[0] << 24) | ((unsigned char) output_address[1] << 16) | ((unsigned char) output_address[2] << 8) | ((unsigned char) output_address[3]);
-  W[1] = ((unsigned char) output_address[4] << 24) | ((unsigned char) output_address[5] << 16) | ((unsigned char) output_address[6] << 8) | ((unsigned char) output_address[7]);
-  W[2] = ((unsigned char) output_address[8] << 24) | ((unsigned char) output_address[9] << 16) | ((unsigned char) output_address[10] << 8) | ((unsigned char) output_address[11]);
-  W[3] = ((unsigned char) output_address[12] << 24) | ((unsigned char) output_address[13] << 16) | ((unsigned char) output_address[14] << 8) | ((unsigned char) output_address[15]);
-  W[4] = ((unsigned char) output_address[16] << 24) | ((unsigned char) output_address[17] << 16) | ((unsigned char) output_address[18] << 8) | ((unsigned char) output_address[19]);
-  W[5] = ((unsigned char) output_address[20] << 24) | ((unsigned char) output_address[21] << 16) | ((unsigned char) output_address[22] << 8) | ((unsigned char) output_address[23]);
-  W[6] = ((unsigned char) output_address[24] << 24) | ((unsigned char) output_address[25] << 16) | ((unsigned char) output_address[26] << 8) | ((unsigned char) output_address[27]);
-  W[7] = ((unsigned char) output_address[28] << 24) | ((unsigned char) output_address[29] << 16) | ((unsigned char) output_address[30] << 8) | ((unsigned char) output_address[31]);
-  W[8] = ((unsigned char) output_address[32] << 24) | ((unsigned char) output_address[33] << 16) | ((unsigned char) output_address[34] << 8) | ((unsigned char) output_address[35]);
-  W[9] = ((unsigned char) output_address[36] << 24) | ((unsigned char) output_address[37] << 16) | ((unsigned char) output_address[38] << 8) | ((unsigned char) output_address[39]);
-  W[10] = ((unsigned char) output_address[40] << 24) | ((unsigned char) output_address[41] << 16) | ((unsigned char) output_address[42] << 8) | ((unsigned char) output_address[43]);
-  W[11] = ((unsigned char) output_address[44] << 24) | ((unsigned char) output_address[45] << 16) | ((unsigned char) output_address[46] << 8) | ((unsigned char) output_address[47]);
-  W[12] = ((unsigned char) output_address[48] << 24) | ((unsigned char) output_address[49] << 16) | ((unsigned char) output_address[50] << 8) | ((unsigned char) output_address[51]);
-  W[13] = ((unsigned char) output_address[52] << 24) | ((unsigned char) output_address[53] << 16) | ((unsigned char) output_address[54] << 8) | ((unsigned char) output_address[55]);
-  W[14] = ((unsigned char) output_address[56] << 24) | ((unsigned char) output_address[57] << 16) | ((unsigned char) output_address[58] << 8) | ((unsigned char) output_address[59]);
-  W[15] = ((unsigned char) output_address[60] << 24) | ((unsigned char) output_address[61] << 16) | ((unsigned char) output_address[62] << 8) | ((unsigned char) output_address[63]);
+  W[0] = ((unsigned char) buffer[0] << 24) | ((unsigned char) buffer[1] << 16) | ((unsigned char) buffer[2] << 8) | ((unsigned char) buffer[3]);
+  W[1] = ((unsigned char) buffer[4] << 24) | ((unsigned char) buffer[5] << 16) | ((unsigned char) buffer[6] << 8) | ((unsigned char) buffer[7]);
+  W[2] = ((unsigned char) buffer[8] << 24) | ((unsigned char) buffer[9] << 16) | ((unsigned char) buffer[10] << 8) | ((unsigned char) buffer[11]);
+  W[3] = ((unsigned char) buffer[12] << 24) | ((unsigned char) buffer[13] << 16) | ((unsigned char) buffer[14] << 8) | ((unsigned char) buffer[15]);
+  W[4] = ((unsigned char) buffer[16] << 24) | ((unsigned char) buffer[17] << 16) | ((unsigned char) buffer[18] << 8) | ((unsigned char) buffer[19]);
+  W[5] = ((unsigned char) buffer[20] << 24) | ((unsigned char) buffer[21] << 16) | ((unsigned char) buffer[22] << 8) | ((unsigned char) buffer[23]);
+  W[6] = ((unsigned char) buffer[24] << 24) | ((unsigned char) buffer[25] << 16) | ((unsigned char) buffer[26] << 8) | ((unsigned char) buffer[27]);
+  W[7] = ((unsigned char) buffer[28] << 24) | ((unsigned char) buffer[29] << 16) | ((unsigned char) buffer[30] << 8) | ((unsigned char) buffer[31]);
+  W[8] = ((unsigned char) buffer[32] << 24) | ((unsigned char) buffer[33] << 16) | ((unsigned char) buffer[34] << 8) | ((unsigned char) buffer[35]);
+  W[9] = ((unsigned char) buffer[36] << 24) | ((unsigned char) buffer[37] << 16) | ((unsigned char) buffer[38] << 8) | ((unsigned char) buffer[39]);
+  W[10] = ((unsigned char) buffer[40] << 24) | ((unsigned char) buffer[41] << 16) | ((unsigned char) buffer[42] << 8) | ((unsigned char) buffer[43]);
+  W[11] = ((unsigned char) buffer[44] << 24) | ((unsigned char) buffer[45] << 16) | ((unsigned char) buffer[46] << 8) | ((unsigned char) buffer[47]);
+  W[12] = ((unsigned char) buffer[48] << 24) | ((unsigned char) buffer[49] << 16) | ((unsigned char) buffer[50] << 8) | ((unsigned char) buffer[51]);
+  W[13] = ((unsigned char) buffer[52] << 24) | ((unsigned char) buffer[53] << 16) | ((unsigned char) buffer[54] << 8) | ((unsigned char) buffer[55]);
+  W[14] = ((unsigned char) buffer[56] << 24) | ((unsigned char) buffer[57] << 16) | ((unsigned char) buffer[58] << 8) | ((unsigned char) buffer[59]);
+  W[15] = ((unsigned char) buffer[60] << 24) | ((unsigned char) buffer[61] << 16) | ((unsigned char) buffer[62] << 8) | ((unsigned char) buffer[63]);
 
 
 
@@ -117,14 +117,14 @@ void sha256(__global char *buffer) {
   H0[7] = H0[7] + h;
 
   //Store hash in input buffer
-  ((__global uint *) output_address)[0] = (((unsigned char *) H0)[0] << 24) | (((unsigned char *) H0)[1] << 16) | (((unsigned char *) H0)[2] << 8) | (((unsigned char *) H0)[3]);
-  ((__global uint *) output_address)[1] = (((unsigned char *) H0)[4] << 24) | (((unsigned char *) H0)[5] << 16) | (((unsigned char *) H0)[6] << 8) | (((unsigned char *) H0)[7]);
-  ((__global uint *) output_address)[2] = (((unsigned char *) H0)[8] << 24) | (((unsigned char *) H0)[9] << 16) | (((unsigned char *) H0)[10] << 8) | (((unsigned char *) H0)[11]);
-  ((__global uint *) output_address)[3] = (((unsigned char *) H0)[12] << 24) | (((unsigned char *) H0)[13] << 16) | (((unsigned char *) H0)[14] << 8) | (((unsigned char *) H0)[15]);
-  ((__global uint *) output_address)[4] = (((unsigned char *) H0)[16] << 24) | (((unsigned char *) H0)[17] << 16) | (((unsigned char *) H0)[18] << 8) | (((unsigned char *) H0)[19]);
-  ((__global uint *) output_address)[5] = (((unsigned char *) H0)[20] << 24) | (((unsigned char *) H0)[21] << 16) | (((unsigned char *) H0)[22] << 8) | (((unsigned char *) H0)[23]);
-  ((__global uint *) output_address)[6] = (((unsigned char *) H0)[24] << 24) | (((unsigned char *) H0)[25] << 16) | (((unsigned char *) H0)[26] << 8) | (((unsigned char *) H0)[27]);
-  ((__global uint *) output_address)[7] = (((unsigned char *) H0)[28] << 24) | (((unsigned char *) H0)[29] << 16) | (((unsigned char *) H0)[30] << 8) | (((unsigned char *) H0)[31]);
+  ((__global uint *) buffer)[0] = (((unsigned char *) H0)[0] << 24) | (((unsigned char *) H0)[1] << 16) | (((unsigned char *) H0)[2] << 8) | (((unsigned char *) H0)[3]);
+  ((__global uint *) buffer)[1] = (((unsigned char *) H0)[4] << 24) | (((unsigned char *) H0)[5] << 16) | (((unsigned char *) H0)[6] << 8) | (((unsigned char *) H0)[7]);
+  ((__global uint *) buffer)[2] = (((unsigned char *) H0)[8] << 24) | (((unsigned char *) H0)[9] << 16) | (((unsigned char *) H0)[10] << 8) | (((unsigned char *) H0)[11]);
+  ((__global uint *) buffer)[3] = (((unsigned char *) H0)[12] << 24) | (((unsigned char *) H0)[13] << 16) | (((unsigned char *) H0)[14] << 8) | (((unsigned char *) H0)[15]);
+  ((__global uint *) buffer)[4] = (((unsigned char *) H0)[16] << 24) | (((unsigned char *) H0)[17] << 16) | (((unsigned char *) H0)[18] << 8) | (((unsigned char *) H0)[19]);
+  ((__global uint *) buffer)[5] = (((unsigned char *) H0)[20] << 24) | (((unsigned char *) H0)[21] << 16) | (((unsigned char *) H0)[22] << 8) | (((unsigned char *) H0)[23]);
+  ((__global uint *) buffer)[6] = (((unsigned char *) H0)[24] << 24) | (((unsigned char *) H0)[25] << 16) | (((unsigned char *) H0)[26] << 8) | (((unsigned char *) H0)[27]);
+  ((__global uint *) buffer)[7] = (((unsigned char *) H0)[28] << 24) | (((unsigned char *) H0)[29] << 16) | (((unsigned char *) H0)[30] << 8) | (((unsigned char *) H0)[31]);
 }
 
 
