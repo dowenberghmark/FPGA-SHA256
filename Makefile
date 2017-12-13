@@ -6,24 +6,24 @@ include $(COMMON_REPO)/libs/xcl2/xcl2.mk
 include $(COMMON_REPO)/libs/opencl/opencl.mk
 
 
-SRC_DIR=./interface
+device_SRC_DIR=./device
+host_SRC_DIR=./host
 
-SRCS=$(SRC_DIR)/double_buffer.cpp $(SRC_DIR)/device_interface.cpp cpu/sha256.cpp cpu/sha_preprocess.cpp main_cpu.cpp cpu/verify.cpp
-HDRS=$(SRC_DIR)/device_interface.hpp $(SRC_DIR)/double_buffer.hpp $(SRC_DIR)/defs.hpp
-
+SRCS=$(device_SRC_DIR)/double_buffer.cpp $(device_SRC_DIR)/device_interface.cpp $(host_SRC_DIR)/sha256.cpp $(host_SRC_DIR)/sha_preprocess.cpp main_cpu.cpp $(host_SRC_DIR)/verify.cpp
+HDRS=$(device_SRC_DIR)/device_interface.hpp $(device_SRC_DIR)/double_buffer.hpp $(device_SRC_DIR)/defs.hpp $(host_SRC_DIR)/sha_preprocess.hpp $(host_SRC_DIR)/verify.hpp $(host_SRC_DIR)/sha256.hpp
 
 # Host Application
 sha256_SRCS=$(SRCS) $(oclHelper_SRCS) $(xcl2_SRCS)
 sha256_HDRS=$(xcl2_HDRS) $(HDRS)
-sha256_CXXFLAGS=-I$(SRC_DIR)/ $(opencl_CXXFLAGS) $(xcl2_CXXFLAGS) $(oclHelper_CXXFLAGS) -std=c++0x -g
+sha256_CXXFLAGS=-I$./ $(opencl_CXXFLAGS) $(xcl2_CXXFLAGS) $(oclHelper_CXXFLAGS) -std=c++0x -g
 sha256_LDFLAGS=$(opencl_LDFLAGS)
 
 EXES=sha256
 
 # Kernel
-device_kernel_SRCS=$(SRC_DIR)/device_kernel.cl
+device_kernel_SRCS=$(device_SRC_DIR)/device_kernel.cl
 
-device_kernel_CLFLAGS= -I$(SRC_DIR)/ --max_memory_ports hashing_kernel
+device_kernel_CLFLAGS= -I$(device_SRC_DIR)/ --max_memory_ports hashing_kernel
 
 XOS=device_kernel
 
