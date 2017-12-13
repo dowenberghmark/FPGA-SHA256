@@ -64,8 +64,7 @@ void sha256_fpga(std::string filename, int lines_to_read, int dopt, int vopt) {
       result = double_buffer->start_processing();
       written_chunks = 0;
       if (vopt) {
-        std::string parsed_string = parse_to_char(result, parsed_res);
-        verify_vec.push_back (parsed_string);
+        verify_vec.push_back (parse_to_char(result, parsed_res));
       }
       if (dopt) {
         print_result(result);
@@ -102,8 +101,7 @@ void sha256_fpga(std::string filename, int lines_to_read, int dopt, int vopt) {
     print_result(result);
   }
   if (vopt) {
-    std::string parsed_string = parse_to_char(result, parsed_res);
-    verify_vec.push_back (parsed_string);
+    verify_vec.push_back (parse_to_char(result, parsed_res));
     verify(verify_vec);
   }
 
