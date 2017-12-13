@@ -26,16 +26,15 @@ void print_result(struct buffer result) {
   }
 }
 
-std::string parse_to_char(struct buffer result, char *hashed_pass) {
-  //  char hashed_pass[65];
+void push_to_verify(struct buffer result, std::vector<std::string> *verify_vec) {
+  char hashed_pass[65];
   for (int i = 0; i < result.num_chunks; i++) {
     int c = 0;
     for (int j = 0; j < 32; j++) {
       c += snprintf(hashed_pass + c, 65-c, "%02x", ((unsigned char *)result.chunks[i].data)[j]);        
     }
+    verify_vec->push_back(hashed_pass);
   }
-  std::cout << hashed_pass << std::endl;
-  return hashed_pass;
 }
 
 void sha256_fpga(std::string filename, int lines_to_read, int dopt, int vopt) {
@@ -44,7 +43,6 @@ void sha256_fpga(std::string filename, int lines_to_read, int dopt, int vopt) {
   int written_chunks = 0;
   struct buffer result;
   std::vector<std::string> verify_vec;
-  char parsed_res[65];
 
   double_buffer = new DoubleBuffer();
   std::fstream file;
@@ -64,7 +62,7 @@ void sha256_fpga(std::string filename, int lines_to_read, int dopt, int vopt) {
       result = double_buffer->start_processing();
       written_chunks = 0;
       if (vopt) {
-        verify_vec.push_back (parse_to_char(result, parsed_res));
+        push_to_verify(result, &verify_vec);
       }
       if (dopt) {
         print_result(result);
@@ -101,7 +99,7 @@ void sha256_fpga(std::string filename, int lines_to_read, int dopt, int vopt) {
     print_result(result);
   }
   if (vopt) {
-    verify_vec.push_back (parse_to_char(result, parsed_res));
+    push_to_verify(result, &verify_vec);
     verify(verify_vec);
   }
 
