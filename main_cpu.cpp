@@ -44,7 +44,7 @@ void sha256_fpga(std::string filename, int lines_to_read, int dopt, int vopt) {
   int written_chunks = 0;
   struct buffer result;
   std::vector<std::string> verify_vec;
-  char parsed_res[65];
+  char parsed_res[64];
 
   double_buffer = new DoubleBuffer();
   std::fstream file;
