@@ -26,24 +26,26 @@ void print_result(struct buffer result) {
   }
 }
 
-char parse_to_char(struct buffer result) {
-  char hashed_pass[65];
+std::string parse_to_char(struct buffer result, char *hashed_pass) {
+  //  char hashed_pass[65];
   for (int i = 0; i < result.num_chunks; i++) {
     int c = 0;
     for (int j = 0; j < 32; j++) {
       c += snprintf(hashed_pass + c, 65-c, "%02x", ((unsigned char *)result.chunks[i].data)[j]);        
     }
   }
-  std::cout << hashed_pass << endl;
-  return hashed_pass;
+  std::cout << hashed_pass << std::endl;
+  std::string s(hashed_pass);
+  return s;
 }
 
-void sha256_fpga(std::string filename, int lines_to_read, int dopt) {
+void sha256_fpga(std::string filename, int lines_to_read, int dopt, int vopt) {
   DoubleBuffer *double_buffer;
   char *chunk_placement_ptr;
   int written_chunks = 0;
   struct buffer result;
   std::vector<std::string> verify_vec;
+  char parsed_res[65];
 
   double_buffer = new DoubleBuffer();
   std::fstream file;
@@ -63,7 +65,8 @@ void sha256_fpga(std::string filename, int lines_to_read, int dopt) {
       result = double_buffer->start_processing();
       written_chunks = 0;
       if (vopt) {
-        verify_vec.push_back (parse_to_char(result));
+        std::string parsed_string = parse_to_char(result, parsed_res);
+        verify_vec.push_back (parsed_string);
       }
       if (dopt) {
         print_result(result);
@@ -100,7 +103,8 @@ void sha256_fpga(std::string filename, int lines_to_read, int dopt) {
     print_result(result);
   }
   if (vopt) {
-    verify_vec.push_back (parse_to_char(result));
+    std::string parsed_string = parse_to_char(result, parsed_res);
+    verify_vec.push_back (parsed_string);
     verify(verify_vec);
   }
 
@@ -194,7 +198,7 @@ int main(int argc, char ** argv) {
 
   /*run sha256 fpga*/
   auto start = std::chrono::system_clock::now();
-  sha256_fpga(filename,lines_to_read,dopt);
+  sha256_fpga(filename,lines_to_read,dopt, vopt);
   auto end = std::chrono::system_clock::now();
   time_total = end - start;
 
