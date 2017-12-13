@@ -12,17 +12,14 @@ using std::cout;
 using std::vector;
 using std::ifstream;
 
-int verify(std::vector<std::string> fpga_hash_vec){
+int verify(std::vector<std::string> fpga_hash_vec, std::string filename){
   //Get vector with hashed passwords from an extrernal SHA-256 hasher
   cout << "Trying to verify" << endl;
-  vector<string>ext_hash_vec = SHA256_CPU_verify("cpu/random_passwords.txt");
+  vector<string>ext_hash_vec = SHA256_CPU_verify(filename);
   int error_row = 0;
   int errors = 0;
 
   for(unsigned i=0; i<fpga_hash_vec.size(); i++){
-    cout << "FPGA " << i << ": " << fpga_hash_vec[i] << endl;
-    cout << "EXT  " << i << ": " << ext_hash_vec[i] << endl;
-
     if (fpga_hash_vec[i].compare(ext_hash_vec[i]) != 0){
       error_row = i+1;
       cout << "Line " << error_row << " is incorrect" << endl;

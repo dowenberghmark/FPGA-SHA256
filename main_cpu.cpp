@@ -100,7 +100,7 @@ void sha256_fpga(std::string filename, int lines_to_read, int dopt, int vopt) {
   }
   if (vopt) {
     push_to_verify(result, &verify_vec);
-    verify(verify_vec);
+    verify(verify_vec, filename);
   }
 
   file.close();
