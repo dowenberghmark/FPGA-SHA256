@@ -31,7 +31,7 @@ void push_to_verify(struct buffer result, std::vector<std::string> *verify_vec) 
   for (int i = 0; i < result.num_chunks; i++) {
     int c = 0;
     for (int j = 0; j < 32; j++) {
-      c += snprintf(hashed_pass + c, 65-c, "%02x", ((unsigned char *)result.chunks[i].data)[j]);        
+      c += snprintf(hashed_pass + c, 65-c, "%02x", ((unsigned char *) result.chunks[i].data)[j]);
     }
     verify_vec->push_back(hashed_pass);
   }
@@ -176,7 +176,12 @@ int main(int argc, char ** argv) {
     filename = fvalue;
     std::cout << "filename: " << filename << std::endl;
   } else {
-    filename = "cpu/random_passwords.txt";
+    if (access( "cpu/random_passwords.txt".c_str(), F_OK ) != -1) {
+      filename = "cpu/random_passwords.txt";
+    } else {
+      filename = "passwords.txt";
+    }
+    
     std::cout << "filename: " << filename << std::endl;
   }
 
@@ -210,11 +215,6 @@ int main(int argc, char ** argv) {
     std::cout << "CPU sha256 program time: " <<  cpu_program_time.count() << "s" << std::endl;
     std::cout << "================================================================" << std::endl;
   }
-
-  if (vopt) {
-    std::cout << "====================== VERIFICATION RESULTS =======================" << std::endl;
-    
-    std::cout << "================================================================" << std::endl;
-  }
+  
   return 0;
 }
