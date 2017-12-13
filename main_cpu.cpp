@@ -17,15 +17,14 @@
 #include "cpu/verify.hpp"
 
 typedef struct pre_settings_t {
-  double svalue;
-  int filesize, lines_to_read;
+  double filesize;
+  int lines_to_read;
   int bopt, dopt, sopt, fopt, vopt;
   char *fvalue;
   std::string filename;
 }settings;
 
 void pre_settings_init(settings *config) {
-  config->svalue = -1;
   config->filesize = -1;
   config->lines_to_read = -1;
   config->bopt = 0;
@@ -35,6 +34,24 @@ void pre_settings_init(settings *config) {
   config->vopt = 0;
   config->fvalue = NULL;
   //config->filename = NULL;
+}
+
+double get_filesize(std::string file) {
+  std::streampos begin,end;
+  std::ifstream myfile (file, std::ios::binary);
+  begin = myfile.tellg();
+  myfile.seekg (0, std::ios::end);
+  end = myfile.tellg();
+  myfile.close();
+  double size=end-begin;
+  size /= (1000 * 1000);
+  return size;
+}
+
+void set_filesize(settings *config) {
+    config->lines_to_read = trunc((config->filesize * 1000 * 1000)/64);
+    std::cout << "size: " << config->filesize << " MB" << std::endl;
+    std::cout << "lines_to_read: " << config->lines_to_read << std::endl;
 }
 
 void pre_settings(settings *config) {
@@ -56,12 +73,10 @@ void pre_settings(settings *config) {
     std::cout << "filename: " << config->filename << std::endl;
   }
   if (config->sopt) { //size flag
-    config->filesize = config->svalue * 1000 * 1000; //2pow20
-    config->lines_to_read = trunc(config->filesize/64);
-    std::cout << "size: " << config->svalue << " MB" << std::endl;
-    std::cout << "lines_to_read: " << config->lines_to_read << std::endl;
+    set_filesize(config);
   } else if (!config->sopt && config->bopt){
-    config->filesize = getfilesize(config->filename);
+    config->filesize = get_filesize(config->filename);
+    set_filesize(config);
   } else {
     std::cout << "size: whole file will be read" << std::endl;
   }
@@ -165,19 +180,7 @@ void benchmark(settings *config) {
   sha256_fpga(config);
   auto end = std::chrono::system_clock::now();
   time_total = end - start;
-  csv_writer(config->svalue, time_total);
-}
-
-int get_filesize(std::string file){
-  streampos begin,end;
-  ifstream myfile (file, ios::binary);
-  begin = myfile.tellg();
-  myfile.seekg (0, ios::end);
-  end = myfile.tellg();
-  myfile.close();
-  cout << "size is: " << (end-begin) << " bytes.\n";
-  int size=end-begin;
-  return size;
+  csv_writer(config->filesize, time_total);
 }
 
 int main(int argc, char ** argv) {
@@ -187,7 +190,7 @@ int main(int argc, char ** argv) {
 
   /*Getopt flags*/
   int c;
-  while ((c = getopt(argc,argv,"v,b:d,h,f:s:")) != -1) {
+  while ((c = getopt(argc,argv,"v,b,d,h,f:s:")) != -1) {
     switch (c) {
     case 'v': {
       pre_sets.vopt = 1;
@@ -208,7 +211,7 @@ int main(int argc, char ** argv) {
     }
     case 's': {
       pre_sets.sopt = 1;
-      pre_sets.svalue = std::stod(optarg);
+      pre_sets.filesize = std::stod(optarg);
       break;
     }
     case 'h': {
