@@ -60,6 +60,8 @@ void pre_settings(settings *config) {
     config->lines_to_read = trunc(config->filesize/64);
     std::cout << "size: " << config->svalue << " MB" << std::endl;
     std::cout << "lines_to_read: " << config->lines_to_read << std::endl;
+  } else if (!config->sopt && config->bopt){
+    config->filesize = getfilesize(config->filename);
   } else {
     std::cout << "size: whole file will be read" << std::endl;
   }
@@ -67,12 +69,13 @@ void pre_settings(settings *config) {
 }
 
 void help() {
-  std::cout << "=============================== HELP PAGE ===================================" << std::endl;
-  std::cout << "usage: ./main [-d] [-s size in MB] [-f filepath]" << std::endl;
+  std::cout << "================================ HELP PAGE ===================================" << std::endl;
+  std::cout << "usage: ./main [-b] [-d] [-s size in MB] [-f filepath]" << std::endl;
+  std::cout << "b : benchmark mode. Will append run time info to charts/output.csv" << std::endl;
   std::cout << "v : verification mode. Verifies results to a third-party program" << std::endl;
   std::cout << "d : debug mode. Displays print for the process of the program" << std::endl;
-  std::cout << "s : define file size. Will read the whole file if not specified" << std::endl;
-  std::cout << "f : define file to read. Will read password.txt if not specified" << std::endl;
+  std::cout << "s : defines file size. Will read the whole file if not specified" << std::endl;
+  std::cout << "f : defines file to read. Will read password.txt if not specified" << std::endl;
   std::cout << "h : help page" << std::endl;
   std::cout << "==============================================================================" << std::endl;
 }
@@ -165,6 +168,18 @@ void benchmark(settings *config) {
   csv_writer(config->svalue, time_total);
 }
 
+int get_filesize(std::string file){
+  streampos begin,end;
+  ifstream myfile (file, ios::binary);
+  begin = myfile.tellg();
+  myfile.seekg (0, ios::end);
+  end = myfile.tellg();
+  myfile.close();
+  cout << "size is: " << (end-begin) << " bytes.\n";
+  int size=end-begin;
+  return size;
+}
+
 int main(int argc, char ** argv) {
   /*Initialization*/
   settings pre_sets;
@@ -172,7 +187,7 @@ int main(int argc, char ** argv) {
 
   /*Getopt flags*/
   int c;
-  while ((c = getopt(argc,argv,"v,b,d,h,f:s:")) != -1) {
+  while ((c = getopt(argc,argv,"v,b:d,h,f:s:")) != -1) {
     switch (c) {
     case 'v': {
       pre_sets.vopt = 1;
@@ -201,7 +216,7 @@ int main(int argc, char ** argv) {
       std::exit(EXIT_FAILURE);
     }
     default: {
-      std::cout << "Input was not recoqnized" << std::endl;
+      std::cout << "Input was not recoqnized. use -h to get to the help page" << std::endl;
       std::exit(EXIT_FAILURE);
     }
     }
