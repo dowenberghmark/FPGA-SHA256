@@ -1,7 +1,7 @@
 https://github.com/aws/aws-fpga/blob/master/SDAccel/README.md
 
 
-$SDACCEL_DIR/tools/create_sdaccel_afi.sh -xclbin=/home/centos/CompiledDir/xclbin/device_kernel.hw.xilinx_aws-vu9p-f1_4ddr-xpr-2pr_4_0.xclbin -o=device_kernel.hw.xilinx_aws-vu9p-f1_4ddr-xpr-2pr_4_0.awsxclbin -s3_bucket=pineappleexpress -s3_dcp_key=dcpfolder -s3_logs_key=logs
+$SDACCEL_DIR/tools/create_sdaccel_afi.sh -xclbin=/home/centos/CompiledDir/xclbin/device_kernel.hw.xilinx_aws-vu9p-f1_4ddr-xpr-2pr_4_0.xclbin -o=device_kernel.hw.xilinx_aws-vu9p-f1_4ddr-xpr-2pr_4_0 -s3_bucket=pineappleexpressbucket -s3_dcp_key=dcpfolder -s3_logs_key=logs
 
 
 On the f1. Put .awsxclbin together with the executable and load the fpga image to the F1 as said in:
