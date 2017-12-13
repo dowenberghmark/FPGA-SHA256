@@ -66,8 +66,7 @@ void pre_settings(settings *config) {
   std::cout << "================================================================" << std::endl;
 }
 
-
-void help(){
+void help() {
   std::cout << "=============================== HELP PAGE ===================================" << std::endl;
   std::cout << "usage: ./main [-d] [-s size in MB] [-f filepath]" << std::endl;
   std::cout << "v : verification mode. Verifies results to a third-party program" << std::endl;
