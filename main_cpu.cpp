@@ -48,7 +48,6 @@ void pre_settings(settings *config) {
   if (config->bopt) {
     std::cout << "benchmark mode is on" << std::endl;
   }
-
   if (config->fopt) { //filename flag
     config->filename = config->fvalue;
     std::cout << "filename: " << config->filename << std::endl;
@@ -56,7 +55,6 @@ void pre_settings(settings *config) {
     config->filename = "password.txt";
     std::cout << "filename: " << config->filename << std::endl;
   }
-
   if (config->sopt) { //size flag
     config->filesize = config->svalue * 1000 * 1000; //2pow20
     config->lines_to_read = trunc(config->filesize/64);
@@ -90,7 +88,6 @@ void print_result(struct buffer result) {
 }
 
 void sha256_fpga(settings *config) {
-
   DoubleBuffer *double_buffer;
   char *chunk_placement_ptr;
   int written_chunks = 0;
@@ -152,14 +149,14 @@ void sha256_fpga(settings *config) {
   delete double_buffer;
 }
 
-void csv_writer(double filesize, std::chrono::duration<double> time){
+void csv_writer(double filesize, std::chrono::duration<double> time) {
       std::ofstream outfile;
-      outfile.open ("./charts/output.csv", std::ios_base::app); //ska appenda till csv filen
+      outfile.open("./charts/output.csv", std::ios_base::app); //ska appenda till csv filen
       outfile << filesize << "," << time.count() << "\n";
       outfile.close();
 }
 
-void benchmark(settings *config){
+void benchmark(settings *config) {
   std::cout << "Running benchmark..." << std::endl;
   std::chrono::duration<double> time_total;
   auto start = std::chrono::system_clock::now();
@@ -171,8 +168,6 @@ void benchmark(settings *config){
 
 int main(int argc, char ** argv) {
   /*Initialization*/
-
-
   settings pre_sets;
   pre_settings_init(&pre_sets);
 
@@ -180,7 +175,6 @@ int main(int argc, char ** argv) {
   int c;
   while ((c = getopt(argc,argv,"v,b,d,h,f:s:")) != -1) {
     switch (c) {
-
     case 'v': {
       pre_sets.vopt = 1;
       break;
@@ -213,7 +207,6 @@ int main(int argc, char ** argv) {
     }
     }
   }
-
   pre_settings(&pre_sets);
 
   if (pre_sets.vopt) {
@@ -225,6 +218,5 @@ int main(int argc, char ** argv) {
     } else {
       sha256_fpga(&pre_sets);
   }
-
   return 0;
 }
