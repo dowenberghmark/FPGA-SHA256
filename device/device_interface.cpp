@@ -13,7 +13,6 @@ void check_error(cl_int err) {
   }
 }
 
-
 DeviceInterface::DeviceInterface() {
   // The get_xil_devices will return vector of Xilinx Devices
   std::vector<cl::Device> devices = xcl::get_xil_devices();
@@ -35,7 +34,7 @@ DeviceInterface::DeviceInterface() {
   program = cl::Program(context, devices, bins);
   // This call will extract a kernel out of the program we loaded in the
   // previous line. A kernel is an OpenCL function that is executed on the
-  // FPGA. This function is defined in the interface/device_kernel.cl file.
+  // FPGA. This function is defined in the device/device_kernel.cl file.
   krnl_sha = cl::Kernel(program, "hashing_kernel");
 
   unsigned xcl_banks[4] = {

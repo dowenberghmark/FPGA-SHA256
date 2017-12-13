@@ -10,11 +10,11 @@
 #include <unistd.h>
 #include <cstdlib>
 
-#include "interface/double_buffer.hpp"
-#include "interface/defs.hpp"
-#include "cpu/sha256.hpp"
-#include "cpu/sha_preprocess.hpp"
-#include "cpu/verify.hpp"
+#include "device/double_buffer.hpp"
+#include "device/defs.hpp"
+#include "host/sha256.hpp"
+#include "host/sha_preprocess.hpp"
+#include "host/verify.hpp"
 
 
 void print_result(struct buffer result) {
