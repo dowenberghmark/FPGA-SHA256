@@ -60,7 +60,7 @@ void pre_settings(settings *config) {
   if (config->sopt) { //size flag
     config->filesize = config->svalue * 1000 * 1000; //2pow20
     config->lines_to_read = trunc(config->filesize/64);
-    std::cout << "size: " << config->filesize << "B" << std::endl;
+    std::cout << "size: " << config->svalue << " MB" << std::endl;
     std::cout << "lines_to_read: " << config->lines_to_read << std::endl;
   } else {
     std::cout << "size: whole file will be read" << std::endl;
@@ -152,33 +152,27 @@ void sha256_fpga(settings *config) {
   delete double_buffer;
 }
 
-void csv_writer(int filesize, int time){
-      ofstream outfile;
+void csv_writer(double filesize, std::chrono::duration<double> time){
+      std::ofstream outfile;
       outfile.open ("./charts/output.csv", std::ios_base::app); //ska appenda till csv filen
-      outfile << filesize << time << "\n";
+      outfile << filesize << "," << time.count() << "\n";
       outfile.close();
 }
-void benchmark(settings *config, int time_diff){
+
+void benchmark(settings *config){
   std::cout << "Running benchmark..." << std::endl;
-    auto start = std::chrono::system_clock::now();
-    sha256_fpga(config);
-    auto end = std::chrono::system_clock::now();
-    time_total = end - start;
-  std::chrono::duration<double> cpu_program_time = end - start;
-  csv_writer(config->filesize, time_total.count());
-/*
-  std::cout << "====================== BENCHMARK RESULTS =======================" << std::endl;
-  std::cout << "FPGA sha256 program time: "<< time_diff << "s" << std::endl;
-  std::cout << std::endl;
-  std::cout << "CPU sha256 program time: " <<  cpu_program_time.count() << "s" << std::endl;
-  std::cout << "================================================================" << std::endl;
-*/
+  std::chrono::duration<double> time_total;
+  auto start = std::chrono::system_clock::now();
+  sha256_fpga(config);
+  auto end = std::chrono::system_clock::now();
+  time_total = end - start;
+  csv_writer(config->svalue, time_total);
 }
 
 int main(int argc, char ** argv) {
   /*Initialization*/
 
-  std::chrono::duration<double> time_total;
+
   settings pre_sets;
   pre_settings_init(&pre_sets);
 
