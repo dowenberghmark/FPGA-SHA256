@@ -176,8 +176,8 @@ int main(int argc, char ** argv) {
     filename = fvalue;
     std::cout << "filename: " << filename << std::endl;
   } else {
-    const std::string& file_path = "cpu/random_passwords.txt"
-    if (access( file_path.c_str(), F_OK ) != -1) {
+    const std::string& file_path = "cpu/random_passwords.txt";
+    if (access(file_path.c_str(), F_OK ) != -1) {
       filename = "cpu/random_passwords.txt";
     } else {
       filename = "passwords.txt";
