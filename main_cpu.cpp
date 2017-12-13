@@ -218,7 +218,7 @@ int main(int argc, char ** argv) {
 
   if (vopt) {
     std::cout << "====================== VERIFICATION RESULTS =======================" << std::endl;
-    verify(filename);
+    
     std::cout << "================================================================" << std::endl;
   }
   return 0;
