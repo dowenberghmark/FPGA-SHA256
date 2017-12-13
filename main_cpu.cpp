@@ -26,11 +26,23 @@ void print_result(struct buffer result) {
   }
 }
 
-void sha256_fpga(std::string filename, int lines_to_read, int dopt) {
+void push_to_verify(struct buffer result, std::vector<std::string> *verify_vec) {
+  char hashed_pass[65];
+  for (int i = 0; i < result.num_chunks; i++) {
+    int c = 0;
+    for (int j = 0; j < 32; j++) {
+      c += snprintf(hashed_pass + c, 65-c, "%02x", ((unsigned char *) result.chunks[i].data)[j]);
+    }
+    verify_vec->push_back(hashed_pass);
+  }
+}
+
+void sha256_fpga(std::string filename, int lines_to_read, int dopt, int vopt) {
   DoubleBuffer *double_buffer;
   char *chunk_placement_ptr;
   int written_chunks = 0;
   struct buffer result;
+  std::vector<std::string> verify_vec;
 
   double_buffer = new DoubleBuffer();
   std::fstream file;
@@ -49,12 +61,15 @@ void sha256_fpga(std::string filename, int lines_to_read, int dopt) {
       }
       result = double_buffer->start_processing();
       written_chunks = 0;
+      if (vopt) {
+        push_to_verify(result, &verify_vec);
+      }
       if (dopt) {
-	print_result(result);
+        print_result(result);
       }
 
       if (file.eof() || lines_to_read == 0) {
-	break;
+        break;
       }
     } else {
       file >> chunk_placement_ptr;
@@ -62,17 +77,17 @@ void sha256_fpga(std::string filename, int lines_to_read, int dopt) {
       // last read is eof and garbage
       // either process written chunks or exit
       if (file.eof()) {
-	double_buffer->regret_get_chunk();
-	if (written_chunks) {
-	  continue;
-	} else {
-	  break;
-	}
+        double_buffer->regret_get_chunk();
+        if (written_chunks) {
+          continue;
+        } else {
+          break;
+        }
       }
       written_chunks++;
       if (dopt) {
-	std::cout << "get_chunk() returned ptr" << std::endl;
-	std::cout << "reading string from file: " << chunk_placement_ptr << std::endl;
+        std::cout << "get_chunk() returned ptr" << std::endl;
+        std::cout << "reading string from file: " << chunk_placement_ptr << std::endl;
       }
       pre_process(chunk_placement_ptr);
       lines_to_read--;
@@ -82,6 +97,10 @@ void sha256_fpga(std::string filename, int lines_to_read, int dopt) {
   result = double_buffer->get_last_result();
   if (dopt) {
     print_result(result);
+  }
+  if (vopt) {
+    push_to_verify(result, &verify_vec);
+    verify(verify_vec, filename);
   }
 
   file.close();
@@ -157,7 +176,13 @@ int main(int argc, char ** argv) {
     filename = fvalue;
     std::cout << "filename: " << filename << std::endl;
   } else {
-    filename = "password.txt";
+    const std::string& file_path = "cpu/random_passwords.txt";
+    if (access(file_path.c_str(), F_OK ) != -1) {
+      filename = "cpu/random_passwords.txt";
+    } else {
+      filename = "password.txt";
+    }
+    
     std::cout << "filename: " << filename << std::endl;
   }
 
@@ -174,7 +199,7 @@ int main(int argc, char ** argv) {
 
   /*run sha256 fpga*/
   auto start = std::chrono::system_clock::now();
-  sha256_fpga(filename,lines_to_read,dopt);
+  sha256_fpga(filename, lines_to_read, dopt, vopt);
   auto end = std::chrono::system_clock::now();
   time_total = end - start;
 
@@ -192,10 +217,5 @@ int main(int argc, char ** argv) {
     std::cout << "================================================================" << std::endl;
   }
 
-  if (vopt) {
-    std::cout << "====================== VERIFICATION RESULTS =======================" << std::endl;
-    verify(filename);
-    std::cout << "================================================================" << std::endl;
-  }
   return 0;
 }
