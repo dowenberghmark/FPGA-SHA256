@@ -76,14 +76,14 @@ void sha256_fpga(std::string filename, int lines_to_read, int dopt, int vopt) {
 
       // last read is eof and garbage
       // either process written chunks or exit
-      // if (file.eof()) {
-      //   double_buffer->regret_get_chunk();
-      //   if (written_chunks) {
-      //     continue;
-      //   } else {
-      //     break;
-      //   }
-      // }
+      if (file.eof()) {
+        double_buffer->regret_get_chunk();
+        if (written_chunks) {
+          continue;
+        } else {
+          break;
+        }
+      }
       written_chunks++;
       if (dopt) {
         std::cout << "get_chunk() returned ptr" << std::endl;
