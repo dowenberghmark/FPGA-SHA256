@@ -21,7 +21,7 @@ typedef struct pre_settings_t {
   int lines_to_read;
   int bopt, dopt, sopt, fopt, vopt;
   char *fvalue;
-  std::string filename;
+  std::string filename, outfile;
 }settings;
 
 void pre_settings_init(settings *config) {
@@ -34,6 +34,7 @@ void pre_settings_init(settings *config) {
   config->vopt = 0;
   config->fvalue = NULL;
   //config->filename = NULL;
+  //config->outfile = NULL
 }
 
 double get_filesize(std::string file) {
@@ -85,8 +86,8 @@ void pre_settings(settings *config) {
 
 void help() {
   std::cout << "================================ HELP PAGE ===================================" << std::endl;
-  std::cout << "usage: ./main [-b] [-d] [-s size in MB] [-f filepath]" << std::endl;
-  std::cout << "b : benchmark mode. Will append run time info to charts/output.csv" << std::endl;
+  std::cout << "usage: ./main [-b outputfile] [-d] [-s size in MB] [-f filepath]" << std::endl;
+  std::cout << "b : benchmark mode. Will append run time info to results/output.csv if outputfile is not specified" << std::endl;
   std::cout << "v : verification mode. Verifies results to a third-party program" << std::endl;
   std::cout << "d : debug mode. Displays print for the process of the program" << std::endl;
   std::cout << "s : defines file size. Will read the whole file if not specified" << std::endl;
@@ -166,11 +167,16 @@ void sha256_fpga(settings *config) {
   delete double_buffer;
 }
 
-void csv_writer(double filesize, std::chrono::duration<double> time) {
+void csv_writer(settings *config, std::chrono::duration<double> time) {
       std::ofstream outfile;
-      outfile.open("./charts/output.csv", std::ios_base::app); //ska appenda till csv filen
-      outfile << filesize << "," << time.count() << "\n";
-      outfile.close();
+
+      if (config->outfile != "") {
+        outfile.open(config->outfile, std::ios_base::app); //ska appenda till csv filen
+      } else {
+          outfile.open("./results/output.csv", std::ios_base::app); //ska appenda till csv filen
+      } 
+      outfile << config->filesize << "," << time.count() << "\n";
+      outfile.close(); 
 }
 
 void benchmark(settings *config) {
@@ -180,7 +186,7 @@ void benchmark(settings *config) {
   sha256_fpga(config);
   auto end = std::chrono::system_clock::now();
   time_total = end - start;
-  csv_writer(config->filesize, time_total);
+  csv_writer(config, time_total);
 }
 
 int main(int argc, char ** argv) {
@@ -190,7 +196,7 @@ int main(int argc, char ** argv) {
 
   /*Getopt flags*/
   int c;
-  while ((c = getopt(argc,argv,"v,b,d,h,f:s:")) != -1) {
+  while ((c = getopt(argc,argv,"v,b:,d,h,f:s:")) != -1) {
     switch (c) {
     case 'v': {
       pre_sets.vopt = 1;
@@ -198,6 +204,8 @@ int main(int argc, char ** argv) {
     }
     case 'b': {
       pre_sets.bopt = 1;
+      pre_sets.outfile = optarg;
+      std::cout << pre_sets.outfile << std::endl;
       break;
     }
     case 'd': {
@@ -232,7 +240,7 @@ int main(int argc, char ** argv) {
     std::cout << "================================================================" << std::endl;
   } else if (pre_sets.bopt) {
       benchmark(&pre_sets);
-    } else {
+  } else {
       sha256_fpga(&pre_sets);
   }
   return 0;
