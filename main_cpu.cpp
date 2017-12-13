@@ -180,7 +180,7 @@ int main(int argc, char ** argv) {
     // if (access(file_path.c_str(), F_OK ) != -1) {
     //   filename = "cpu/random_passwords.txt";
     // } else {
-      filename = "passwords.txt";
+      filename = "password.txt";
     // }
     
     std::cout << "filename: " << filename << std::endl;
