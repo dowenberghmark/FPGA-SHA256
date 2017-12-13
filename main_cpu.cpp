@@ -176,7 +176,7 @@ int main(int argc, char ** argv) {
     filename = fvalue;
     std::cout << "filename: " << filename << std::endl;
   } else {
-    filename = "password.txt";
+    filename = "cpu/random_passwords.txt";
     std::cout << "filename: " << filename << std::endl;
   }
 

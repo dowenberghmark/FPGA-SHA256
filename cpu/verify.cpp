@@ -21,7 +21,7 @@ int verify(std::vector<std::string> fpga_hash_vec){
 
   for(unsigned i=0; i<fpga_hash_vec.size(); i++){
     cout << "FPGA " << i << ": " << fpga_hash_vec[i] << endl;
-    cout << "EXT  " << i << ": " << fpga_hash_vec[i] << endl;
+    cout << "EXT  " << i << ": " << ext_hash_vec[i] << endl;
 
     if (fpga_hash_vec[i].compare(ext_hash_vec[i]) != 0){
       error_row = i+1;
