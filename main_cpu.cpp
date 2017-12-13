@@ -199,7 +199,7 @@ int main(int argc, char ** argv) {
 
   /*run sha256 fpga*/
   auto start = std::chrono::system_clock::now();
-  sha256_fpga(filename,lines_to_read,dopt, vopt);
+  sha256_fpga(filename, lines_to_read, dopt, vopt);
   auto end = std::chrono::system_clock::now();
   time_total = end - start;
 
