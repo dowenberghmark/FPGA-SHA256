@@ -18,7 +18,7 @@ From an FPGA Developer AMI, clone the repository, cd into it and run:
 ```
 # setup environment for building
 source source_files.sh
-# make project, will do sw emulation by default and run the program
+# make and run program
 ./run_make 
 # set up environment for stand alone program
 source enable_manual_run.sh
@@ -26,6 +26,7 @@ source enable_manual_run.sh
 ./sha256
 ```
 
+Default target is software emulation. For hardware emulation simply add a `hw` flag to `./run_make` and `source enable_manual_run.sh`.
 
 ## Run PineappleExpress
 Use .PineappleExpress/main -h for more help on how to run the program.
