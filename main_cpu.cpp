@@ -35,8 +35,7 @@ std::string parse_to_char(struct buffer result, char *hashed_pass) {
     }
   }
   std::cout << hashed_pass << std::endl;
-  std::string s(hashed_pass);
-  return s;
+  return hashed_pass;
 }
 
 void sha256_fpga(std::string filename, int lines_to_read, int dopt, int vopt) {
