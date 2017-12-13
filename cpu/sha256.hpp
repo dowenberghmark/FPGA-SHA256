@@ -3,6 +3,6 @@
 
 #include <string.h>
  int SHA256_CPU_debug(std::string filename);
- int verify(std::vector<std::string> fpga_hash_vec);
+ std::vector<std::string> SHA256_CPU_verify(std::string filename);
 
  #endif
