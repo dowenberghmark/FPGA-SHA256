@@ -17,7 +17,7 @@
 #include "cpu/verify.hpp"
 
 typedef struct pre_settings_t {
-  double filesize;
+  double amount_to_process;
   int lines_to_read;
   int bopt, dopt, sopt, fopt, vopt, oopt;
   char *fvalue;
@@ -25,7 +25,7 @@ typedef struct pre_settings_t {
 }settings;
 
 void pre_settings_init(settings *config) {
-  config->filesize = -1;
+  config->amount_to_process = -1;
   config->lines_to_read = -1;
   config->bopt = 0;
   config->dopt = 0;
@@ -38,21 +38,9 @@ void pre_settings_init(settings *config) {
   config->outfile = "./results/output.csv";
 }
 
-double get_filesize(std::string file) {
-  std::streampos begin,end;
-  std::ifstream myfile (file, std::ios::binary);
-  begin = myfile.tellg();
-  myfile.seekg (0, std::ios::end);
-  end = myfile.tellg();
-  myfile.close();
-  double size=end-begin;
-  size /= (1000 * 1000);
-  return size;
-}
-
 void set_lines_to_read(settings *config) {
-    config->lines_to_read = trunc((config->filesize * 1000 * 1000)/64);
-    std::cout << "size: " << config->filesize << " MB" << std::endl;
+    config->lines_to_read = trunc((config->amount_to_process * 1000 * 1000)/CHUNK_SIZE);
+    std::cout << "processing size: " << config->amount_to_process << " MB" << std::endl;
     std::cout << "lines_to_read: " << config->lines_to_read << std::endl;
 }
 
@@ -74,11 +62,8 @@ void pre_settings(settings *config) {
   }
   if (config->sopt) { //size flag
     set_lines_to_read(config);
-  } else if (!config->sopt && config->bopt){
-    config->filesize = get_filesize(config->filename);
-    set_lines_to_read(config);
   } else {
-    std::cout << "size: whole file will be read" << std::endl;
+    std::cout << "processing size: whole file will be read" << std::endl;
   }
   std::cout << "================================================================" << std::endl;
 }
@@ -108,7 +93,7 @@ void print_result(struct buffer result) {
 void sha256_fpga(settings *config) {
   DoubleBuffer *double_buffer;
   char *chunk_placement_ptr;
-  int written_chunks = 0;
+  int written_chunks, lines_read = 0;
   struct buffer result;
 
   double_buffer = new DoubleBuffer();
@@ -117,11 +102,21 @@ void sha256_fpga(settings *config) {
 
   while (1) {
     // if we want to keep going
+    if (config->sopt && config->lines_to_read > lines_read) {
+      chunk_placement_ptr = double_buffer->get_chunk()->data;
+    }
+    else if (!config->sopt && !file.eof()) {
+      chunk_placement_ptr = double_buffer->get_chunk()->data;
+    }
+    /*
     if (!file.eof() && config->lines_to_read != 0) {
       chunk_placement_ptr = double_buffer->get_chunk()->data;
     }
+    */
+
     // launch fpga
-    if (chunk_placement_ptr == nullptr || file.eof() || config->lines_to_read == 0) {
+    //if (chunk_placement_ptr == nullptr || file.eof() || config->lines_to_read == 0) {
+    if (chunk_placement_ptr == nullptr || file.eof() || config->lines_to_read == lines_read) {
       if (config->dopt) {
         std::cout << "get_chunk() returned nullptr" << std::endl;
         std::cout << "running start_processing().." << std::endl;
@@ -132,7 +127,7 @@ void sha256_fpga(settings *config) {
         print_result(result);
       }
 
-      if (file.eof() || config->lines_to_read == 0) {
+      if (file.eof() || config->lines_to_read == lines_read) {
 	break;
       }
     } else {
@@ -153,7 +148,8 @@ void sha256_fpga(settings *config) {
 	std::cout << "reading string from file: " << chunk_placement_ptr << std::endl;
       }
       pre_process(chunk_placement_ptr);
-      config->lines_to_read--;
+      //config->lines_to_read--;
+      lines_read++;
     }
   }
 
@@ -164,12 +160,14 @@ void sha256_fpga(settings *config) {
   }
   file.close();
   delete double_buffer;
+  config->amount_to_process = lines_read * CHUNK_SIZE;
 }
 
 void csv_writer(settings *config, std::chrono::duration<double> time) {
       std::ofstream outfile;
-      outfile.open(config->outfile, std::ios_base::app); //ska appenda till csv filen
-      outfile << config->filesize << ";" << time.count() << "\n";
+      config->amount_to_process /= 1000 * 1000; // change to MB
+      outfile.open(config->outfile, std::ios_base::app); //appends to CSV file
+      outfile << config->amount_to_process << ";" << time.count() << "\n";
       outfile.close(); 
 }
 
@@ -216,7 +214,7 @@ int main(int argc, char ** argv) {
     }
     case 's': {
       pre_sets.sopt = 1;
-      pre_sets.filesize = std::stod(optarg);
+      pre_sets.amount_to_process = std::stod(optarg);
       break;
     }
     case 'h': {
