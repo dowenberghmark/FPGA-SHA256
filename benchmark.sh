@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 if [ $# -ne 3 ] ;
 then
-    echo "./benchmark.sh <path_to_output> <path_to_password_file> <cpu/hw>"
+    echo "./benchmark.sh <path_to_output> <path_to_password_file> <host/hw>"
     exit
 fi
 F=$1 #  Name of path/output file
@@ -9,7 +9,7 @@ PASS=$2 # Path to password file
 PROGRAM="./sha256 -b" # Not in use at the moment
 SIZE=(0.1 1 10 100 1000 10000 100000 1000000 10000000 100000000)
 N=10
-CPU='cpu'
+CPU='host'
 
 if [ -f "$F" ]
 then
