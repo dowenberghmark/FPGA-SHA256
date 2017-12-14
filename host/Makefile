@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++11 -g -Wall -Werror -O3
+CFLAGS = -std=c++0x -g -Wall -Werror -O3
 
 LDLIBS = -lcrypto
 
