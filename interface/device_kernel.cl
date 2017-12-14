@@ -62,10 +62,16 @@ void sha256(__global char *buffer) {
     W[i] = ((__global unsigned char) buffer[j] << 24) | ((__global unsigned char) buffer[j+1] << 16) | ((__global unsigned char) buffer[j+2] << 8) | ((__global unsigned char) buffer[j+3]);
     j += 4;
   }
-
+  /*
   //__attribute__((opencl_unroll_hint(n)))
   for (int i = 16; i < 64; i++) {
     W[i] = sigma1(W[i-2]) + W[i-7] + sigma0(W[i-15]) + W[i-16];
+  }
+  */
+  __attribute__((xcl_pipeline_loop))
+  for (int i = 16; i < 64; i+=2) {
+    W[i] = sigma1(W[i-2]) + W[i-7] + sigma0(W[i-15]) + W[i-16];
+    W[i+1] = sigma1(W[i-1]) + W[i-6] + sigma0(W[i-14]) + W[i-15];
   }
 
   /*
@@ -88,11 +94,6 @@ void sha256(__global char *buffer) {
   */
 
 
-  //__attribute__((xcl_pipeline_loop))
-  for (int i = 16; i < 32; i+=2) {
-    W[i] = sigma1(W[i-2]) + W[i-7] + sigma0(W[i-15]) + W[i-16];
-    W[i+1] = sigma1(W[i-1]) + W[i-6] + sigma0(W[i-14]) + W[i-15];
-  }
 
 
   //Initialize working variables
@@ -106,7 +107,7 @@ void sha256(__global char *buffer) {
   h = H0[7];
 
   //Compute Hash
-  //__attribute__((xcl_pipeline_loop))
+  __attribute__((xcl_pipeline_loop))
   for (int i = 0; i < 64; i++) {
     t1 = h + zigma1(e) + ch(e, f, g) + K[i] + W[i];
     t2 = zigma0(a) + maj(a, b, c);
@@ -162,10 +163,10 @@ void hashing_kernel(__global struct chunk * __restrict buffer0,
   }
 
   __attribute__((xcl_pipeline_loop))
-  for (int i = 0; i < n_elements; i+=4) {
+  for (int i = 0; i < n_elements; i+=1) {
     sha256(buffer[i].data);
-    sha256(buffer[i+1].data);
-    sha256(buffer[i+2].data);
-    sha256(buffer[i+3].data);
+    //sha256(buffer[i+1].data);
+    //sha256(buffer[i+2].data);
+    //sha256(buffer[i+3].data);
   }
 }
