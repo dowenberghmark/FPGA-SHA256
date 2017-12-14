@@ -9,7 +9,7 @@ include $(COMMON_REPO)/libs/opencl/opencl.mk
 device_SRC_DIR=./device
 host_SRC_DIR=./host
 
-SRCS=$(device_SRC_DIR)/double_buffer.cpp $(device_SRC_DIR)/device_interface.cpp $(host_SRC_DIR)/sha256.cpp $(host_SRC_DIR)/sha_preprocess.cpp main_cpu.cpp $(host_SRC_DIR)/verify.cpp
+SRCS=$(device_SRC_DIR)/double_buffer.cpp $(device_SRC_DIR)/device_interface.cpp $(host_SRC_DIR)/sha256.cpp $(host_SRC_DIR)/sha_preprocess.cpp host_main.cpp $(host_SRC_DIR)/verify.cpp
 HDRS=$(device_SRC_DIR)/device_interface.hpp $(device_SRC_DIR)/double_buffer.hpp $(device_SRC_DIR)/defs.hpp $(host_SRC_DIR)/sha_preprocess.hpp $(host_SRC_DIR)/verify.hpp $(host_SRC_DIR)/sha256.hpp
 
 # Host Application
