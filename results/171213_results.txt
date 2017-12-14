@@ -1,0 +1,13 @@
+1 kernel with 2 RW banks.
+
+Hashing kernel
+10 GB, 4.34 MHash/s
+real    0m36.938s
+user    0m29.256s
+sys     0m2.891s
+
+CPU implementation from the github code in our repository
+1 GB, 0.2 MHash/s
+real    1m19.042s
+user    1m18.948s
+sys     0m0.094s

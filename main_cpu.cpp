@@ -8,11 +8,11 @@
 #include <unistd.h>
 #include <cstdlib>
 
-#include "interface/double_buffer.hpp"
-#include "interface/defs.hpp"
-#include "cpu/sha256.hpp"
-#include "cpu/sha_preprocess.hpp"
-#include "cpu/verify.hpp"
+#include "device/double_buffer.hpp"
+#include "device/defs.hpp"
+#include "host/sha256.hpp"
+#include "host/sha_preprocess.hpp"
+#include "host/verify.hpp"
 
 typedef struct pre_settings_t {
   double amount_to_process;
@@ -58,6 +58,18 @@ void pre_settings(settings *config) {
     config->filename = config->fvalue;
     std::cout << "filename: " << config->filename << std::endl;
   }
+  if (config->fopt) { //filename flag
+    config->filename = config->fvalue;
+    std::cout << "filename: " << config->filename << std::endl;
+  } else {
+    const std::string& file_path = "host/random_passwords.txt";
+    if (access(file_path.c_str(), F_OK ) != -1) {
+      config->filename = "host/random_passwords.txt";
+    } else {
+      config->filename = "password.txt";
+    }
+    std::cout << "filename: " << filename << std::endl;
+  }
   if (config->sopt) {
     set_lines_to_read(config);
   } else {
@@ -88,11 +100,23 @@ void print_result(struct buffer result) {
   }
 }
 
+void push_to_verify(struct buffer result, std::vector<std::string> *verify_vec) {
+  char hashed_pass[65];
+  for (int i = 0; i < result.num_chunks; i++) {
+    int c = 0;
+    for (int j = 0; j < 32; j++) {
+      c += snprintf(hashed_pass + c, 65-c, "%02x", ((unsigned char *) result.chunks[i].data)[j]);
+    }
+    verify_vec->push_back(hashed_pass);
+  }
+}
+
 void sha256_fpga(settings *config) {
   DoubleBuffer *double_buffer;
   char *chunk_placement_ptr;
   int written_chunks, lines_read = 0;
   struct buffer result;
+  std::vector<std::string> verify_vec;
 
   double_buffer = new DoubleBuffer();
   std::fstream file;
@@ -115,6 +139,10 @@ void sha256_fpga(settings *config) {
       }
       result = double_buffer->start_processing();
       written_chunks = 0;
+
+      if (config->vopt) {
+        push_to_verify(result, &verify_vec);
+      }
       if (config->dopt) {
         print_result(result);
       }
@@ -126,14 +154,15 @@ void sha256_fpga(settings *config) {
       // last read is eof and garbage
       // either process written chunks or exit
       if (file.eof()) {
-	double_buffer->regret_get_chunk();
-	if (written_chunks) {
-	  continue;
-	} else {
-	  break;
-	}
+        double_buffer->regret_get_chunk();
+        if (written_chunks) {
+          continue;
+        } else {
+          break;
+        }
       }
       written_chunks++;
+      
       if (config->dopt) {
 	std::cout << "get_chunk() returned ptr" << std::endl;
 	std::cout << "reading string from file: " << chunk_placement_ptr << std::endl;
@@ -146,6 +175,10 @@ void sha256_fpga(settings *config) {
 
   if (config->dopt) {
     print_result(result);
+  }
+  if (config->vopt) {
+    push_to_verify(result, &verify_vec);
+    verify(verify_vec, config->filename);
   }
   file.close();
   delete double_buffer;
@@ -217,11 +250,7 @@ int main(int argc, char ** argv) {
   }
   pre_settings(&pre_sets);
 
-  if (pre_sets.vopt) {
-    std::cout << "====================== VERIFICATION RESULTS =======================" << std::endl;
-    verify(pre_sets.filename);
-    std::cout << "================================================================" << std::endl;
-  } else if (pre_sets.bopt) {
+  if (pre_sets.bopt) {
       benchmark(&pre_sets);
   } else {
       sha256_fpga(&pre_sets);
