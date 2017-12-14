@@ -34,7 +34,7 @@ void pre_settings_init(settings *config) {
   config->vopt = 0;
   config->oopt = 0;
   config->fvalue = NULL;
-  //config->filename = NULL;
+  config->filename = "./password.txt";
   config->outfile = "./results/output.csv";
 }
 
@@ -50,7 +50,7 @@ double get_filesize(std::string file) {
   return size;
 }
 
-void set_filesize(settings *config) {
+void set_lines_to_read(settings *config) {
     config->lines_to_read = trunc((config->filesize * 1000 * 1000)/64);
     std::cout << "size: " << config->filesize << " MB" << std::endl;
     std::cout << "lines_to_read: " << config->lines_to_read << std::endl;
@@ -71,15 +71,12 @@ void pre_settings(settings *config) {
   if (config->fopt) { //filename flag
     config->filename = config->fvalue;
     std::cout << "filename: " << config->filename << std::endl;
-  } else {
-    config->filename = "password.txt";
-    std::cout << "filename: " << config->filename << std::endl;
   }
   if (config->sopt) { //size flag
-    set_filesize(config);
+    set_lines_to_read(config);
   } else if (!config->sopt && config->bopt){
     config->filesize = get_filesize(config->filename);
-    set_filesize(config);
+    set_lines_to_read(config);
   } else {
     std::cout << "size: whole file will be read" << std::endl;
   }
