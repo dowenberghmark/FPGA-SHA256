@@ -8,14 +8,13 @@ BIN = host_sha256
 
 OBJ = $(SRC:.c=.o)
 
-all: $(BIN)
+all: installOpenSSL $(BIN)
 
 $(BIN): $(OBJ)
-	rpm -qa | grep -q openssl-devel || sudo yum install --assumeyes openssl-devel
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 installOpenSSL:
-	sudo yum install openssl-devel
+	rpm -qa | grep -q openssl-devel || sudo yum install --assumeyes openssl-devel
 
 clean:
 	rm -f *.o $(BIN)

@@ -108,7 +108,6 @@ int main(int argc, char **argv) {
       std::exit(EXIT_SUCCESS);
     }
     default: {
-      std::cout << "Input was not recoqnized" << std::endl;
       std::exit(EXIT_FAILURE);
     }
     }
