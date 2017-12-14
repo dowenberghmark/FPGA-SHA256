@@ -1,3 +1,6 @@
+# CSV outputs
+host_output.csv
+
 # Password files
 random_passwords.txt
 passwords.txt
