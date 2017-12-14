@@ -16,6 +16,5 @@ for  s in ${SIZE[*]}; do
     for ((i=1;i<$((N+1));i++));	do 			
 	echo "Iteration: $i, Size: $s"
 	eval $PROGRAM  -s $s -f $PASS -o $F
-	echo "$PROGRAM  -s $s -f $PASS -o $F"
     done
 done
