@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+if [ $# -ne 3 ] ;
+then
+    echo "./benchmark.sh <path_to_output> <path_to_password_file> <cpu/hw>"
+    exit
+fi
 F=$1 #  Name of path/output file
 PASS=$2 # Path to password file
 PROGRAM="./sha256 -b" # Not in use at the moment
@@ -10,8 +15,6 @@ if [ -f "$F" ]
 then
     rm $F
 fi
-
-
 
 if [ $3 = $CPU ]
 then
