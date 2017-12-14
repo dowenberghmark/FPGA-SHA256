@@ -1,3 +1,5 @@
+# requires openssl-devel, install on centos with 'sudo yum install openssl-devel'
+
 CC = g++
 CFLAGS = -std=c++11 -g -Wall -Werror -O3
 
