@@ -20,7 +20,6 @@ def write_random_lowercase(size): # generates .txt file random passwords 30 char
       rand_byte_array[i] = min_lowercase_ascii + b % interval_lowercase_ascii # convert 0..255 to 97..122 (a-z)
       counter += 1
 
-  del rand_byte_array[-1]
   with open("random_passwords.txt", "w") as text_file:
     text_file.write("%s" % rand_byte_array)
 
