@@ -9,6 +9,8 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <cmath>
+#include <vector>
+#include <string>
 
 #define MEGABYTE 1000000
 
@@ -16,6 +18,46 @@ struct result {
   double time;
   double size_mb;
 };
+
+bool sha256(char* input, unsigned char* md) {
+  SHA256_CTX context;
+  if(!SHA256_Init(&context))
+    return false;
+
+  if(!SHA256_Update(&context, (unsigned char*)input, strlen(input)))
+    return false;
+
+  if(!SHA256_Final(md, &context))
+    return false;
+
+  return true;
+}
+
+std::vector<std::string> host_sha256_verify(std::string filename){
+  std::vector<std::string> vector_array;
+  std::ifstream file;
+  file.open(filename);
+
+  char input[64];
+  unsigned char output[SHA256_DIGEST_LENGTH];
+
+
+  while(file >> input) {
+    if (!sha256(input, output)) {
+      printf("Error hashing with openssl\n");
+    }
+    std::string hash_str = "";
+    char s[3];
+    for (int i = 0; i < 32; i++) {
+      sprintf(s, "%02x", output[i]);
+      hash_str += s;
+    }
+    vector_array.push_back(hash_str);
+  }
+
+  file.close();
+  return vector_array;
+}
 
 
 void csv_writer(char *filename, double size, double time) {
@@ -27,20 +69,6 @@ void csv_writer(char *filename, double size, double time) {
   outfile.close();
 }
 
-bool sha256(char* input, unsigned long length, unsigned char* md) {
-  SHA256_CTX context;
-  if(!SHA256_Init(&context))
-    return false;
-
-  if(!SHA256_Update(&context, (unsigned char*)input, length))
-    return false;
-
-  if(!SHA256_Final(md, &context))
-    return false;
-
-  return true;
-}
-
 int file_sha256(std::ifstream& file, int lines_to_read) {
   // 64 is chunksize,
   char input[64];
@@ -48,7 +76,7 @@ int file_sha256(std::ifstream& file, int lines_to_read) {
   int lines_read = 0;
 
   while (file >> input && lines_read < lines_to_read) {
-    if (!sha256(input, strlen(input), output)) {
+    if (!sha256(input, output)) {
       printf("Error hashing with openssl\n");
     }
     lines_read++;

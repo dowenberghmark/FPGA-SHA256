@@ -12,7 +12,6 @@
 
 #include "device/double_buffer.hpp"
 #include "device/defs.hpp"
-#include "host/sha256.hpp"
 #include "host/sha_preprocess.hpp"
 #include "host/verify.hpp"
 
@@ -182,7 +181,7 @@ int main(int argc, char ** argv) {
     } else {
       filename = "password.txt";
     }
-    
+
     std::cout << "filename: " << filename << std::endl;
   }
 
