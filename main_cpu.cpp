@@ -54,11 +54,11 @@ void pre_settings(settings *config) {
     std::cout << "benchmark mode is on" << std::endl;
     std::cout << "output file is set to: " << config->outfile << std::endl;
   }
-  if (config->fopt) { //filename flag
+  if (config->fopt) {
     config->filename = config->fvalue;
     std::cout << "filename: " << config->filename << std::endl;
   }
-  if (config->sopt) { //size flag
+  if (config->sopt) {
     set_lines_to_read(config);
   } else {
     std::cout << "processing size: whole file will be read" << std::endl;
@@ -106,14 +106,8 @@ void sha256_fpga(settings *config) {
     else if (!config->sopt && !file.eof()) {
       chunk_placement_ptr = double_buffer->get_chunk()->data;
     }
-    /*
-    if (!file.eof() && config->lines_to_read != 0) {
-      chunk_placement_ptr = double_buffer->get_chunk()->data;
-    }
-    */
 
     // launch fpga
-    //if (chunk_placement_ptr == nullptr || file.eof() || config->lines_to_read == 0) {
     if (chunk_placement_ptr == nullptr || file.eof() || config->lines_to_read == lines_read) {
       if (config->dopt) {
         std::cout << "get_chunk() returned nullptr" << std::endl;
@@ -124,7 +118,6 @@ void sha256_fpga(settings *config) {
       if (config->dopt) {
         print_result(result);
       }
-
       if (file.eof() || config->lines_to_read == lines_read) {
 	break;
       }
@@ -146,11 +139,9 @@ void sha256_fpga(settings *config) {
 	std::cout << "reading string from file: " << chunk_placement_ptr << std::endl;
       }
       pre_process(chunk_placement_ptr);
-      //config->lines_to_read--;
       lines_read++;
     }
   }
-
   result = double_buffer->get_last_result();
 
   if (config->dopt) {
@@ -183,7 +174,6 @@ int main(int argc, char ** argv) {
   /*Initialization*/
   settings pre_sets;
   pre_settings_init(&pre_sets);
-
   /*Getopt flags*/
   int c;
   while ((c = getopt(argc,argv,"v,b,o:d,h,f:s:")) != -1) {
