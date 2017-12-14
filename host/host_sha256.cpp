@@ -71,7 +71,7 @@ struct result benchmark_host_sha256(const char *filename, int lines_to_read) {
   std::cout << "Host sha256 program time: " <<  diff.count() << "s" << std::endl;
 
   res.time = diff.count();
-  res.size_mb = 64 * lines_read / MEGABYTE;
+  res.size_mb = (64 * lines_read) / MEGABYTE;
   return res;
 }
 
@@ -102,6 +102,7 @@ int main(int argc, char **argv) {
       std::cout << "usage: ./host_sha256 [-s size in MB] [-f filepath]" << std::endl;
       std::cout << "s : define file size. Will read the whole file if not specified" << std::endl;
       std::cout << "f : define file to read. Will read password.txt if not specified" << std::endl;
+      std::cout << "o : define output file to write. Will write ../results/host_output.csv if not specified" << std::endl;
       std::cout << "h : help page" << std::endl;
       std::cout << "==============================================================================" << std::endl;
       std::exit(EXIT_SUCCESS);
