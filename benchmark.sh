@@ -5,6 +5,14 @@ PROGRAM="./sha256 -b" # Not in use at the moment
 SIZE=(0.1 1 10 100 1000 10000 100000 1000000 10000000 100000000)
 N=10
 CPU='cpu'
+
+if [ -f "$F" ]
+then
+    rm $F
+fi
+
+
+
 if [ $3 = $CPU ]
 then
     PROGRAM="./host/host_sha256"
