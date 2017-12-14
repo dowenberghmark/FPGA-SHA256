@@ -54,12 +54,13 @@ void pre_settings(settings *config) {
     std::cout << "benchmark mode is on" << std::endl;
     std::cout << "output file is set to: " << config->outfile << std::endl;
   }
-  if (config->fopt) {
-    config->filename = config->fvalue;
-    std::cout << "filename: " << config->filename << std::endl;
-  }
   if (config->fopt) { //filename flag
-    config->filename = config->fvalue;
+    if (access(config->fvalue, F_OK ) != -1) {
+      config->filename = config->fvalue;
+    } else {
+      std::cout << "File does not exist" << std::endl;
+      std::exit(EXIT_FAILURE);
+    }
     std::cout << "filename: " << config->filename << std::endl;
   } else {
     const std::string& file_path = "host/random_passwords.txt";
@@ -68,7 +69,7 @@ void pre_settings(settings *config) {
     } else {
       config->filename = "password.txt";
     }
-    std::cout << "filename: " << filename << std::endl;
+    std::cout << "filename: " << config->filename << std::endl;
   }
   if (config->sopt) {
     set_lines_to_read(config);
