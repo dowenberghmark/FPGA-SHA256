@@ -11,7 +11,7 @@
 
 #include <openssl/sha.h>
 #include "host_sha256.hpp"
-
+#include "../device/defs.hpp"
 
 #define MEGABYTE 1000000
 
@@ -31,8 +31,7 @@ void csv_writer(char *filename, double size, double time) {
 }
 
 int file_sha256(std::ifstream& file, int lines_to_read) {
-  // 64 is chunksize,
-  char input[64];
+  char input[CHUNK_SIZE];
   unsigned char output[SHA256_DIGEST_LENGTH];
   int lines_read = 0;
 
@@ -48,19 +47,19 @@ int file_sha256(std::ifstream& file, int lines_to_read) {
 struct result benchmark_host_sha256(const char *filename, int lines_to_read) {
   struct result res;
   double lines_read;
-
   std::ifstream file;
+
   file.open(filename);
   auto start = std::chrono::system_clock::now();
   lines_read = file_sha256(file, lines_to_read);
   auto end = std::chrono::system_clock::now();
   file.close();
-  std::chrono::duration<double> diff = end - start;
 
+  std::chrono::duration<double> diff = end - start;
   std::cout << "Host sha256 program time: " <<  diff.count() << "s" << std::endl;
 
   res.time = diff.count();
-  res.size_mb = (64 * lines_read) / MEGABYTE;
+  res.size_mb = (CHUNK_SIZE * lines_read) / MEGABYTE;
   return res;
 }
 
@@ -79,7 +78,7 @@ int main(int argc, char **argv) {
     }
     case 's': {
       svalue = std::stod(optarg);
-      lines_to_read = trunc((svalue * MEGABYTE) / 64);
+      lines_to_read = trunc((svalue * MEGABYTE) / CHUNK_SIZE);
       break;
     }
     case 'o': {

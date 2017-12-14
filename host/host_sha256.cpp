@@ -6,6 +6,8 @@
 #include <vector>
 #include <string>
 
+#include "../device/defs.hpp"
+
 
 bool sha256(char* input, unsigned char* output) {
   SHA256_CTX context;
@@ -22,27 +24,25 @@ bool sha256(char* input, unsigned char* output) {
 }
 
 std::vector<std::string> host_sha256_verify(std::string filename){
-  std::vector<std::string> vector_array;
+  std::vector<std::string> hashes;
   std::ifstream file;
-  file.open(filename);
-
-  char input[64];
+  char input[CHUNK_SIZE];
   unsigned char output[SHA256_DIGEST_LENGTH];
 
-
+  file.open(filename);
   while(file >> input) {
     if (!sha256(input, output)) {
       printf("Error hashing with openssl\n");
     }
     std::string hash_str = "";
     char s[3];
-    for (int i = 0; i < 32; i++) {
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
       sprintf(s, "%02x", output[i]);
       hash_str += s;
     }
-    vector_array.push_back(hash_str);
+    hashes.push_back(hash_str);
   }
 
   file.close();
-  return vector_array;
+  return hashes;
 }
