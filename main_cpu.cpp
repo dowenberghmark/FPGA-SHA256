@@ -181,7 +181,6 @@ int main(int argc, char ** argv) {
     } else {
       filename = "password.txt";
     }
-
     std::cout << "filename: " << filename << std::endl;
   }
 
