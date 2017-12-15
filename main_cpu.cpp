@@ -10,7 +10,6 @@
 
 #include "device/double_buffer.hpp"
 #include "device/defs.hpp"
-#include "host/sha256.hpp"
 #include "host/sha_preprocess.hpp"
 #include "host/verify.hpp"
 

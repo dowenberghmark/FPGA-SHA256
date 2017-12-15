@@ -1,3 +1,10 @@
+# CSV outputs
+host_output.csv
+
+# Password files
+random_passwords.txt
+passwords.txt
+
 # SDaccel files
 .Xil
 _xocc_*
@@ -13,6 +20,7 @@ fpga_main
 interface_main
 aws_interface_main
 dram.hex
+host_sha256
 
 # TAGS
 TAGS
