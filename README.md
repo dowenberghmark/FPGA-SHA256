@@ -47,7 +47,7 @@ Benchmarks can be generated for both device and host.
 
 Generate enough passwords (100 GB required for benchmarks script) with:
 
-`python host/generate_random_passwords.py 100000000`
+`python generate_random_passwords.py 100000000`
 
 Compile the wanted target. For host:
 
