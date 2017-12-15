@@ -212,41 +212,41 @@ int main(int argc, char ** argv) {
   int c;
   while ((c = getopt(argc, argv, "v,b,o:d,h,f:s:")) != -1) {
     switch (c) {
-    case 'v': {
-      pre_sets.vopt = 1;
-      break;
-    }
-    case 'b': {
-      pre_sets.bopt = 1;
-      break;
-    }
-    case 'o': {
-      pre_sets.oopt = 1;
-      pre_sets.outfile = optarg;
-      break;
-    }
-    case 'd': {
-      pre_sets.dopt = 1;
-      break;
-    }
-    case 'f': {
-      pre_sets.fopt = 1;
-      pre_sets.fvalue = optarg;
-      break;
-    }
-    case 's': {
-      pre_sets.sopt = 1;
-      pre_sets.amount_to_process = std::stod(optarg);
-      break;
-    }
-    case 'h': {
-      help();
-      std::exit(EXIT_FAILURE);
-    }
-    default: {
-      std::cout << "Input was not recoqnized. use -h to get to the help page" << std::endl;
-      std::exit(EXIT_FAILURE);
-    }
+      case 'v': {
+	pre_sets.vopt = 1;
+	break;
+      }
+      case 'b': {
+	pre_sets.bopt = 1;
+	break;
+      }
+      case 'o': {
+	pre_sets.oopt = 1;
+	pre_sets.outfile = optarg;
+	break;
+      }
+      case 'd': {
+	pre_sets.dopt = 1;
+	break;
+      }
+      case 'f': {
+	pre_sets.fopt = 1;
+	pre_sets.fvalue = optarg;
+	break;
+      }
+      case 's': {
+	pre_sets.sopt = 1;
+	pre_sets.amount_to_process = std::stod(optarg);
+	break;
+      }
+      case 'h': {
+	help();
+	std::exit(EXIT_FAILURE);
+      }
+      default: {
+	std::cout << "Input was not recoqnized. use -h to get to the help page" << std::endl;
+	std::exit(EXIT_FAILURE);
+      }
     }
   }
   pre_settings(&pre_sets);
