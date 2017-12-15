@@ -6,6 +6,6 @@ install:
   - sudo apt-get install cppcheck
 
 script:
-  - cpplint --extensions=cpp,hpp --headers=hpp $( find . -name \*.hpp -or -name \*.cpp )
+  - cpplint --linelength=120 --filter=-legal/copyright --extensions=cpp,hpp --headers=hpp $(find . -name \*.hpp -or -name \*.cpp)
   - cppcheck .
-  - pep8 .
+  - pep8 --max-line-length=120 .
