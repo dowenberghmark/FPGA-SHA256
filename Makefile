@@ -5,18 +5,18 @@ include $(COMMON_REPO)/utility/boards.mk
 include $(COMMON_REPO)/libs/xcl2/xcl2.mk
 include $(COMMON_REPO)/libs/opencl/opencl.mk
 
-
 device_SRC_DIR=./device
 host_SRC_DIR=./host
 
-SRCS=$(device_SRC_DIR)/double_buffer.cpp $(device_SRC_DIR)/device_interface.cpp $(host_SRC_DIR)/sha256.cpp $(host_SRC_DIR)/sha_preprocess.cpp host_main.cpp $(host_SRC_DIR)/verify.cpp
-HDRS=$(device_SRC_DIR)/device_interface.hpp $(device_SRC_DIR)/double_buffer.hpp $(device_SRC_DIR)/defs.hpp $(host_SRC_DIR)/sha_preprocess.hpp $(host_SRC_DIR)/verify.hpp $(host_SRC_DIR)/sha256.hpp
+
+SRCS=$(device_SRC_DIR)/double_buffer.cpp $(device_SRC_DIR)/device_interface.cpp $(host_SRC_DIR)/host_sha256.cpp $(host_SRC_DIR)/sha_preprocess.cpp host_main.cpp $(host_SRC_DIR)/verify.cpp
+HDRS=$(device_SRC_DIR)/device_interface.hpp $(device_SRC_DIR)/double_buffer.hpp $(device_SRC_DIR)/defs.hpp $(host_SRC_DIR)/sha_preprocess.hpp $(host_SRC_DIR)/verify.hpp $(host_SRC_DIR)/host_sha256.hpp
 
 # Host Application
 sha256_SRCS=$(SRCS) $(oclHelper_SRCS) $(xcl2_SRCS)
 sha256_HDRS=$(xcl2_HDRS) $(HDRS)
 sha256_CXXFLAGS=-I$./ $(opencl_CXXFLAGS) $(xcl2_CXXFLAGS) $(oclHelper_CXXFLAGS) -std=c++0x -g
-sha256_LDFLAGS=$(opencl_LDFLAGS)
+sha256_LDFLAGS=$(opencl_LDFLAGS) -lcrypto
 
 EXES=sha256
 

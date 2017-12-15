@@ -13,3 +13,6 @@ export device_id=0xF001
 export vendor_id=0x1D0F
 export subsystem_id=0x1D51
 export subsystem_vendor_id=0xFEDC
+
+# install openssl if not present
+rpm -qa | grep -q openssl-devel || sudo yum install --assumeyes openssl-devel
