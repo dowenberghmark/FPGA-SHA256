@@ -31,7 +31,7 @@ source enable_manual_run.sh
 Default target is software emulation. For hardware emulation simply add a `hw` flag to `./run_make` and `source enable_manual_run.sh`.
 
 ## Run PineappleExpress
-Use .PineappleExpress/main -h for more help on how to run the program.
+Use PineappleExpress/main -h for more help on how to run the program.
 
 ```
 Example:
@@ -43,6 +43,31 @@ Useful options:
 -s  Specify how many Megabyte to read. The whole file will be read if the flag is not specified.
 -d  Activates debug mode.
 ```
+
+## Run Benchmarks
+Benchmarks can be generated for both device and host.
+
+Generate enough passwords (100 GB required for benchmarks script) with:
+
+`python host/generate_random_passwords.py 100000000`
+
+Compile the wanted target. For host:
+
+`cd host && make`
+
+For device:
+```
+source source_files.sh
+make clean
+make TARGETS=hw DEVICES=$AWS_PLATFORM
+```
+Wait ~8 hours for it to finish, then follow these [instructions](https://github.com/aws/aws-fpga/blob/master/SDAccel/README.md#createafi) to upload the compiled kernel to AWS and then these [instructions](https://github.com/aws/aws-fpga/tree/master/hdk/cl/examples#step-by-step-guide-how-to-load-and-test-a-registered-afi-from-within-an-f1-instance) to load the FPGA on the F1 instance.
+
+Run the benchmarks with:
+
+`./benchmark.sh myoutput.csv random_passwords.txt <host/hw>`
+
+`myoutput.csv` will be populated with the benchmarking data.
 
 ## Code standard
 
