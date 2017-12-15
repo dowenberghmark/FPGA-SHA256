@@ -29,7 +29,7 @@ source enable_manual_run.sh
 Default target is software emulation. For hardware emulation simply add a `hw` flag to `./run_make` and `source enable_manual_run.sh`.
 
 ## Run PineappleExpress
-Use .PineappleExpress/main -h for more help on how to run the program.
+Use PineappleExpress/main -h for more help on how to run the program.
 
 ```
 Example:
@@ -41,6 +41,25 @@ Useful options:
 -s  Specify how many Megabyte to read. The whole file will be read if the flag is not specified.
 -d  Activates debug mode.
 ```
+
+## Run Benchmarks
+Benchmarks can be generated for both device and host.
+
+Generate enough passwords (100 GB) with:
+
+`python host/generate_random_passwords.py 100000000`
+
+Compile the wanted target. For host:
+
+`cd host && make`
+
+For device, follow instructions in "Building PineappleExpress".
+
+Run the benchmarks with:
+
+`./benchmark.sh myoutput.csv random_passwords.txt <host/hw>`
+
+`myoutput.csv` will be populated with the benchmarking data.
 
 ## Code standard
 
