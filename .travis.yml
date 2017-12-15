@@ -1,9 +1,11 @@
 language: python
-python:
-  - "3.6"
 
 install:
   - pip install cpplint
+  - pip install pep8
+  - sudo apt-get install cppcheck
 
 script:
   - cpplint --extensions=cpp,hpp --headers=hpp $( find . -name \*.hpp -or -name \*.cpp )
+  - cppcheck .
+  - pep8 .
