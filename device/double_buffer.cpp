@@ -8,15 +8,17 @@
 
 #include "double_buffer.hpp"
 #include "defs.hpp"
-
+#include "device_information.hpp"
 
 DoubleBuffer::DoubleBuffer() {
   glob_head.active_buf = 0;
   for (int i = 0; i < BUFFER_COUNT; i++) {
     bufs[i].num_chunks = 0;
   }
-
-  dev_if = new DeviceInterface();
+  const char *krnl_name = "hashing_kernel";
+  DeviceInfo dev_info = DeviceInfo();
+  
+  dev_if = new DeviceInterface(dev_info, krnl_name, 0);
   bufs[glob_head.active_buf].chunks = dev_if->fetch_buffer(glob_head.active_buf);
   chunk_to_write = bufs[glob_head.active_buf].chunks;
   flip_flag = 1;

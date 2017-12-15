@@ -9,8 +9,8 @@ include $(COMMON_REPO)/libs/opencl/opencl.mk
 device_SRC_DIR=./device
 host_SRC_DIR=./host
 
-SRCS=$(device_SRC_DIR)/double_buffer.cpp $(device_SRC_DIR)/device_interface.cpp $(host_SRC_DIR)/sha256.cpp $(host_SRC_DIR)/sha_preprocess.cpp main_cpu.cpp $(host_SRC_DIR)/verify.cpp
-HDRS=$(device_SRC_DIR)/device_interface.hpp $(device_SRC_DIR)/double_buffer.hpp $(device_SRC_DIR)/defs.hpp $(host_SRC_DIR)/sha_preprocess.hpp $(host_SRC_DIR)/verify.hpp $(host_SRC_DIR)/sha256.hpp
+SRCS=$(device_SRC_DIR)/double_buffer.cpp $(device_SRC_DIR)/device_interface.cpp $(host_SRC_DIR)/sha256.cpp $(host_SRC_DIR)/sha_preprocess.cpp main_cpu.cpp $(host_SRC_DIR)/verify.cpp $(device_SRC_DIR)/device_information.cpp
+HDRS=$(device_SRC_DIR)/device_interface.hpp $(device_SRC_DIR)/device_information.hpp $(device_SRC_DIR)/double_buffer.hpp $(device_SRC_DIR)/defs.hpp $(host_SRC_DIR)/sha_preprocess.hpp $(host_SRC_DIR)/verify.hpp $(host_SRC_DIR)/sha256.hpp
 
 # Host Application
 sha256_SRCS=$(SRCS) $(oclHelper_SRCS) $(xcl2_SRCS)

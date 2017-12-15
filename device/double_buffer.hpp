@@ -5,7 +5,7 @@
 
 #include "defs.hpp"
 #include "device_interface.hpp"
-
+#include "device_information.hpp"
 
 class DoubleBuffer {
  public:
