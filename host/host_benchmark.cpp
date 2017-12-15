@@ -1,13 +1,13 @@
+#include <openssl/sha.h>
+#include <unistd.h>
 #include <iostream>
 #include <fstream>
 #include <chrono>
 #include <ctime>
 #include <climits>
 #include <cstdlib>
-#include <unistd.h>
 #include <cmath>
 
-#include <openssl/sha.h>
 #include "host_sha256.hpp"
 #include "../device/defs.hpp"
 
@@ -63,12 +63,12 @@ struct result benchmark_host_sha256(const char *filename, int lines_to_read) {
 
 int main(int argc, char **argv) {
   double svalue;
-  char *filename = (char *) "passwords.txt";
-  char *output_filename = (char *) "../results/host_output.csv";
+  char *filename = const_cast<char *>("passwords.txt");
+  char *output_filename = const_cast<char *>("../results/host_output.csv");
   int c, lines_to_read = INT_MAX;
 
   /* Getopt flags */
-  while ((c = getopt(argc,argv,"h,f:s:o:")) != -1) {
+  while ((c = getopt(argc, argv, "h,f:s:o:")) != -1) {
     switch (c) {
     case 'f': {
       filename = optarg;

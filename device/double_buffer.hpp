@@ -1,5 +1,5 @@
-#ifndef __DOUBLE_BUFFER_H__
-#define  __DOUBLE_BUFFER_H__
+#ifndef DEVICE_DOUBLE_BUFFER_HPP_
+#define DEVICE_DOUBLE_BUFFER_HPP_
 #include <stdint.h>
 #include <cstdlib>
 
@@ -18,7 +18,7 @@ class DoubleBuffer {
   struct buffer bufs[BUFFER_COUNT];
 
  private:
-  struct chunk *chunk_to_write; // chunk to write in active buffer
+  struct chunk *chunk_to_write;  // chunk to write in active buffer
   struct global_header glob_head;
 
   DeviceInterface *dev_if;
@@ -26,4 +26,4 @@ class DoubleBuffer {
   int flip_flag;
 };
 
-#endif
+#endif  // DEVICE_DOUBLE_BUFFER_HPP_
