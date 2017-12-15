@@ -1,6 +1,6 @@
-#ifndef __SHA_PREPROCESS_H_INCLUDED__
-#define __SHA_PREPROCESS_H_INCLUDED__
+#ifndef HOST_SHA_PREPROCESS_HPP_
+#define HOST_SHA_PREPROCESS_HPP_
 
 void pre_process(char *element);
 
-#endif
+#endif  // HOST_SHA_PREPROCESS_HPP_

@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/dowenberghmark/PineappleExpress.svg?branch=master)](https://travis-ci.org/dowenberghmark/PineappleExpress)
+
 # PineappleExpress
 
 ## Description

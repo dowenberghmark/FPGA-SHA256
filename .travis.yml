@@ -1,0 +1,15 @@
+branches:
+  only:
+    - master
+
+language: python
+
+install:
+  - pip install cpplint
+  - pip install pep8
+  - sudo apt-get install cppcheck
+
+script:
+  - cpplint --linelength=200 --filter=-legal/copyright,-build/c++11 --extensions=cpp,hpp --headers=hpp $(find . -name \*.hpp -or -name \*.cpp)
+  - cppcheck .
+  - pep8 --max-line-length=120 .
