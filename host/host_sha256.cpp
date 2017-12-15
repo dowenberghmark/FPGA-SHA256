@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 
+#include "host_sha256.hpp"
 #include "../device/defs.hpp"
 
 
