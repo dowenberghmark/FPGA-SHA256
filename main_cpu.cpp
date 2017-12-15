@@ -1,12 +1,13 @@
+#include <unistd.h>
 #include <stdint.h>
 #include <iostream>
 #include <fstream>
-#include <thread>
 #include <chrono>
 #include <ctime>
 #include <cmath>
-#include <unistd.h>
 #include <cstdlib>
+#include <string>
+#include <vector>
 
 #include "device/double_buffer.hpp"
 #include "device/defs.hpp"
@@ -38,9 +39,9 @@ void pre_settings_init(settings *config) {
 }
 
 void set_lines_to_read(settings *config) {
-    config->lines_to_read = trunc(config->amount_to_process * MB/CHUNK_SIZE);
-    std::cout << "processing size: " << config->amount_to_process << " MB" << std::endl;
-    std::cout << "lines_to_read: " << config->lines_to_read << std::endl;
+  config->lines_to_read = trunc(config->amount_to_process * MB/CHUNK_SIZE);
+  std::cout << "processing size: " << config->amount_to_process << " MB" << std::endl;
+  std::cout << "lines_to_read: " << config->lines_to_read << std::endl;
 }
 
 void pre_settings(settings *config) {
@@ -55,8 +56,8 @@ void pre_settings(settings *config) {
     std::cout << "benchmark mode is on" << std::endl;
     std::cout << "output file is set to: " << config->outfile << std::endl;
   }
-  if (config->fopt) { //filename flag
-    if (access(config->fvalue, F_OK ) != -1) {
+  if (config->fopt) {  // filename flag
+    if (access(config->fvalue, F_OK) != -1) {
       config->filename = config->fvalue;
     } else {
       std::cout << "File does not exist" << std::endl;
@@ -65,7 +66,7 @@ void pre_settings(settings *config) {
     std::cout << "filename: " << config->filename << std::endl;
   } else {
     const std::string& file_path = "host/random_passwords.txt";
-    if (access(file_path.c_str(), F_OK ) != -1) {
+    if (access(file_path.c_str(), F_OK) != -1) {
       config->filename = "host/random_passwords.txt";
     } else {
       config->filename = "password.txt";
@@ -128,8 +129,7 @@ void sha256_fpga(settings *config) {
     // if we want to keep going
     if (config->sopt && config->lines_to_read > lines_read) {
       chunk_placement_ptr = double_buffer->get_chunk()->data;
-    }
-    else if (!config->sopt && !file.eof()) {
+    } else if (!config->sopt && !file.eof()) {
       chunk_placement_ptr = double_buffer->get_chunk()->data;
     }
 
@@ -149,7 +149,7 @@ void sha256_fpga(settings *config) {
         print_result(result);
       }
       if (file.eof() || config->lines_to_read == lines_read) {
-	break;
+        break;
       }
     } else {
       file >> chunk_placement_ptr;
@@ -164,10 +164,10 @@ void sha256_fpga(settings *config) {
         }
       }
       written_chunks++;
-      
+
       if (config->dopt) {
-	std::cout << "get_chunk() returned ptr" << std::endl;
-	std::cout << "reading string from file: " << chunk_placement_ptr << std::endl;
+        std::cout << "get_chunk() returned ptr" << std::endl;
+        std::cout << "reading string from file: " << chunk_placement_ptr << std::endl;
       }
       pre_process(chunk_placement_ptr);
       lines_read++;
@@ -188,10 +188,10 @@ void sha256_fpga(settings *config) {
 }
 
 void csv_writer(settings *config, std::chrono::duration<double> time) {
-      std::ofstream outfile;
-      outfile.open(config->outfile, std::ios_base::app);
-      outfile << config->amount_to_process/MB << ";" << time.count() << "\n";
-      outfile.close(); 
+  std::ofstream outfile;
+  outfile.open(config->outfile, std::ios_base::app);
+  outfile << config->amount_to_process/MB << ";" << time.count() << "\n";
+  outfile.close();
 }
 
 void benchmark(settings *config) {
@@ -210,51 +210,51 @@ int main(int argc, char ** argv) {
   pre_settings_init(&pre_sets);
   /*Getopt flags*/
   int c;
-  while ((c = getopt(argc,argv,"v,b,o:d,h,f:s:")) != -1) {
+  while ((c = getopt(argc, argv, "v,b,o:d,h,f:s:")) != -1) {
     switch (c) {
-      case 'v': {
-        pre_sets.vopt = 1;
-        break;
-      }
-      case 'b': {
-        pre_sets.bopt = 1;
-        break;
-      }
-      case 'o': {
-        pre_sets.oopt = 1;
-        pre_sets.outfile = optarg;
-        break;
-      }
-      case 'd': {
-        pre_sets.dopt = 1;
-        break;
-      }
-      case 'f': {
-        pre_sets.fopt = 1;
-        pre_sets.fvalue = optarg;
-        break;
-      }
-      case 's': {
-        pre_sets.sopt = 1;
-        pre_sets.amount_to_process = std::stod(optarg);
-        break;
-      }
-      case 'h': {
-        help();
-        std::exit(EXIT_FAILURE);
-      }
-      default: {
-        std::cout << "Input was not recoqnized. use -h to get to the help page" << std::endl;
-        std::exit(EXIT_FAILURE);
-      }
+    case 'v': {
+      pre_sets.vopt = 1;
+      break;
+    }
+    case 'b': {
+      pre_sets.bopt = 1;
+      break;
+    }
+    case 'o': {
+      pre_sets.oopt = 1;
+      pre_sets.outfile = optarg;
+      break;
+    }
+    case 'd': {
+      pre_sets.dopt = 1;
+      break;
+    }
+    case 'f': {
+      pre_sets.fopt = 1;
+      pre_sets.fvalue = optarg;
+      break;
+    }
+    case 's': {
+      pre_sets.sopt = 1;
+      pre_sets.amount_to_process = std::stod(optarg);
+      break;
+    }
+    case 'h': {
+      help();
+      std::exit(EXIT_FAILURE);
+    }
+    default: {
+      std::cout << "Input was not recoqnized. use -h to get to the help page" << std::endl;
+      std::exit(EXIT_FAILURE);
+    }
     }
   }
   pre_settings(&pre_sets);
 
   if (pre_sets.bopt) {
-      benchmark(&pre_sets);
+    benchmark(&pre_sets);
   } else {
-      sha256_fpga(&pre_sets);
+    sha256_fpga(&pre_sets);
   }
   return 0;
 }

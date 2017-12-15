@@ -1,7 +1,9 @@
-#ifndef __VERIFY_H__
-#define __VERIFY_H__
+#ifndef HOST_VERIFY_HPP_
+#define HOST_VERIFY_HPP_
 
-#include <string.h>
-  int verify(std::vector<std::string> fpga_hash_vec, std::string filename);
+#include <vector>
+#include <string>
 
-#endif
+int verify(std::vector<std::string> fpga_hash_vec, std::string filename);
+
+#endif  // HOST_VERIFY_HPP_

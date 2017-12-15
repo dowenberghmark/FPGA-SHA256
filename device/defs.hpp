@@ -1,5 +1,5 @@
-#ifndef __DEFS_H_INCLUDED__
-#define __DEFS_H_INCLUDED__
+#ifndef DEVICE_DEFS_HPP_
+#define DEVICE_DEFS_HPP_
 
 #include <cstdint>
 
@@ -25,4 +25,4 @@ struct global_header {
   int active_buf;
 };
 
-#endif
+#endif  // DEVICE_DEFS_HPP_
