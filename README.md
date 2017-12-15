@@ -39,9 +39,13 @@ Example:
 ```
 ```
 Useful options:
+-b  Activates benchmark mode. Will append run time info to results/output.csv if -o flag is not used.
+-o  Specifies output file for benchmarking. The output file is set to results/output.csv as default.
+-v  Activates verification mode. Verifies results to a third-party program.
 -f  Specify which file to read. The program will read password.txt if the flag is not specified.
--s  Specify how many Megabyte to read. The whole file will be read if the flag is not specified.
+-s  Specify how many Megabytes to read. The whole file will be read if the flag is not specified.
 -d  Activates debug mode.
+-h  Help page.
 ```
 
 ## Run Benchmarks
@@ -49,7 +53,7 @@ Benchmarks can be generated for both device and host.
 
 Generate enough passwords (100 GB required for benchmarks script) with:
 
-`python host/generate_random_passwords.py 100000000`
+`python host/generate_random_passwords.py 100000`
 
 Compile the wanted target. For host:
 
