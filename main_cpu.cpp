@@ -14,6 +14,8 @@
 #include "host/sha_preprocess.hpp"
 #include "host/verify.hpp"
 
+#define MB (1000 * 1000)
+
 typedef struct pre_settings_t {
   double amount_to_process;
   int lines_to_read;
@@ -37,7 +39,7 @@ void pre_settings_init(settings *config) {
 }
 
 void set_lines_to_read(settings *config) {
-    config->lines_to_read = trunc((config->amount_to_process * 1000 * 1000)/CHUNK_SIZE);
+    config->lines_to_read = trunc(config->amount_to_process * MB/CHUNK_SIZE);
     std::cout << "processing size: " << config->amount_to_process << " MB" << std::endl;
     std::cout << "lines_to_read: " << config->lines_to_read << std::endl;
 }
@@ -188,9 +190,8 @@ void sha256_fpga(settings *config) {
 
 void csv_writer(settings *config, std::chrono::duration<double> time) {
       std::ofstream outfile;
-      config->amount_to_process /= 1000 * 1000; // change to MB
-      outfile.open(config->outfile, std::ios_base::app); //appends to CSV file
-      outfile << config->amount_to_process << ";" << time.count() << "\n";
+      outfile.open(config->outfile, std::ios_base::app);
+      outfile << config->amount_to_process/MB << ";" << time.count() << "\n";
       outfile.close(); 
 }
 
@@ -212,41 +213,41 @@ int main(int argc, char ** argv) {
   int c;
   while ((c = getopt(argc,argv,"v,b,o:d,h,f:s:")) != -1) {
     switch (c) {
-    case 'v': {
-      pre_sets.vopt = 1;
-      break;
-    }
-    case 'b': {
-      pre_sets.bopt = 1;
-      break;
-    }
-    case 'o': {
-      pre_sets.oopt = 1;
-      pre_sets.outfile = optarg;
-      break;
-    }
-    case 'd': {
-      pre_sets.dopt = 1;
-      break;
-    }
-    case 'f': {
-      pre_sets.fopt = 1;
-      pre_sets.fvalue = optarg;
-      break;
-    }
-    case 's': {
-      pre_sets.sopt = 1;
-      pre_sets.amount_to_process = std::stod(optarg);
-      break;
-    }
-    case 'h': {
-      help();
-      std::exit(EXIT_FAILURE);
-    }
-    default: {
-      std::cout << "Input was not recoqnized. use -h to get to the help page" << std::endl;
-      std::exit(EXIT_FAILURE);
-    }
+      case 'v': {
+        pre_sets.vopt = 1;
+        break;
+      }
+      case 'b': {
+        pre_sets.bopt = 1;
+        break;
+      }
+      case 'o': {
+        pre_sets.oopt = 1;
+        pre_sets.outfile = optarg;
+        break;
+      }
+      case 'd': {
+        pre_sets.dopt = 1;
+        break;
+      }
+      case 'f': {
+        pre_sets.fopt = 1;
+        pre_sets.fvalue = optarg;
+        break;
+      }
+      case 's': {
+        pre_sets.sopt = 1;
+        pre_sets.amount_to_process = std::stod(optarg);
+        break;
+      }
+      case 'h': {
+        help();
+        std::exit(EXIT_FAILURE);
+      }
+      default: {
+        std::cout << "Input was not recoqnized. use -h to get to the help page" << std::endl;
+        std::exit(EXIT_FAILURE);
+      }
     }
   }
   pre_settings(&pre_sets);
