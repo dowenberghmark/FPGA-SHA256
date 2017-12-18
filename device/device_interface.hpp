@@ -8,7 +8,7 @@
 
 class DeviceInterface {
  public:
-  DeviceInterface(DeviceInfo information, const char *kernel_name, int banks);
+  DeviceInterface(DeviceInfo *information, const char *kernel_name, int banks);
   struct chunk *run_fpga(int num_chunks, int active_buf);
   struct chunk *read_last_result(int active_buf);
   struct chunk *fetch_buffer(int active_buf);

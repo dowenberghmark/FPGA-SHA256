@@ -13,7 +13,7 @@ void check_error(cl_int err) {
   }
 }
 
-DeviceInterface::DeviceInterface(DeviceInfo information, const char *kernel_name, int banks) {
+DeviceInterface::DeviceInterface(DeviceInfo *information, const char *kernel_name, int banks) {
   // // The get_xil_devices will return vector of Xilinx Devices
   // std::vector<cl::Device> devices = xcl::get_xil_devices();
   // cl::Device device = devices[0];
@@ -36,9 +36,9 @@ DeviceInterface::DeviceInterface(DeviceInfo information, const char *kernel_name
   // previous line. A kernel is an OpenCL function that is executed on the
   // FPGA. This function is defined in the device/device_kernel.cl file.
 
-  q = cl::CommandQueue(information.context, information.device, CL_QUEUE_PROFILING_ENABLE);
+  q = cl::CommandQueue(information->context, information->device, CL_QUEUE_PROFILING_ENABLE);
   
-  krnl_sha = cl::Kernel(information.program, kernel_name);
+  krnl_sha = cl::Kernel(information->program, kernel_name);
 
   unsigned xcl_banks[4] = {
     XCL_MEM_DDR_BANK0,
@@ -58,7 +58,7 @@ DeviceInterface::DeviceInterface(DeviceInfo information, const char *kernel_name
   int err;
   unsigned flags = CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX;
   for (int i = 0; i < BUFFER_COUNT; i++) {
-    ocl_bufs[i] = cl::Buffer(information.context, flags, BUFFER_SIZE, &buffer_ext[i], &err);
+    ocl_bufs[i] = cl::Buffer(information->context, flags, BUFFER_SIZE, &buffer_ext[i], &err);
     if (err != CL_SUCCESS) {
       printf("Error: Failed to allocate buffer in DDR bank %d %zu\n", i, BUFFER_SIZE);
     }
@@ -87,7 +87,7 @@ struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   krnl_sha.setArg(narg++, ocl_bufs[1]);
   krnl_sha.setArg(narg++, num_chunks);
   krnl_sha.setArg(narg++, active_buf);
-  std::cout << "Debugg" << "\n";
+
   //Launch the Kernel
   q.enqueueTask(krnl_sha);
 

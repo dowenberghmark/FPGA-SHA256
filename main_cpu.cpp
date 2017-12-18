@@ -19,8 +19,13 @@
 
 void print_result(struct buffer result) {
   for (int i = 0; i < result.num_chunks; i++) {
+    printf("i: %d, CHUNKS_PER_BUFFER: %d\n", i, CHUNKS_PER_BUFFER);
     for (int j = 0; j < 32; j++) {
-      printf("%02x", ((unsigned char *)result.chunks[i].data)[j]);
+      if (i >= CHUNKS_PER_BUFFER) {
+        printf("%02x", ((unsigned char *)result.chunks[1][i].data)[j]);
+      } else {
+        printf("%02x", ((unsigned char *)result.chunks[0][i].data)[j]);
+      }
     }
     printf("\n");
   }
@@ -31,7 +36,11 @@ void push_to_verify(struct buffer result, std::vector<std::string> *verify_vec) 
   for (int i = 0; i < result.num_chunks; i++) {
     int c = 0;
     for (int j = 0; j < 32; j++) {
-      c += snprintf(hashed_pass + c, 65-c, "%02x", ((unsigned char *) result.chunks[i].data)[j]);
+       if (i >= CHUNKS_PER_BUFFER) {
+        c += snprintf(hashed_pass + c, 65-c, "%02x", ((unsigned char *) result.chunks[1][i].data)[j]);
+      } else {
+        c += snprintf(hashed_pass + c, 65-c, "%02x", ((unsigned char *) result.chunks[0][i].data)[j]);
+      }
     }
     verify_vec->push_back(hashed_pass);
   }
