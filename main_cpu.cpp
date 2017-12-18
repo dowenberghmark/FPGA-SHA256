@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <stdint.h>
+#include <tgmath.h>
 #include <iostream>
 #include <fstream>
 #include <chrono>
@@ -17,7 +18,7 @@
 #define MB (1000 * 1000)
 
 typedef struct pre_settings_t {
-  double amount_to_process;
+  double amount_to_process, buffer_size;
   int lines_to_read;
   int bopt, dopt, sopt, fopt, vopt, oopt;
   char *fvalue;
@@ -36,6 +37,7 @@ void pre_settings_init(settings *config) {
   config->fvalue = NULL;
   config->filename = "./password.txt";
   config->outfile = "./results/output.csv";
+  config->buffer_size = 0.256;  // 4 chunks per buffer
 }
 
 void set_lines_to_read(settings *config) {
@@ -78,6 +80,11 @@ void pre_settings(settings *config) {
   } else {
     std::cout << "processing size: whole file will be read" << std::endl;
   }
+  // Bytes to MB
+  BUFFER_SIZE = ceil(config->buffer_size*MB);
+  CHUNKS_PER_BUFFER = ceil(buffer_size / CHUNK_SIZE);
+  std::cout << "buffer size: " << BUFFER_SIZE << " MB, " << CHUNKS_PER_BUFFER << " chunks per buffer" << std::endl;
+
   std::cout << "================================================================" << std::endl;
 }
 
@@ -210,7 +217,7 @@ int main(int argc, char ** argv) {
   pre_settings_init(&pre_sets);
   /*Getopt flags*/
   int c;
-  while ((c = getopt(argc, argv, "v,b,o:d,h,f:s:")) != -1) {
+  while ((c = getopt(argc, argv, "vbo:dhf:s:B:")) != -1) {
     switch (c) {
       case 'v': {
         pre_sets.vopt = 1;
@@ -237,6 +244,10 @@ int main(int argc, char ** argv) {
       case 's': {
         pre_sets.sopt = 1;
         pre_sets.amount_to_process = std::stod(optarg);
+        break;
+      }
+      case 'B': {
+        pre_sets.buffer_size = std::stod(optarg);
         break;
       }
       case 'h': {
