@@ -40,35 +40,48 @@ DeviceInterface::DeviceInterface() {
   // FPGA. This function is defined in the device/device_kernel.cl file.
   krnl_sha = cl::Kernel(program, "hashing_kernel");
 
-  unsigned xcl_banks[4] = {
-    XCL_MEM_DDR_BANK0,
-    XCL_MEM_DDR_BANK1,
-    XCL_MEM_DDR_BANK2,
-    XCL_MEM_DDR_BANK3
-  };
+  // unsigned xcl_banks[4] = {
+  //   XCL_MEM_DDR_BANK0,
+  //   XCL_MEM_DDR_BANK1,
+  //   XCL_MEM_DDR_BANK2,
+  //   XCL_MEM_DDR_BANK3
+  // };
+
+  // for (int i = 0; i < BUFFER_COUNT; i++) {
+  //   buffer_ext[i].flags = xcl_banks[i];
+  //   buffer_ext[i].obj = NULL;
+  //   buffer_ext[i].param = 0;
+  // }
+
+
 
   for (int i = 0; i < BUFFER_COUNT; i++) {
-    buffer_ext[i].flags = xcl_banks[i];
-    buffer_ext[i].obj = NULL;
-    buffer_ext[i].param = 0;
+    host_bufs[i] = (struct chunk *) aligned_alloc(4096, BUFFER_SIZE);
   }
+
+//   host_bufs[0] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[0], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
+// }
+
+
 
   // first half of buffers are only read by kernel
   // second half of buffers should only be written by kernel (not atm)
   int err;
-  unsigned flags = CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX;
+  unsigned flags = CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR;
   for (int i = 0; i < BUFFER_COUNT; i++) {
-    ocl_bufs[i] = cl::Buffer(context, flags, BUFFER_SIZE, &buffer_ext[i], &err);
+    ocl_bufs[i] = cl::Buffer(context, flags, BUFFER_SIZE, &host_bufs[i], &err);
     if (err != CL_SUCCESS) {
       printf("Error: Failed to allocate buffer in DDR bank %d %zu\n", i, BUFFER_SIZE);
     }
   }
 
-  for (int i = 0; i < BUFFER_COUNT; i++) {
-    host_bufs[i] = nullptr;
-  }
+  mem_bufs[0].push_back(ocl_bufs[0]);
+  mem_bufs[1].push_back(ocl_bufs[1]);
 
-  host_bufs[0] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[0], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
+  // buf0.push_back(ocl_bufs[0]);
+  // buf1.push_back(ocl_bufs[1]);
+
+
 }
 
 // used to bootstrap
@@ -76,10 +89,16 @@ struct chunk *DeviceInterface::fetch_buffer(int active_buf) {
   return (struct chunk *) host_bufs[active_buf];
 }
 
+//  void set_callback(cl_event event, const char *queue_name) {
+//   OCL_CHECK(
+//       clSetEventCallback(event, CL_COMPLETE, event_cb, (void *)queue_name));
+// }
+
 struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   cl_int err;
-  q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf], NULL, NULL);
-  q.finish();
+  q.enqueueMigrateMemObjects(mem_bufs[active_buf], 0);
+  //  q.finish();
+  //  q.finish();
 
   // set the kernel Arguments
   int narg = 0;
@@ -90,21 +109,23 @@ struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
 
   // launch the Kernel
   q.enqueueTask(krnl_sha);
-
+  q.finish();
   // previous computations result
-  host_bufs[1 - active_buf] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
-  check_error(err);
-
+  q.enqueueMigrateMemObjects(mem_bufs[1-active_buf], CL_MIGRATE_MEM_OBJECT_HOST);
+  q.finish();
   return (struct chunk *) host_bufs[1 - active_buf];
 }
 
-struct chunk *DeviceInterface::read_last_result(int active_buf) {
+ struct chunk *DeviceInterface::read_last_result(int active_buf, int num_chunks) {
   int err;
-  q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf], NULL, NULL);
+  // q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf], NULL, NULL);
 
-  host_bufs[1 - active_buf] = q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
-  check_error(err);
+  // host_bufs[1 - active_buf] = q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
+  // check_error(err);
 
+  q.enqueueMigrateMemObjects(mem_bufs[1-active_buf], CL_MIGRATE_MEM_OBJECT_HOST);
+  q.finish();
+  //  clReleaseProgram();
   return (struct chunk *) host_bufs[1 - active_buf];
 }
 
