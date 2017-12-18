@@ -22,7 +22,8 @@ void print_result(struct buffer result) {
     printf("i: %d, CHUNKS_PER_BUFFER: %d\n", i, CHUNKS_PER_BUFFER);
     for (int j = 0; j < 32; j++) {
       if (i >= CHUNKS_PER_BUFFER) {
-        printf("%02x", ((unsigned char *)result.chunks[1][i].data)[j]);
+        // forgott the offset here
+        printf("%02x", ((unsigned char *)result.chunks[1][i - CHUNKS_PER_BUFFER].data)[j]);
       } else {
         printf("%02x", ((unsigned char *)result.chunks[0][i].data)[j]);
       }
@@ -37,7 +38,8 @@ void push_to_verify(struct buffer result, std::vector<std::string> *verify_vec) 
     int c = 0;
     for (int j = 0; j < 32; j++) {
        if (i >= CHUNKS_PER_BUFFER) {
-        c += snprintf(hashed_pass + c, 65-c, "%02x", ((unsigned char *) result.chunks[1][i].data)[j]);
+         // forgott the offset here also
+        c += snprintf(hashed_pass + c, 65-c, "%02x", ((unsigned char *) result.chunks[1][i - CHUNKS_PER_BUFFER].data)[j]);
       } else {
         c += snprintf(hashed_pass + c, 65-c, "%02x", ((unsigned char *) result.chunks[0][i].data)[j]);
       }
