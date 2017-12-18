@@ -23,20 +23,25 @@ def tens(s):
           break
   return lst
 
-def plotjpg2(ss):
+def plotjpg2(ss, out, header):
     color = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
     #print ss[0][1:]
-    ss[0] = tens(ss[0][1:])
-    print ss[1]
+    ll = tens(ss[0][1:])
+    lst = []
+    for d in ll:
+      lst.append("$10^{"+str(d)+"}$")
     for x in xrange(1,len(ss)):
-       
-       plt.plot(ss[x][1:], ss[0], color[x]+"-", label=ss[x][0][:-4])
-    plt.legend(loc="lower right")
-    plt.ylabel('Amount of hashed data in tenfold (MB)')
-    plt.xlabel('Number of hashes per s')
-    plt.title('A comparison between hashing on FPGA and CPU')
+      for c in xrange(1,len(ss[x])):
+       ss[x][c] = ss[x][c]/ss[0][c]
+      print ss[x]
+      print ss[0]
+      plt.plot(lst, ss[x][1:], color[x]+"-", label=ss[x][0][:-4])
+    plt.legend(loc="upper right")
+    plt.xlabel('Amount of hashed data (MB)')
+    plt.ylabel('Throughput (MB/s)')
+    plt.title(header)
     plt.grid(True)
-    plt.savefig("chartsGraph.pdf")
+    plt.savefig(out+".pdf")
 
 
 
@@ -45,6 +50,12 @@ if __name__ == '__main__':
   argument_parser.add_argument('--folder',
                                  help="folder with csv files",
                                  default="csv")
+  argument_parser.add_argument('--header',
+                                 help="The header of the graph",
+                                 default="A comparison between hashing on FPGA and CPU")
+  argument_parser.add_argument('--out',
+                                 help="The filename of the graph, .pdf will be added",
+                                 default="chartsGraph")
   argument_parser.add_argument('--mesure',
                                  help="mesure per size",
                                  default=10,
@@ -57,7 +68,7 @@ if __name__ == '__main__':
     for filename in filenames:
       if ".csv" in filename:
         print filename
-      lst.append([filename])
+        lst.append([filename])
   first = True
   skip = False
   for x in xrange(1,len(lst)):
@@ -65,12 +76,13 @@ if __name__ == '__main__':
     sum = 0
     nn = 0
     for line in open(os.getcwd()+"/"+args.folder +"/"+ lst[x][0]):
+      #print line
       nn += 1
       if line[-1] == "\n":
         line = line[:-1]
       if line[-1] == "\r":
         line = line[:-1]
-     # print line
+      #print line
       l = line.split(";")
       if first and mesures == args.mesure-1:
         #print "here " + l[0]
@@ -78,7 +90,7 @@ if __name__ == '__main__':
           skip = True
         else:
        #   print "nn: " +str(nn)
-        #  print "add len " + l[0]
+         # print "add len " + l[0]
           lst[0].append(float(l[0]))
           sum += float(l[1])
       elif mesures == 0:
@@ -98,7 +110,7 @@ if __name__ == '__main__':
   #print lst
  # for l in lst:
    # print len(l)
-  plotjpg2(lst)
+  plotjpg2(lst, args.out, args.header)
 
   table = "\\begin{table}\n\\centering\n\\begin{tabular}{"+"l"*3+"}\n \hline\n"
   table += "Filesize & Time our& Time FPGA\\\\ \\hline \n"
