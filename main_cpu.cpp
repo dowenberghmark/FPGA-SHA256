@@ -17,7 +17,7 @@
 
 #define MB (1000 * 1000)
 
-// global variables defined in defs.hpp
+// global variables referenced in defs.hpp
 size_t BUFFER_SIZE;
 int CHUNKS_PER_BUFFER;
 
