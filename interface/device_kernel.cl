@@ -2,6 +2,9 @@
 #define NUMBER_ONE 1
 #define DATA_TO_TOUCH 32
 
+#define LOC_BUF_SIZE 4
+#define NUM_CHUNKS 16
+
 #define ROTR(x, n) (((x) >> (n)) | ((x) << ((32) - (n)))) //from https://stackoverflow.com/questions/21895604/rotate-right-by-n-only-using-bitwise-operators-in-c
 
 // https://www.xilinx.com/html_docs/xilinx2017_2/sdaccel_doc/topics/pragmas/concept-Intro_to_OpenCL_attributes.html
@@ -36,7 +39,7 @@ uint zigma1(uint x) {
   return (ROTR(x, 6))^(ROTR(x, 11))^(ROTR(x, 25));
 }
 
-void sha256(__global char *buffer) {
+void sha256(__local char *buffer) {
 
   __private uint K[64] = {
     0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
@@ -55,19 +58,17 @@ void sha256(__global char *buffer) {
   uint W[64];
   uint a,b,c,d,e,f,g,h,t1,t2;
 
-
   int j = 0;
-  __attribute__((opencl_unroll_hint(16)))
   for (int i = 0;  i < 16; i++) {
-    W[i] = ((__global unsigned char) buffer[j] << 24) | ((__global unsigned char) buffer[j+1] << 16) | ((__global unsigned char) buffer[j+2] << 8) | ((__global unsigned char) buffer[j+3]);
+    W[i] = ((__local unsigned char) buffer[j] << 24) | ((__local unsigned char) buffer[j+1] << 16) | ((__local unsigned char) buffer[j+2] << 8) | ((__local unsigned char) buffer[j+3]);
     j += 4;
   }
 
-  __attribute__((xcl_pipeline_loop))
   for (int i = 16; i < 64; i+=2) {
     W[i] = sigma1(W[i-2]) + W[i-7] + sigma0(W[i-15]) + W[i-16];
     W[i+1] = sigma1(W[i-1]) + W[i-6] + sigma0(W[i-14]) + W[i-15];
   }
+
   //Initialize working variables
   a = H0[0];
   b = H0[1];
@@ -79,7 +80,6 @@ void sha256(__global char *buffer) {
   h = H0[7];
 
   //Compute Hash
-  __attribute__((xcl_pipeline_loop))
   for (int i = 0; i < 64; i++) {
     t1 = h + zigma1(e) + ch(e, f, g) + K[i] + W[i];
     t2 = zigma0(a) + maj(a, b, c);
@@ -103,9 +103,11 @@ void sha256(__global char *buffer) {
   H0[7] = H0[7] + h;
 
   //Store hash in input buffer
-  __attribute__((opencl_unroll_hint(8)))
-  for (int i = 0; i < 8; i++) {
-    ((__global uint *) buffer)[i] = (((unsigned char *) H0)[i*4] << 24) | (((unsigned char *) H0)[i*4+1] << 16) | (((unsigned char *) H0)[i*4+2] << 8) | (((unsigned char *) H0)[i*4+3]);
+  for (int i = 0; i < 32; i+=4) {
+    ((__local char *) buffer)[i+3] = (((unsigned char *) H0)[i]);
+    ((__local char *) buffer)[i+2] = (((unsigned char *) H0)[i+1]);
+    ((__local char *) buffer)[i+1] = (((unsigned char *) H0)[i+2]);
+    ((__local char *) buffer)[i] = (((unsigned char *) H0)[i+3]);
   }
 }
 
@@ -113,19 +115,39 @@ void sha256(__global char *buffer) {
 kernel __attribute__((reqd_work_group_size(1, 1, 1)))
 void hashing_kernel(__global struct chunk * __restrict buffer0,
 		    __global struct chunk * __restrict buffer1,
-		    const int n_elements,
 		    const int active_buf) {
   printf("HELLO FROM FPGA KERNEL\n");
 
-  __global struct chunk *buffer;
+  __global struct chunk *global_buf;
   if (active_buf == 0) {
-    buffer = buffer0;
+    global_buf = buffer0;
   } else if (active_buf == 1) {
-    buffer = buffer1;
+    global_buf = buffer1;
   }
 
+  __local struct chunk local_buf[LOC_BUF_SIZE];
+
+  __attribute__ ((xcl_pipeline_loop))
+  for (int chunk = 0; chunk < NUM_CHUNKS; chunk+=4) {
+    for (int i = 0; i < LOC_BUF_SIZE; i++) {
+      for (int j = 0; j < 64; j++) {
+	local_buf[i].data[j] = global_buf[i + chunk].data[j];
+      }
+    }
+    for (int i = 0; i < LOC_BUF_SIZE; i++) {
+      sha256(local_buf[i].data);
+    }
+    for (int i = 0; i < LOC_BUF_SIZE; i++) {
+      for (int j = 0; j < 64; j++) {
+	global_buf[i + chunk].data[j] = local_buf[i].data[j];
+      }
+    }
+  }
+
+  /*
   __attribute__((xcl_pipeline_loop))
-  for (int i = 0; i < n_elements; i+=1) {
+  for (int i = 0; i < 16; i+=1) {
     sha256(buffer[i].data);
   }
+  */
 }
