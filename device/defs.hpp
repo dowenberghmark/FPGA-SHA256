@@ -6,7 +6,7 @@
 #define BUFFER_HEADER_SIZE sizeof(struct buffer_header)
 #define GLOBAL_HEADER_SIZE sizeof(struct global_header)
 #define CHUNK_SIZE sizeof(struct chunk)
-
+#define NUMBER_OF_KERNELS 2
 // defined in main_cpu.cpp
 extern size_t BUFFER_SIZE;
 extern int CHUNKS_PER_BUFFER;
@@ -19,7 +19,7 @@ struct chunk {
 
 struct buffer {
   int num_chunks;
-  struct chunk *chunks[2];
+  struct chunk *chunks[NUMBER_OF_KERNELS];
 };
 
 struct global_header {

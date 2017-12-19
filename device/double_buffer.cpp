@@ -25,7 +25,6 @@ DoubleBuffer::DoubleBuffer() {
   bufs[glob_head.active_buf].chunks[1] = dev_if[1]->fetch_buffer(glob_head.active_buf);
   chunk_to_write = bufs[glob_head.active_buf].chunks[0];
 
-  filled_first_batch = 0;
   second_batch_counter = 0;
   flip_flag = 1;
 }
@@ -34,22 +33,16 @@ struct chunk *DoubleBuffer::get_chunk() {
   if (flip_flag) {
     bufs[glob_head.active_buf].num_chunks = 0;
     flip_flag = 0;
-    second_batch_counter = 0;
   }
   // illusion of double buffer when we have four buffers,
-  if (bufs[glob_head.active_buf].num_chunks == CHUNKS_PER_BUFFER * 2 && filled_first_batch == 1) {
-    filled_first_batch = 0;
+  if (bufs[glob_head.active_buf].num_chunks == CHUNKS_PER_BUFFER * 2) {
     return nullptr;
-  } else if (bufs[glob_head.active_buf].num_chunks >= CHUNKS_PER_BUFFER  && filled_first_batch == 0) {
-    filled_first_batch = 1;
+  } else if (bufs[glob_head.active_buf].num_chunks == CHUNKS_PER_BUFFER) {
     chunk_to_write = bufs[glob_head.active_buf].chunks[1];
     bufs[1 - glob_head.active_buf].chunks[0] = dev_if[0]->run_fpga(bufs[glob_head.active_buf].num_chunks, glob_head.active_buf);
   }
 
   bufs[glob_head.active_buf].num_chunks++;
-  if (filled_first_batch == 1) {
-    second_batch_counter++;
-  }
   struct chunk *old_buf_ptr = chunk_to_write;
 
   // hops to next chunk 64 bytes forward
@@ -59,6 +52,7 @@ struct chunk *DoubleBuffer::get_chunk() {
 
 struct buffer DoubleBuffer::start_processing() {
   // run kernel
+  second_batch_counter = bufs[glob_head.active_buf].num_chunks - CHUNKS_PER_BUFFER;
   if (second_batch_counter > 0) {
     bufs[1 - glob_head.active_buf].chunks[1] = dev_if[1]->run_fpga(second_batch_counter, glob_head.active_buf);
   } else {

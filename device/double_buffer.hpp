@@ -7,7 +7,6 @@
 #include "device_interface.hpp"
 #include "device_information.hpp"
 
-#define NUMBER_OF_KERNELS 2
 
 class DoubleBuffer {
  public:
@@ -23,7 +22,6 @@ class DoubleBuffer {
   struct chunk *chunk_to_write;  // chunk to write in active buffer
   struct global_header glob_head;
   int second_batch_counter;
-  int filled_first_batch;
   DeviceInfo *dev_info;
   DeviceInterface *dev_if[NUMBER_OF_KERNELS];
   // used to signal that we have to reset num_chunks after a flip

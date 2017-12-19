@@ -17,7 +17,7 @@ void check_error(cl_int err) {
   }
 }
 
-DeviceInterface::DeviceInterface(DeviceInfo *information, const char *kernel_name, int banks) {
+DeviceInterface::DeviceInterface(DeviceInfo *information, const char *kernel_name, int banks_offset) {
   // This call will extract a kernel out of the program we loaded in the
   // previous line. A kernel is an OpenCL function that is executed on the
   // FPGA. This function is defined in the device/device_kernel.cl file.
@@ -33,7 +33,7 @@ DeviceInterface::DeviceInterface(DeviceInfo *information, const char *kernel_nam
   };
 
   for (int i = 0; i < BUFFER_COUNT; i++) {
-    buffer_ext[i].flags = xcl_banks[i + banks];
+    buffer_ext[i].flags = xcl_banks[i + banks_offset];
     buffer_ext[i].obj = NULL;
     buffer_ext[i].param = 0;
   }
