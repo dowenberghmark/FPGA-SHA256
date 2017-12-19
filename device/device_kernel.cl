@@ -36,7 +36,7 @@ uint zigma1(uint x) {
   return (ROTR(x, 6))^(ROTR(x, 11))^(ROTR(x, 25));
 }
 
-void sha256(__global char *buffer) {
+void sha256(__local char *buffer) {
 
   __private uint K[64] = {
     0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
@@ -51,13 +51,13 @@ void sha256(__global char *buffer) {
 
 
   //Prepare Message Schedule
-  uint H0[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
+  __private uint H0[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
   uint W[64];
-  uint a,b,c,d,e,f,g,h,t1,t2;
+  __private uint a,b,c,d,e,f,g,h,t1,t2;
   int j = 0;
   //  __attribute__((opencl_unroll_hint(n)))
   for (int i = 0;  i < 16; i++) {
-    W[i] = ((__global unsigned char) buffer[j] << 24) | ((__global unsigned char) buffer[j+1] << 16) | ((__global unsigned char) buffer[j+2] << 8) | ((__global unsigned char) buffer[j+3]);
+    W[i] = ((__local unsigned char) buffer[j] << 24) | ((__local unsigned char) buffer[j+1] << 16) | ((__local unsigned char) buffer[j+2] << 8) | ((__local unsigned char) buffer[j+3]);
     j += 4;
   }
 
@@ -102,26 +102,42 @@ void sha256(__global char *buffer) {
   //Store hash in buffer
   //__attribute__((opencl_unroll_hint(n)))
   for (int i = 0; i < 8; i++) {
-    ((__global uint *) buffer)[i] = (((unsigned char *) H0)[i*4] << 24) | (((unsigned char *) H0)[i*4+1] << 16) | (((unsigned char *) H0)[i*4+2] << 8) | (((unsigned char *) H0)[i*4+3]);
+    ((__local uint *) buffer)[i] = (((unsigned char *) H0)[i*4] << 24) | (((unsigned char *) H0)[i*4+1] << 16) | (((unsigned char *) H0)[i*4+2] << 8) | (((unsigned char *) H0)[i*4+3]);
   }
 }
 
+#define LOCAL_MEM_SIZE 2
+#define NUM_CHUNKS 16
 
-kernel __attribute__((reqd_work_group_size(1, 1, 1)))
-void hashing_kernel(__global struct chunk * __restrict buffer0,
-		    __global struct chunk * __restrict buffer1,
-		    const int n_elements,
+__kernel __attribute__((reqd_work_group_size(1, 1, 1)))
+void hashing_kernel(__global char * __restrict buffer0,
+		    __global char * __restrict buffer1,
 		    const int active_buf) {
-  int gid = get_global_id(0);
-  printf("HELLO FROM FPGA KERNEL, gid %d\n", gid);
 
-
-  __global struct chunk *buffer;
+  __global char *buffer;
   if (active_buf == 0) {
     buffer = buffer0;
-  } else if (active_buf == 1) {
+  } else {
     buffer = buffer1;
   }
+  __local char loc_buf[DATA_SIZE*LOCAL_MEM_SIZE];
 
-  sha256(buffer[gid].data);
+  for (int i = 0; i < NUM_CHUNKS; i += LOCAL_MEM_SIZE) {
+
+    __attribute__((xcl_pipeline_loop))
+      for (int j = 0; j < LOCAL_MEM_SIZE*DATA_SIZE; j++) {
+	loc_buf[j] = buffer[i*DATA_SIZE + j];
+      }
+
+    __attribute__((xcl_pipeline_loop))
+      for (int j = 0; j < LOCAL_MEM_SIZE; j++) {
+	sha256(&loc_buf[j*DATA_SIZE]);
+      }
+
+    __attribute__((xcl_pipeline_loop))
+      for (int j = 0; j < LOCAL_MEM_SIZE*DATA_SIZE; j++) {
+	buffer[i*64+j] = loc_buf[j];
+      }
+
+  }
 }

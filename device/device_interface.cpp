@@ -85,11 +85,12 @@ struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   int narg = 0;
   krnl_sha.setArg(narg++, ocl_bufs[0]);
   krnl_sha.setArg(narg++, ocl_bufs[1]);
+  // krnl_sha.setArg(narg++, num_chunks);
   krnl_sha.setArg(narg++, active_buf);
 
   // launch the Kernel
-  // q.enqueueTask(krnl_sha);
-  q.enqueueNDRangeKernel(krnl_sha, NullRange, NDRange(num_chunks), NDRange(1));
+  q.enqueueTask(krnl_sha);
+  // q.enqueueNDRangeKernel(krnl_sha, cl::NullRange, cl::NDRange(1), cl::NDRange(1));
 
 
   // previous computations result
