@@ -19,7 +19,6 @@
 
 void print_result(struct buffer result) {
   for (int i = 0; i < result.num_chunks; i++) {
-    printf("i: %d, CHUNKS_PER_BUFFER: %d\n", i, CHUNKS_PER_BUFFER);
     for (int j = 0; j < 32; j++) {
       if (i >= CHUNKS_PER_BUFFER) {
         // forgott the offset here

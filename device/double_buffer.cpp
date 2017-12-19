@@ -25,7 +25,7 @@ DoubleBuffer::DoubleBuffer() {
   
   bufs[glob_head.active_buf].chunks[0] = dev_if[0]->fetch_buffer(glob_head.active_buf);
   bufs[glob_head.active_buf].chunks[1] = dev_if[1]->fetch_buffer(glob_head.active_buf);
-  std::cout << "Starting with these pointers: "<< bufs[glob_head.active_buf].chunks[0] << "\t" << bufs[glob_head.active_buf].chunks[1] << "\n";
+
   chunk_to_write = bufs[glob_head.active_buf].chunks[0];
 
   filled_first_batch = 0;
@@ -38,10 +38,9 @@ struct chunk *DoubleBuffer::get_chunk() {
     bufs[glob_head.active_buf].num_chunks = 0;
     flip_flag = 0;
     second_batch_counter = 0;
-    std::cout << "Flipping buffer\t chunk_to_write: "<< chunk_to_write << "\n";
   }
   //illusion of double buffer when we have four buffers, 
-  if (bufs[glob_head.active_buf].num_chunks >= CHUNKS_PER_BUFFER * 2  && filled_first_batch == 1) {
+  if (bufs[glob_head.active_buf].num_chunks >= CHUNKS_PER_BUFFER * 2 && filled_first_batch == 1) {
     filled_first_batch = 0;
     return nullptr;
   }
@@ -49,7 +48,6 @@ struct chunk *DoubleBuffer::get_chunk() {
 
     filled_first_batch = 1;
     chunk_to_write = bufs[glob_head.active_buf].chunks[1];
-    std::cout << "Switching to the next kernel and running the zero\t chunk_to_write: "<< chunk_to_write << "\n";
     bufs[1 - glob_head.active_buf].chunks[0] = dev_if[0]->run_fpga(bufs[glob_head.active_buf].num_chunks, glob_head.active_buf);
   }
 
@@ -59,7 +57,7 @@ struct chunk *DoubleBuffer::get_chunk() {
   }
   
   struct chunk *old_buf_ptr = chunk_to_write;
-  std::cout << "sending the pointer: " << old_buf_ptr << "\n";
+
   // hops to next chunk 64 bytes forward
   chunk_to_write += 1;
   return old_buf_ptr;
@@ -67,7 +65,6 @@ struct chunk *DoubleBuffer::get_chunk() {
 
 struct buffer DoubleBuffer::start_processing() {
   // run kernel
-  std::cout << "Running the first" << "\n";
   bufs[1 - glob_head.active_buf].chunks[1] = dev_if[1]->run_fpga(second_batch_counter, glob_head.active_buf);
   // flip buffers
   glob_head.active_buf = 1 - glob_head.active_buf;

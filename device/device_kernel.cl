@@ -214,10 +214,6 @@ void hashing_kernel1(__global struct chunk * __restrict buffer0,
 
   // __attribute__((xcl_pipeline_loop))
   for (int i = 0; i < n_elements; i++) {
-    for (int j = 0; j < 32; j++) {
-      printf("%c",buffer[i].data[j] );
-    }
     sha256_2(buffer[i].data);
-    printf("\n");
   }
 }

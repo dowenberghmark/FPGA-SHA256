@@ -7,6 +7,8 @@
 #include "device_interface.hpp"
 #include "device_information.hpp"
 
+#define NUMBER_OF_KERNELS 2
+
 class DoubleBuffer {
  public:
   struct chunk *get_chunk();
@@ -26,7 +28,7 @@ class DoubleBuffer {
   int filled_first_batch;
   
   DeviceInfo *dev_info;
-  DeviceInterface *dev_if[2];
+  DeviceInterface *dev_if[NUMBER_OF_KERNELS];
   // used to signal that we have to reset num_chunks after a flip
   int flip_flag;
 };
