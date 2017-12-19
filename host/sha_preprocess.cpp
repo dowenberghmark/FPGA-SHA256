@@ -1,6 +1,8 @@
 #include <string.h>
 #include <stdint.h>
 
+#include "sha_preprocess.hpp"
+
 void pre_process(char *element) {
   /*Initilaize*/
   int str_len = strlen(element);

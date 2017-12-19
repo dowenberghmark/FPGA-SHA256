@@ -1,9 +1,9 @@
-#ifndef __DEVICE_INTERFACES_H_INCLUDED__
-#define __DEVICE_INTERFACES_H_INCLUDED__
+#ifndef DEVICE_DEVICE_INTERFACE_HPP_
+#define DEVICE_DEVICE_INTERFACE_HPP_
 
+#include <vector>
 #include "defs.hpp"
 #include "xcl2.hpp"
-#include <vector>
 #include "device_information.hpp"
 
 class DeviceInterface {
@@ -25,4 +25,4 @@ class DeviceInterface {
   cl_mem_ext_ptr_t buffer_ext[BUFFER_COUNT];
 };
 
-#endif
+#endif  // DEVICE_DEVICE_INTERFACE_HPP_

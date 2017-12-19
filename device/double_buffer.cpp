@@ -1,10 +1,9 @@
 #include <stdint.h>
-#include <cstdlib>
-#include <thread>
 #include <errno.h>
-#include <stdexcept>
 #include <stdio.h>
 #include <stdlib.h>
+#include <cstdlib>
+#include <stdexcept>
 
 #include "double_buffer.hpp"
 #include "defs.hpp"
@@ -40,12 +39,11 @@ struct chunk *DoubleBuffer::get_chunk() {
     second_batch_counter = 0;
   }
   //illusion of double buffer when we have four buffers, 
-  if (bufs[glob_head.active_buf].num_chunks >= CHUNKS_PER_BUFFER * 2 && filled_first_batch == 1) {
+  if (bufs[glob_head.active_buf].num_chunks == CHUNKS_PER_BUFFER * 2 && filled_first_batch == 1) {
     filled_first_batch = 0;
     return nullptr;
   }
   else if (bufs[glob_head.active_buf].num_chunks >= CHUNKS_PER_BUFFER  && filled_first_batch == 0) {
-
     filled_first_batch = 1;
     chunk_to_write = bufs[glob_head.active_buf].chunks[1];
     bufs[1 - glob_head.active_buf].chunks[0] = dev_if[0]->run_fpga(bufs[glob_head.active_buf].num_chunks, glob_head.active_buf);
@@ -65,7 +63,12 @@ struct chunk *DoubleBuffer::get_chunk() {
 
 struct buffer DoubleBuffer::start_processing() {
   // run kernel
-  bufs[1 - glob_head.active_buf].chunks[1] = dev_if[1]->run_fpga(second_batch_counter, glob_head.active_buf);
+  if (second_batch_counter > 0) {
+    bufs[1 - glob_head.active_buf].chunks[1] = dev_if[1]->run_fpga(second_batch_counter, glob_head.active_buf);
+  } else {
+    bufs[1 - glob_head.active_buf].chunks[1] = dev_if[1]->run_fpga(second_batch_counter, glob_head.active_buf);
+    bufs[1 - glob_head.active_buf].chunks[0] = dev_if[0]->run_fpga(bufs[glob_head.active_buf].num_chunks, glob_head.active_buf);
+  }
   // flip buffers
   glob_head.active_buf = 1 - glob_head.active_buf;
   flip_flag = 1;
@@ -77,7 +80,7 @@ struct buffer DoubleBuffer::start_processing() {
 struct buffer DoubleBuffer::get_last_result() {
   bufs[1 - glob_head.active_buf].chunks[0] = dev_if[0]->read_last_result(glob_head.active_buf);
   if (bufs[1 - glob_head.active_buf].num_chunks >= CHUNKS_PER_BUFFER) {
-    bufs[1 - glob_head.active_buf].chunks[1] = dev_if[1]->read_last_result(glob_head.active_buf);
+     bufs[1 - glob_head.active_buf].chunks[1] = dev_if[1]->read_last_result(glob_head.active_buf);
   }
   return bufs[1 - glob_head.active_buf];
 }
@@ -89,7 +92,11 @@ void DoubleBuffer::regret_get_chunk() {
 
 DoubleBuffer::~DoubleBuffer() {
   dev_if[0]->unmap_last_result(glob_head.active_buf);
-  dev_if[1]->unmap_last_result(glob_head.active_buf);
+  if (bufs[1 - glob_head.active_buf].num_chunks >= CHUNKS_PER_BUFFER) {
+    dev_if[1]->unmap_last_result(glob_head.active_buf);
+  } else {
+    dev_if[1]->unmap_last_result(1 - glob_head.active_buf);
+  }
   delete dev_if[0];
   delete dev_if[1];
   delete dev_info;

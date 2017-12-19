@@ -1,5 +1,5 @@
-#ifndef __DEVICE_INFO_H_INCLUDED__
-#define __DEVICE_INFO_H_INCLUDED__
+#ifndef DEVICE_INFO_H_INCLUDED__
+#define DEVICE_INFO_H_INCLUDED__
 
 #include "xcl2.hpp"
 
@@ -14,4 +14,4 @@ class DeviceInfo
   
 
 };
-#endif
+#endif // DEVICE_INFO_H_INCLUDED__
