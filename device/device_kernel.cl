@@ -108,11 +108,31 @@ void sha256(__global char *buffer) {
 
 
 kernel __attribute__((reqd_work_group_size(1, 1, 1)))
-void hashing_kernel(__global struct chunk * __restrict buffer0,
+void hashing_kernel0(__global struct chunk * __restrict buffer0,
 		    __global struct chunk * __restrict buffer1,
 		    const int n_elements,
 		    const int active_buf) {
-  printf("HELLO FROM FPGA KERNEL\n");
+  printf("HELLO FROM FPGA KERNEL0\n");
+
+  __global struct chunk *buffer;
+  if (active_buf == 0) {
+    buffer = buffer0;
+  } else if (active_buf == 1) {
+    buffer = buffer1;
+  }
+
+  // __attribute__((xcl_pipeline_loop))
+  for (int i = 0; i < n_elements; i++) {
+    sha256(buffer[i].data);
+  }
+}
+
+kernel __attribute__((reqd_work_group_size(1, 1, 1)))
+void hashing_kernel1(__global struct chunk * __restrict buffer0,
+		    __global struct chunk * __restrict buffer1,
+		    const int n_elements,
+		    const int active_buf) {
+  printf("HELLO FROM FPGA KERNEL1\n");
 
   __global struct chunk *buffer;
   if (active_buf == 0) {

@@ -8,8 +8,9 @@ include $(COMMON_REPO)/libs/opencl/opencl.mk
 device_SRC_DIR=./device
 host_SRC_DIR=./host
 
-SRCS=$(device_SRC_DIR)/double_buffer.cpp $(device_SRC_DIR)/device_interface.cpp $(host_SRC_DIR)/host_sha256.cpp $(host_SRC_DIR)/sha_preprocess.cpp main_cpu.cpp $(host_SRC_DIR)/verify.cpp
-HDRS=$(device_SRC_DIR)/device_interface.hpp $(device_SRC_DIR)/double_buffer.hpp $(device_SRC_DIR)/defs.hpp $(host_SRC_DIR)/sha_preprocess.hpp $(host_SRC_DIR)/verify.hpp $(host_SRC_DIR)/host_sha256.hpp
+
+SRCS=$(device_SRC_DIR)/double_buffer.cpp $(device_SRC_DIR)/device_interface.cpp $(host_SRC_DIR)/host_sha256.cpp $(host_SRC_DIR)/sha_preprocess.cpp main_cpu.cpp $(host_SRC_DIR)/verify.cpp $(device_SRC_DIR)/device_information.cpp
+HDRS=$(device_SRC_DIR)/device_interface.hpp $(device_SRC_DIR)/device_information.hpp $(device_SRC_DIR)/double_buffer.hpp $(device_SRC_DIR)/defs.hpp $(host_SRC_DIR)/sha_preprocess.hpp $(host_SRC_DIR)/verify.hpp $(host_SRC_DIR)/host_sha256.hpp
 
 # Host Application
 sha256_SRCS=$(SRCS) $(oclHelper_SRCS) $(xcl2_SRCS)
@@ -22,12 +23,12 @@ EXES=sha256
 # Kernel
 device_kernel_SRCS=$(device_SRC_DIR)/device_kernel.cl
 
-device_kernel_CLFLAGS= -I$(device_SRC_DIR)/ --max_memory_ports hashing_kernel
+device_kernel_CLFLAGS= -I$(device_SRC_DIR)/ --max_memory_ports hashing_kernel0 --max_memory_ports hashing_kernel1
 
 XOS=device_kernel
 
 device_kernel_XOS=device_kernel
-device_kernel_LDCLFLAGS=--xp misc:map_connect=add.kernel.hashing_kernel_1.M_AXI_GMEM0.core.OCL_REGION_0.M00_AXI --xp misc:map_connect=add.kernel.hashing_kernel_1.M_AXI_GMEM1.core.OCL_REGION_0.M01_AXI
+device_kernel_LDCLFLAGS= --xp misc:map_connect=add.kernel.hashing_kernel0_1.M_AXI_GMEM0.core.OCL_REGION_0.M00_AXI --xp misc:map_connect=add.kernel.hashing_kernel0_1.M_AXI_GMEM1.core.OCL_REGION_0.M01_AXI --xp misc:map_connect=add.kernel.hashing_kernel1_1.M_AXI_GMEM0.core.OCL_REGION_0.M02_AXI --xp misc:map_connect=add.kernel.hashing_kernel1_1.M_AXI_GMEM1.core.OCL_REGION_0.M03_AXI
 
 XCLBINS=device_kernel
 
