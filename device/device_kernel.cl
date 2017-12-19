@@ -112,7 +112,9 @@ void hashing_kernel(__global struct chunk * __restrict buffer0,
 		    __global struct chunk * __restrict buffer1,
 		    const int n_elements,
 		    const int active_buf) {
-  printf("HELLO FROM FPGA KERNEL\n");
+  int gid = get_global_id(0);
+  printf("HELLO FROM FPGA KERNEL, gid %d\n", gid);
+
 
   __global struct chunk *buffer;
   if (active_buf == 0) {
@@ -121,8 +123,5 @@ void hashing_kernel(__global struct chunk * __restrict buffer0,
     buffer = buffer1;
   }
 
-  // __attribute__((xcl_pipeline_loop))
-  for (int i = 0; i < n_elements; i++) {
-    sha256(buffer[i].data);
-  }
+  sha256(buffer[gid].data);
 }
