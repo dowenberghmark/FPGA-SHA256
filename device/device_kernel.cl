@@ -102,7 +102,7 @@ void sha256(__global char *buffer) {
   //Store hash in buffer
   //__attribute__((opencl_unroll_hint(n)))
   for (int i = 0; i < 8; i++) {
-    /* ((__global uint *) buffer)[i] = (((unsigned char *) H0)[i*4] << 24) | (((unsigned char *) H0)[i*4+1] << 16) | (((unsigned char *) H0)[i*4+2] << 8) | (((unsigned char *) H0)[i*4+3]); */
+    ((__global uint *) buffer)[i] = (((unsigned char *) H0)[i*4] << 24) | (((unsigned char *) H0)[i*4+1] << 16) | (((unsigned char *) H0)[i*4+2] << 8) | (((unsigned char *) H0)[i*4+3]);
   }
 }
 
@@ -124,7 +124,7 @@ void hashing_kernel(__global struct chunk * __restrict buffer0,
   // __attribute__((xcl_pipeline_loop))
   for (int i = 0; i < n_elements; i++) {
     /* for (int j = 0; j < DATA_TO_TOUCH; j++) { */
-    /* buffer[i].data[j] ==  */
+    /*   printf("%c", buffer[i].data[j]); */
     /*   } */
     sha256(buffer[i].data);
   }

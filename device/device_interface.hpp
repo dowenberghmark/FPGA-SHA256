@@ -20,6 +20,8 @@ class DeviceInterface {
   cl::Program program;
   cl::Kernel krnl_sha;
 
+  int first_flag;
+
   std::vector<cl::Memory> mem_bufs[BUFFER_COUNT];
   cl::Buffer ocl_bufs[BUFFER_COUNT];
   struct chunk *host_bufs[BUFFER_COUNT];
