@@ -50,7 +50,7 @@ struct buffer DoubleBuffer::start_processing() {
 }
 
 struct buffer DoubleBuffer::get_last_result() {
-  bufs[1 - glob_head.active_buf].chunks = dev_if->read_last_result(glob_head.active_buf);
+  bufs[1 - glob_head.active_buf].chunks = dev_if->read_last_result(glob_head.active_buf, bufs[glob_head.active_buf].num_chunks);
   return bufs[1 - glob_head.active_buf];
 }
 
@@ -60,6 +60,5 @@ void DoubleBuffer::regret_get_chunk() {
 }
 
 DoubleBuffer::~DoubleBuffer() {
-  dev_if->unmap_last_result(glob_head.active_buf);
   delete dev_if;
 }
