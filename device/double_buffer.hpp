@@ -21,7 +21,6 @@ class DoubleBuffer {
  private:
   struct chunk *chunk_to_write;  // chunk to write in active buffer
   struct global_header glob_head;
-  int second_batch_counter;
   DeviceInfo *dev_info;
   DeviceInterface *dev_if[NUMBER_OF_KERNELS];
   // used to signal that we have to reset num_chunks after a flip

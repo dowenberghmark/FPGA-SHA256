@@ -25,7 +25,6 @@ DoubleBuffer::DoubleBuffer() {
   bufs[glob_head.active_buf].chunks[1] = dev_if[1]->fetch_buffer(glob_head.active_buf);
   chunk_to_write = bufs[glob_head.active_buf].chunks[0];
 
-  second_batch_counter = 0;
   flip_flag = 1;
 }
 
@@ -52,7 +51,7 @@ struct chunk *DoubleBuffer::get_chunk() {
 
 struct buffer DoubleBuffer::start_processing() {
   // run kernel
-  second_batch_counter = bufs[glob_head.active_buf].num_chunks - CHUNKS_PER_BUFFER;
+  int second_batch_counter = bufs[glob_head.active_buf].num_chunks - CHUNKS_PER_BUFFER;
   if (second_batch_counter > 0) {
     bufs[1 - glob_head.active_buf].chunks[1] = dev_if[1]->run_fpga(second_batch_counter, glob_head.active_buf);
   } else {
