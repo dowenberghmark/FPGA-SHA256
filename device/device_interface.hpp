@@ -24,5 +24,4 @@ class DeviceInterface {
   struct chunk *host_bufs[BUFFER_COUNT];
   cl_mem_ext_ptr_t buffer_ext[BUFFER_COUNT];
 };
-
 #endif  // DEVICE_DEVICE_INTERFACE_HPP_

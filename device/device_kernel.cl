@@ -123,9 +123,6 @@ void hashing_kernel(__global struct chunk * __restrict buffer0,
 
   // __attribute__((xcl_pipeline_loop))
   for (int i = 0; i < n_elements; i++) {
-    /* for (int j = 0; j < DATA_TO_TOUCH; j++) { */
-    /*   printf("%c", buffer[i].data[j]); */
-    /*   } */
     sha256(buffer[i].data);
   }
 }
