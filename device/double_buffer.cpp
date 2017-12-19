@@ -14,17 +14,15 @@ DoubleBuffer::DoubleBuffer() {
   for (int i = 0; i < BUFFER_COUNT; i++) {
     bufs[i].num_chunks = 0;
   }
-  
   const char *krnl_name_0 = "hashing_kernel0";
   const char *krnl_name_1 = "hashing_kernel1";
+
   dev_info = new DeviceInfo();
-  
   dev_if[0] = new DeviceInterface(dev_info, krnl_name_0, 0);
   dev_if[1] = new DeviceInterface(dev_info, krnl_name_1, 2);
-  
+
   bufs[glob_head.active_buf].chunks[0] = dev_if[0]->fetch_buffer(glob_head.active_buf);
   bufs[glob_head.active_buf].chunks[1] = dev_if[1]->fetch_buffer(glob_head.active_buf);
-
   chunk_to_write = bufs[glob_head.active_buf].chunks[0];
 
   filled_first_batch = 0;
@@ -38,12 +36,11 @@ struct chunk *DoubleBuffer::get_chunk() {
     flip_flag = 0;
     second_batch_counter = 0;
   }
-  //illusion of double buffer when we have four buffers, 
+  // illusion of double buffer when we have four buffers,
   if (bufs[glob_head.active_buf].num_chunks == CHUNKS_PER_BUFFER * 2 && filled_first_batch == 1) {
     filled_first_batch = 0;
     return nullptr;
-  }
-  else if (bufs[glob_head.active_buf].num_chunks >= CHUNKS_PER_BUFFER  && filled_first_batch == 0) {
+  } else if (bufs[glob_head.active_buf].num_chunks >= CHUNKS_PER_BUFFER  && filled_first_batch == 0) {
     filled_first_batch = 1;
     chunk_to_write = bufs[glob_head.active_buf].chunks[1];
     bufs[1 - glob_head.active_buf].chunks[0] = dev_if[0]->run_fpga(bufs[glob_head.active_buf].num_chunks, glob_head.active_buf);
@@ -53,7 +50,6 @@ struct chunk *DoubleBuffer::get_chunk() {
   if (filled_first_batch == 1) {
     second_batch_counter++;
   }
-  
   struct chunk *old_buf_ptr = chunk_to_write;
 
   // hops to next chunk 64 bytes forward

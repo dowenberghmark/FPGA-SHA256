@@ -1,17 +1,12 @@
-#ifndef DEVICE_INFO_H_INCLUDED__
-#define DEVICE_INFO_H_INCLUDED__
-
+#ifndef DEVICE_DEVICE_INFORMATION_HPP_
+#define DEVICE_DEVICE_INFORMATION_HPP_
 #include "xcl2.hpp"
-
-class DeviceInfo
-{
+class DeviceInfo{
  public:
   DeviceInfo();
   ~DeviceInfo() = default;
   cl::Device device;
   cl::Context context;
   cl::Program program;
-  
-
 };
-#endif // DEVICE_INFO_H_INCLUDED__
+#endif  // DEVICE_DEVICE_INFORMATION_HPP_

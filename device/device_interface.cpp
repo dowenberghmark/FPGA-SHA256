@@ -23,7 +23,6 @@ DeviceInterface::DeviceInterface(DeviceInfo *information, const char *kernel_nam
   // FPGA. This function is defined in the device/device_kernel.cl file.
 
   q = cl::CommandQueue(information->context, information->device, CL_QUEUE_PROFILING_ENABLE);
-  
   krnl_sha = cl::Kernel(information->program, kernel_name);
 
   unsigned xcl_banks[4] = {
@@ -87,7 +86,6 @@ struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
 struct chunk *DeviceInterface::read_last_result(int active_buf) {
   int err;
   q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf], NULL, NULL);
-  
   host_bufs[1 - active_buf] = q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
   check_error(err);
   return (struct chunk *) host_bufs[1 - active_buf];
