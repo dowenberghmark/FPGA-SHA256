@@ -47,11 +47,11 @@ DeviceInterface::DeviceInterface() {
     XCL_MEM_DDR_BANK2,
     XCL_MEM_DDR_BANK3
   };
-  //allocate host buffers
+  // allocate host buffers
     for (int i = 0; i < BUFFER_COUNT; i++) {
     host_bufs[i] = (struct chunk *) aligned_alloc(4096, BUFFER_SIZE);
   }
-    //put reference to host buffers in the xilinx ext_mem pointer
+    // put reference to host buffers in the xilinx ext_mem pointer
   for (int i = 0; i < BUFFER_COUNT; i++) {
     buffer_ext[i].flags = xcl_banks[i];
     buffer_ext[i].obj = host_bufs[i];
@@ -91,13 +91,13 @@ struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   q.enqueueTask(krnl_sha);
 
   // previous computations result
- if (!first_flag){
+  if (!first_flag) {
     q.enqueueMigrateMemObjects(mem_bufs[1-active_buf], CL_MIGRATE_MEM_OBJECT_HOST);
   } else {
-   //   mem_bufs[1].pop_back();
+    //   mem_bufs[1].pop_back();
     first_flag = 0;
   }
-   q.finish();
+  q.finish();
   return (struct chunk *) host_bufs[1 - active_buf];
 }
 
