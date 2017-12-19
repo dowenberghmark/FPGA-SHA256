@@ -60,6 +60,5 @@ void DoubleBuffer::regret_get_chunk() {
 }
 
 DoubleBuffer::~DoubleBuffer() {
-  //  dev_if->unmap_last_result(glob_head.active_buf);
   delete dev_if;
 }
