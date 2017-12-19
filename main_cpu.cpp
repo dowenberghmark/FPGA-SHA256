@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <stdint.h>
+#include <tgmath.h>
 #include <iostream>
 #include <fstream>
 #include <chrono>
@@ -16,8 +17,12 @@
 
 #define MB (1000 * 1000)
 
+// global variables referenced in defs.hpp
+size_t BUFFER_SIZE;
+int CHUNKS_PER_BUFFER;
+
 typedef struct pre_settings_t {
-  double amount_to_process;
+  double amount_to_process, buffer_size;
   int lines_to_read;
   int bopt, dopt, sopt, fopt, vopt, oopt;
   char *fvalue;
@@ -36,6 +41,7 @@ void pre_settings_init(settings *config) {
   config->fvalue = NULL;
   config->filename = "./password.txt";
   config->outfile = "./results/output.csv";
+  config->buffer_size = 0.000256;  // 4 chunks per buffer
 }
 
 void set_lines_to_read(settings *config) {
@@ -78,18 +84,24 @@ void pre_settings(settings *config) {
   } else {
     std::cout << "processing size: whole file will be read" << std::endl;
   }
+  // Bytes to MB
+  BUFFER_SIZE = ceil(config->buffer_size*MB);
+  CHUNKS_PER_BUFFER = ceil(BUFFER_SIZE / CHUNK_SIZE);
+  std::cout << "buffer size: " << config->buffer_size << " MB, " << CHUNKS_PER_BUFFER << " chunks per buffer" << std::endl;
+
   std::cout << "================================================================" << std::endl;
 }
 
 void help() {
   std::cout << "================================ HELP PAGE ===================================" << std::endl;
-  std::cout << "usage: ./main [-b] [-o outputfile] [-d] [-s size in MB] [-f filepath]" << std::endl;
+  std::cout << "usage: ./main [-b] [-o outputfile] [-d] [-s size in MB] [-f filepath] [-B buffersize in MB]" << std::endl;
   std::cout << "b : benchmark mode. Will append run time info to results/output.csv if -o flag is not used" << std::endl;
   std::cout << "o : specify output file for benchmarking. the output file is set to results/output.csv as default" << std::endl;
   std::cout << "v : verification mode. Verifies results to a third-party program" << std::endl;
   std::cout << "d : debug mode. Displays print for the process of the program" << std::endl;
   std::cout << "s : defines file size. Will read the whole file if not specified" << std::endl;
   std::cout << "f : defines file to read. Will read password.txt if not specified" << std::endl;
+  std::cout << "B : defines buffer size in MB. Default is four chunks per buffer" << std::endl;
   std::cout << "h : help page" << std::endl;
   std::cout << "==============================================================================" << std::endl;
 }
@@ -210,7 +222,7 @@ int main(int argc, char ** argv) {
   pre_settings_init(&pre_sets);
   /*Getopt flags*/
   int c;
-  while ((c = getopt(argc, argv, "v,b,o:d,h,f:s:")) != -1) {
+  while ((c = getopt(argc, argv, "vbo:dhf:s:B:")) != -1) {
     switch (c) {
       case 'v': {
         pre_sets.vopt = 1;
@@ -237,6 +249,10 @@ int main(int argc, char ** argv) {
       case 's': {
         pre_sets.sopt = 1;
         pre_sets.amount_to_process = std::stod(optarg);
+        break;
+      }
+      case 'B': {
+        pre_sets.buffer_size = std::stod(optarg);
         break;
       }
       case 'h': {
