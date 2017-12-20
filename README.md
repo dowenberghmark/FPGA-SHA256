@@ -31,7 +31,7 @@ source enable_manual_run.sh
 Default target is software emulation. For hardware emulation simply add a `hw` flag to `./run_make` and `source enable_manual_run.sh`.
 
 ## Run PineappleExpress
-Use PineappleExpress/main -h for more help on how to run the program.
+Use ./sha256 -h for more help on how to run the program.
 
 ```
 Example:
@@ -83,7 +83,7 @@ Additions to the master branch must go through a pull request. The pull request 
 # recommended to set up a virtualenv to avoid polluting your system with pip
 virtualenv venv
 source venv/bin/activate
-# run linting commands
+# run linting commands, e.g. cpplint, pep8
 # exit virtualenv
 deactivate
 ```
