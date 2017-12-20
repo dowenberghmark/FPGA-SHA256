@@ -76,7 +76,7 @@ Run the benchmarks with:
 
 ## Contributing
 
-Additions to the master branch must go through a pull request. The pull request must be approved by at least one reviewer and go through a Continuous Integration (CI) check by Travis. The CI only verifies coorect linting.
+Additions to the master branch must go through a pull request. The pull request must be approved by at least one reviewer and go through a Continuous Integration (CI) check by Travis. The CI only lints.
 
 
 ```
@@ -105,7 +105,7 @@ Snake case for everything except class names. Class names use camel case.
 
 Indentation level is two spaces.
 
-### Pointers
+#### Pointers
 
 ```
 
@@ -134,6 +134,6 @@ pep8 --max-line-length=120 --exclude=venv .
 # resolve all errors
 ```
 
-### Pull requests
+## Pull requests
 
 Merge and squash is used for pull requests.
