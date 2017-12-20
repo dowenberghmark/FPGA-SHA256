@@ -113,6 +113,7 @@ void sha256(__local char *buffer) {
 
 
 kernel __attribute__((reqd_work_group_size(1, 1, 1)))
+__attribute__((xcl_dataflow))
 void hashing_kernel(__global struct chunk * __restrict buffer0,
 		    __global struct chunk * __restrict buffer1,
 		    const int active_buf) {
@@ -124,11 +125,10 @@ void hashing_kernel(__global struct chunk * __restrict buffer0,
   } else if (active_buf == 1) {
     global_buf = buffer1;
   }
-
   __local struct chunk local_buf[LOC_BUF_SIZE];
 
   __attribute__ ((xcl_pipeline_loop))
-  for (int chunk = 0; chunk < NUM_CHUNKS; chunk+=4) {
+  for (int chunk = 0; chunk < NUM_CHUNKS; chunk+=LOC_BUF_SIZE) {
     for (int i = 0; i < LOC_BUF_SIZE; i++) {
       for (int j = 0; j < 64; j++) {
 	local_buf[i].data[j] = global_buf[i + chunk].data[j];
