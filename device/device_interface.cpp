@@ -1,6 +1,9 @@
 // device interface for connecting cpu to fpga using opencl code.
 // initialization based on SDaccel hello world program
 
+#include <string>
+#include <vector>
+
 #include "device_interface.hpp"
 #include "defs.hpp"
 #include "xcl2.hpp"
@@ -18,7 +21,7 @@ DeviceInterface::DeviceInterface() {
   std::vector<cl::Device> devices = xcl::get_xil_devices();
   cl::Device device = devices[0];
 
-  //Creating Context and Command Queue for selected Device
+  // Creating Context and Command Queue for selected Device
   cl::Context context(device);
   q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE);
   std::string device_name = device.getInfo<CL_DEVICE_NAME>();
@@ -78,14 +81,14 @@ struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf], NULL, NULL);
   q.finish();
 
-  //set the kernel Arguments
+  // set the kernel Arguments
   int narg = 0;
   krnl_sha.setArg(narg++, ocl_bufs[0]);
   krnl_sha.setArg(narg++, ocl_bufs[1]);
   krnl_sha.setArg(narg++, num_chunks);
   krnl_sha.setArg(narg++, active_buf);
 
-  //Launch the Kernel
+  // launch the Kernel
   q.enqueueTask(krnl_sha);
 
   // previous computations result

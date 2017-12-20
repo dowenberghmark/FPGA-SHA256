@@ -1,10 +1,9 @@
 #include <stdint.h>
-#include <cstdlib>
-#include <thread>
 #include <errno.h>
-#include <stdexcept>
 #include <stdio.h>
 #include <stdlib.h>
+#include <cstdlib>
+#include <stdexcept>
 
 #include "double_buffer.hpp"
 #include "defs.hpp"
