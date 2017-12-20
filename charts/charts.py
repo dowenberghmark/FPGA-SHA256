@@ -13,7 +13,6 @@ def plotjpg2(ss, out, header):
         plt.plot(ss[0][1:], ss[x][1:], color[x-1]+"-", label=ss[x][0][:-4])
     plt.gca().set_xscale('log')
     plt.legend(loc="upper right")
-    plt.xticks(ss[0][1:])
     plt.xlabel('Amount of hashed data (MB)')
     plt.ylabel('Throughput (MB/s)')
     plt.title(header)
