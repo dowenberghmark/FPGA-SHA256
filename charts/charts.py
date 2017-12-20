@@ -25,7 +25,7 @@ if __name__ == '__main__':
     argument_parser = argparse.ArgumentParser()
     argument_parser.add_argument('--folder',
                                  help="folder with csv files",
-                                 default="csv")
+                                 default="")
     argument_parser.add_argument('--header',
                                  help="The header of the graph",
                                  default="A comparison between hashing on FPGA and CPU")
@@ -38,6 +38,9 @@ if __name__ == '__main__':
                                  type=int)
 
     args = argument_parser.parse_args()
+    if len(args.folder) == 0:
+        print "No input folder set, use --folder "
+        exit()
     lst = [["Datas"]]
     for (dirpath, dirnames, filenames) in os.walk(os.getcwd()+"/"+args.folder):
         for filename in filenames:
