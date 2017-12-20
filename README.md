@@ -112,17 +112,13 @@ Indentation level is two spaces.
 #### Pointers
 
 ```
-
 int *bar
-
 ```
 
 NOT
 
 ```
-
 int* bar
-
 ```
 
 
