@@ -40,16 +40,16 @@ if __name__ == '__main__':
     if len(args.folder) == 0:
         print "No input folder set, use --folder "
         exit()
-    lst = [["Data sizes"]]
+    data = [["Data sizes"]]
     for (dirpath, dirnames, filenames) in os.walk(os.getcwd()+"/"+args.folder):
         for filename in filenames:
             if ".csv" in filename:
-                lst.append([filename])
+                data.append([filename])
     first = True
-    for x in xrange(1, len(lst)):
+    for x in xrange(1, len(data)):
         measuresCount = args.MPP-1
         sum = 0
-        for line in open(os.getcwd() + "/" + args.folder + "/" + lst[x][0]):
+        for line in open(os.getcwd() + "/" + args.folder + "/" + data[x][0]):
             if line[-1] == "\n":
                 line = line[:-1]
             if line[-1] == "\r":
@@ -59,14 +59,14 @@ if __name__ == '__main__':
                 if linesplit[0] == '0':
                     skip = True
                 else:
-                    lst[0].append(float(linesplit[0]))
+                    data[0].append(float(linesplit[0]))
                 sum += float(linesplit[1])
             elif measuresCount == 0:
-                lst[x].append(sum/args.MPP)
+                data[x].append(sum/args.MPP)
                 sum = 0
                 measuresCount = args.MPP
             else:
                 sum += float(linesplit[1])
             measuresCount -= 1
         first = False
-    plot(lst, args.filename, args.title)
+    plot(data, args.filename, args.title)
