@@ -81,6 +81,7 @@ Additions to the master branch must go through a pull request. The pull request 
 
 ```
 # recommended to set up a virtualenv to avoid polluting your system with pip
+# first install virtualenv with your package manager, then
 virtualenv venv
 source venv/bin/activate
 # run linting commands, e.g. cpplint, pep8
