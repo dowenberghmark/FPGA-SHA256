@@ -1,7 +1,4 @@
 #define DATA_SIZE 64
-#define NUMBER_ONE 1
-#define DATA_TO_TOUCH 32
-
 #define ROTR(x, n) (((x) >> (n)) | ((x) << ((32) - (n)))) //from https://stackoverflow.com/questions/21895604/rotate-right-by-n-only-using-bitwise-operators-in-c
 
 // https://www.xilinx.com/html_docs/xilinx2017_2/sdaccel_doc/topics/pragmas/concept-Intro_to_OpenCL_attributes.html
@@ -36,7 +33,7 @@ uint zigma1(uint x) {
   return (ROTR(x, 6))^(ROTR(x, 11))^(ROTR(x, 25));
 }
 
-void sha256(__local char *buffer) {
+void sha256(__global char *buffer) {
 
   __private uint K[64] = {
     0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
@@ -54,14 +51,20 @@ void sha256(__local char *buffer) {
   __private uint H0[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
   uint W[64];
   __private uint a,b,c,d,e,f,g,h,t1,t2;
-  int j = 0;
   //  __attribute__((opencl_unroll_hint(n)))
-  for (int i = 0;  i < 16; i++) {
-    W[i] = ((__local unsigned char) buffer[j] << 24) | ((__local unsigned char) buffer[j+1] << 16) | ((__local unsigned char) buffer[j+2] << 8) | ((__local unsigned char) buffer[j+3]);
-    j += 4;
-  }
+
+ sha_rd: __attribute__((xcl_pipeline_loop))
+    for (int i = 0;  i < 64; i++) {
+      W[i] = ((__global unsigned char) buffer[i*4] << 24) | ((__global unsigned char) buffer[i*4+1] << 16) | ((__global unsigned char) buffer[i*4+2] << 8) | ((__global unsigned char) buffer[i*4+3]);
+    }
+
+  // for (int i = 0;  i < 64; i++) {
+  //   ((char *)W)[i] = buffer[i];
+  // }
+
 
   //__attribute__((opencl_unroll_hint(n)))
+  // can unroll to two per iteration, but with no speedup
   for (int i = 16; i < 64; i++) {
     W[i] = sigma1(W[i-2]) + W[i-7] + sigma0(W[i-15]) + W[i-16];
   }
@@ -102,11 +105,13 @@ void sha256(__local char *buffer) {
   //Store hash in buffer
   //__attribute__((opencl_unroll_hint(n)))
   for (int i = 0; i < 8; i++) {
-    ((__local uint *) buffer)[i] = (((unsigned char *) H0)[i*4] << 24) | (((unsigned char *) H0)[i*4+1] << 16) | (((unsigned char *) H0)[i*4+2] << 8) | (((unsigned char *) H0)[i*4+3]);
+    ((__global uint *) buffer)[i] = (((unsigned char *) H0)[i*4] << 24) | (((unsigned char *) H0)[i*4+1] << 16) | (((unsigned char *) H0)[i*4+2] << 8) | (((unsigned char *) H0)[i*4+3]);
   }
+  // for (int i = 0; i < 32; ++i) {
+  //   buffer[i] = H0[i];
+  // }
 }
 
-#define LOCAL_MEM_SIZE 2
 #define NUM_CHUNKS 16
 
 __kernel __attribute__((reqd_work_group_size(1, 1, 1)))
@@ -120,24 +125,8 @@ void hashing_kernel(__global char * __restrict buffer0,
   } else {
     buffer = buffer1;
   }
-  __local char loc_buf[DATA_SIZE*LOCAL_MEM_SIZE];
 
-  for (int i = 0; i < NUM_CHUNKS; i += LOCAL_MEM_SIZE) {
-
-    __attribute__((xcl_pipeline_loop))
-      for (int j = 0; j < LOCAL_MEM_SIZE*DATA_SIZE; j++) {
-	loc_buf[j] = buffer[i*DATA_SIZE + j];
-      }
-
-    __attribute__((xcl_pipeline_loop))
-      for (int j = 0; j < LOCAL_MEM_SIZE; j++) {
-	sha256(&loc_buf[j*DATA_SIZE]);
-      }
-
-    __attribute__((xcl_pipeline_loop))
-      for (int j = 0; j < LOCAL_MEM_SIZE*DATA_SIZE; j++) {
-	buffer[i*64+j] = loc_buf[j];
-      }
-
+  for (int i = 0; i < NUM_CHUNKS; i++) {
+    sha256(buffer+i*64);
   }
 }
