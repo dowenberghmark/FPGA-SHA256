@@ -83,6 +83,9 @@ Additions to the master branch must go through a pull request. The pull request 
 # recommended to set up a virtualenv to avoid polluting your system with pip
 virtualenv venv
 source venv/bin/activate
+# run linting commands
+# exit virtualenv
+deactivate
 ```
 
 ### C++
