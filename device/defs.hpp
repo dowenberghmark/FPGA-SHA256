@@ -1,14 +1,15 @@
-#ifndef __DEFS_H_INCLUDED__
-#define __DEFS_H_INCLUDED__
+#ifndef DEVICE_DEFS_HPP_
+#define DEVICE_DEFS_HPP_
 
 #include <cstdint>
 
 #define BUFFER_HEADER_SIZE sizeof(struct buffer_header)
 #define GLOBAL_HEADER_SIZE sizeof(struct global_header)
 #define CHUNK_SIZE sizeof(struct chunk)
-#define CHUNKS_PER_BUFFER 16
-#define BUFFER_SIZE (CHUNKS_PER_BUFFER * CHUNK_SIZE)
 
+// defined in main_cpu.cpp
+extern size_t BUFFER_SIZE;
+extern int CHUNKS_PER_BUFFER;
 
 const int BUFFER_COUNT = 2;
 
@@ -25,4 +26,4 @@ struct global_header {
   int active_buf;
 };
 
-#endif
+#endif  // DEVICE_DEFS_HPP_

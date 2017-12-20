@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/dowenberghmark/PineappleExpress.svg?branch=master)](https://travis-ci.org/dowenberghmark/PineappleExpress)
+
 # PineappleExpress
 
 ## Description
@@ -13,27 +15,63 @@ Code is mostly self-documenting.
 Notes from daily and weekly scrum together with other various information can be found in our [blog](https://pineappleblogg.wordpress.com/).
 
 ## Building PineappleExpress
-In short... From a shell, switch into the root PineappleExpress directory and run:
+From an FPGA Developer AMI, clone the repository, cd into it and run:
 
 ```
-make clean
-make all
-
+# setup environment for building
+source source_files.sh
+# make and run program
+./run_make 
+# set up environment for stand alone program
+source enable_manual_run.sh
+# run stand alone program
+./sha256
 ```
+
+Default target is software emulation. For hardware emulation simply add a `hw` flag to `./run_make` and `source enable_manual_run.sh`.
 
 ## Run PineappleExpress
-Use .PineappleExpress/main -h for more help on how to run the program.
+Use PineappleExpress/main -h for more help on how to run the program.
 
 ```
 Example:
-./main -d -f foo.txt -s 100
+./sha256 -d -f foo.txt -s 100
 ```
 ```
 Useful options:
+-b  Activates benchmark mode. Will append run time info to results/output.csv if -o flag is not used.
+-o  Specifies output file for benchmarking. The output file is set to results/output.csv as default.
+-v  Activates verification mode. Verifies results to a third-party program.
 -f  Specify which file to read. The program will read password.txt if the flag is not specified.
--s  Specify how many Megabyte to read. The whole file will be read if the flag is not specified.
+-s  Specify how many Megabytes to read. The whole file will be read if the flag is not specified.
 -d  Activates debug mode.
+-h  Help page.
 ```
+
+## Run Benchmarks
+Benchmarks can be generated for both device and host.
+
+Generate enough passwords (100 GB required for benchmarks script) with:
+
+`python host/generate_random_passwords.py 100000`
+
+Compile the wanted target. For host:
+
+`cd host && make`
+
+For device:
+```
+source source_files.sh
+make clean
+make TARGETS=hw DEVICES=$AWS_PLATFORM
+```
+Wait ~8 hours for it to finish, then follow these [instructions](https://github.com/aws/aws-fpga/blob/master/SDAccel/README.md#createafi) to upload the compiled kernel to AWS and then these [instructions](https://github.com/aws/aws-fpga/tree/master/hdk/cl/examples#step-by-step-guide-how-to-load-and-test-a-registered-afi-from-within-an-f1-instance) to load the FPGA on the F1 instance.
+
+Run the benchmarks with:
+
+`./benchmark.sh myoutput.csv random_passwords.txt <host/hw>`
+
+`myoutput.csv` will be populated with the benchmarking data.
 
 ## Code standard
 

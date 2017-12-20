@@ -1,6 +1,9 @@
 // device interface for connecting cpu to fpga using opencl code.
 // initialization based on SDaccel hello world program
 
+#include <string>
+#include <vector>
+
 #include "device_interface.hpp"
 #include "defs.hpp"
 #include "xcl2.hpp"
@@ -13,13 +16,12 @@ void check_error(cl_int err) {
   }
 }
 
-
 DeviceInterface::DeviceInterface() {
   // The get_xil_devices will return vector of Xilinx Devices
   std::vector<cl::Device> devices = xcl::get_xil_devices();
   cl::Device device = devices[0];
 
-  //Creating Context and Command Queue for selected Device
+  // Creating Context and Command Queue for selected Device
   cl::Context context(device);
   q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE);
   std::string device_name = device.getInfo<CL_DEVICE_NAME>();
@@ -35,7 +37,7 @@ DeviceInterface::DeviceInterface() {
   program = cl::Program(context, devices, bins);
   // This call will extract a kernel out of the program we loaded in the
   // previous line. A kernel is an OpenCL function that is executed on the
-  // FPGA. This function is defined in the interface/device_kernel.cl file.
+  // FPGA. This function is defined in the device/device_kernel.cl file.
   krnl_sha = cl::Kernel(program, "hashing_kernel");
 
   unsigned xcl_banks[4] = {
@@ -79,13 +81,13 @@ struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf], NULL, NULL);
   q.finish();
 
-  //set the kernel Arguments
+  // set the kernel Arguments
   int narg = 0;
   krnl_sha.setArg(narg++, ocl_bufs[0]);
   krnl_sha.setArg(narg++, ocl_bufs[1]);
   krnl_sha.setArg(narg++, active_buf);
 
-  //Launch the Kernel
+  // launch the Kernel
   q.enqueueTask(krnl_sha);
 
   // previous computations result
