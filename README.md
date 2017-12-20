@@ -5,7 +5,7 @@
 ## Description
 System that will (hopefully) accelerate SHA-256 on an FPGA.
 
-Amazon F1 instances will be used to test the system on real hardware. CPU and FPGA will communicate through DRAM connected to PCIe with ~~Amazon's EDMA driver~~ an XDMA driver through OpenCL. Both host code and FPGA kernel will be written in OpenCL C/C++ and compiled using Xilinx's SDAccel tool. 
+Amazon F1 instances will be used to test the system on real hardware. CPU and FPGA will communicate through DRAM connected to PCIe with ~~Amazon's EDMA driver~~ an XDMA driver through OpenCL. Both host code and FPGA kernel will be written in OpenCL C/C++ and compiled using Xilinx's SDAccel tool.
 
 A double buffer will be used to allow the CPU and FPGA to write and read buffers in parallel.
 
@@ -21,7 +21,7 @@ From an FPGA Developer AMI, clone the repository, cd into it and run:
 # setup environment for building
 source source_files.sh
 # make and run program
-./run_make 
+./run_make
 # set up environment for stand alone program
 source enable_manual_run.sh
 # run stand alone program
@@ -31,7 +31,7 @@ source enable_manual_run.sh
 Default target is software emulation. For hardware emulation simply add a `hw` flag to `./run_make` and `source enable_manual_run.sh`.
 
 ## Run PineappleExpress
-Use PineappleExpress/main -h for more help on how to run the program.
+Use ./sha256 -h for more help on how to run the program.
 
 ```
 Example:
@@ -45,6 +45,7 @@ Useful options:
 -f  Specify which file to read. The program will read password.txt if the flag is not specified.
 -s  Specify how many Megabytes to read. The whole file will be read if the flag is not specified.
 -d  Activates debug mode.
+-B  Defines buffer size in MB. Default is four chunks per buffer.
 -h  Help page.
 ```
 
@@ -73,51 +74,66 @@ Run the benchmarks with:
 
 `myoutput.csv` will be populated with the benchmarking data.
 
-## Code standard
+## Contributing
 
-### Names
+Additions to the master branch must go through a pull request. The pull request must be approved by at least one reviewer and go through a Continuous Integration (CI) check by Travis. The CI only lints.
 
-Snake case for everything except class names. Class names use camel case
 
-### Spacing
+```
+# recommended to set up a virtualenv to avoid polluting your system with pip
+# first install virtualenv with your package manager, then
+virtualenv venv
+source venv/bin/activate
+# run linting commands, e.g. cpplint, pep8
+# exit virtualenv
+deactivate
+```
+
+### C++
+
+C++ code has to conform to Google's c++ [style guide](https://google.github.io/styleguide/cppguide.html). It is verified by the cpplint tool. To run it on your own code:
+
+```
+# install cpplint
+pip install cpplint
+# run cpplint, it checks all .cpp and .hpp files
+cpplint --linelength=200 --filter=-legal/copyright,-build/c++11 --extensions=cpp,hpp --headers=hpp $(find . -name \*.hpp -or -name \*.cpp)
+# resolve all errors
+```
+
+#### Names
+
+Snake case for everything except class names. Class names use camel case.
+
+#### Spacing
 
 Indentation level is two spaces.
 
-### Brackets
+#### Pointers
 
 ```
-
-void foo() {
-  if (!coffee) {
-    make_coffee();
-  } else {
-    make_coffee();
-  }
-}
-
-```
-
-
-### Pointers
-
-```
-
 int *bar
-
 ```
 
 NOT
 
 ```
-
 int* bar
-
 ```
 
-### Pull requests
 
-Merge is used for pull requests.
+### Python
 
+Python code has to conform to the pep8 [style guide](https://www.python.org/dev/peps/pep-0008/). It is verified by the pep8 tool. To run it on your own code:
 
-### Other
-Follow the Google c++ style guide
+```
+# install pep8
+pip install pep8
+# run pep8, it checks all .py files
+pep8 --max-line-length=120 --exclude=venv .
+# resolve all errors
+```
+
+## Pull requests
+
+Merge and squash is used for pull requests.
