@@ -3,40 +3,19 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-def head():
-	return "\\documentclass{article}\n\\usepackage[utf8]{inputenc}\n\\usepackage{graphicx}\\usepackage{subcaption}\n\\usepackage{rotating}\n\\begin{document}"
 
-def tens(s):
-  lst =  []
-  for l in s:
-   # print l
-    if l >= 1:
-      lst.append(len(str(l).split('.')[0])-1)
-    else:
-      aa = str(l)
-      aa = aa[2:]
-      n = 0
-      for char in aa:
-        n -=1
-        if char != '0':
-          lst.append(n)
-          break
-  return lst
 
 def plotjpg2(ss, out, header):
     color = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
-    #print ss[0][1:]
-    ll = tens(ss[0][1:])
-    lst = []
-    for d in ll:
-      lst.append("$10^{"+str(d)+"}$")
     for x in xrange(1,len(ss)):
       for c in xrange(1,len(ss[x])):
        ss[x][c] = ss[x][c]/ss[0][c]
       print ss[x]
       print ss[0]
-      plt.plot(lst, ss[x][1:], color[x]+"-", label=ss[x][0][:-4])
+      plt.plot(ss[0][1:], ss[x][1:], color[x]+"-", label=ss[x][0][:-4])
+    plt.gca().set_xscale('log')
     plt.legend(loc="upper right")
+    plt.xticks(ss[0][1:])
     plt.xlabel('Amount of hashed data (MB)')
     plt.ylabel('Throughput (MB/s)')
     plt.title(header)
@@ -112,16 +91,4 @@ if __name__ == '__main__':
    # print len(l)
   plotjpg2(lst, args.out, args.header)
 
-  table = "\\begin{table}\n\\centering\n\\begin{tabular}{"+"l"*3+"}\n \hline\n"
-  table += "Filesize & Time our& Time FPGA\\\\ \\hline \n"
-  # for x in xrange(0,len(lst[0])):
-   #  table += str(lst[0][x]) + "&" +str(lst[1][x]) + "&" +str(lst[2][x]) + "\\\\ \n"
-   
-
-
-     #print slist[x-3]#sGuess
-   #end = "\\hline\n\\end{tabular}\n\\caption{FIX ME!!!}\n\\label{tbl:oprv}\n\\end{table}\n\\end{document}"
-   #f2 = open('table1.tex', 'w')
-   #f2.write(head()+table+end)
-   #f2.close()
 
