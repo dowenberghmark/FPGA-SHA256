@@ -83,7 +83,6 @@ struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
   int narg = 0;
   krnl_sha.setArg(narg++, ocl_bufs[0]);
   krnl_sha.setArg(narg++, ocl_bufs[1]);
-  krnl_sha.setArg(narg++, num_chunks);
   krnl_sha.setArg(narg++, active_buf);
 
   //Launch the Kernel
