@@ -2,7 +2,6 @@
 #define NUMBER_ONE 1
 #define DATA_TO_TOUCH 32
 
-#define LOC_BUF_SIZE 4
 #define NUM_CHUNKS 16
 
 #define ROTR(x, n) (((x) >> (n)) | ((x) << ((32) - (n)))) //from https://stackoverflow.com/questions/21895604/rotate-right-by-n-only-using-bitwise-operators-in-c
@@ -39,7 +38,7 @@ uint zigma1(uint x) {
   return (ROTR(x, 6))^(ROTR(x, 11))^(ROTR(x, 25));
 }
 
-void sha256(__local char *buffer) {
+void sha256(__global char *buffer) {
 
   __private uint K[64] = {
     0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
@@ -60,7 +59,7 @@ void sha256(__local char *buffer) {
 
   int j = 0;
   for (int i = 0;  i < 16; i++) {
-    W[i] = ((__local unsigned char) buffer[j] << 24) | ((__local unsigned char) buffer[j+1] << 16) | ((__local unsigned char) buffer[j+2] << 8) | ((__local unsigned char) buffer[j+3]);
+    W[i] = ((__global unsigned char) buffer[j] << 24) | ((__global unsigned char) buffer[j+1] << 16) | ((__global unsigned char) buffer[j+2] << 8) | ((__global unsigned char) buffer[j+3]);
     j += 4;
   }
 
@@ -104,50 +103,28 @@ void sha256(__local char *buffer) {
 
   //Store hash in input buffer
   for (int i = 0; i < 32; i+=4) {
-    ((__local char *) buffer)[i+3] = (((unsigned char *) H0)[i]);
-    ((__local char *) buffer)[i+2] = (((unsigned char *) H0)[i+1]);
-    ((__local char *) buffer)[i+1] = (((unsigned char *) H0)[i+2]);
-    ((__local char *) buffer)[i] = (((unsigned char *) H0)[i+3]);
+    ((__global char *) buffer)[i+3] = (((unsigned char *) H0)[i]);
+    ((__global char *) buffer)[i+2] = (((unsigned char *) H0)[i+1]);
+    ((__global char *) buffer)[i+1] = (((unsigned char *) H0)[i+2]);
+    ((__global char *) buffer)[i] = (((unsigned char *) H0)[i+3]);
   }
 }
 
 
 kernel __attribute__((reqd_work_group_size(1, 1, 1)))
-__attribute__((xcl_dataflow))
 void hashing_kernel(__global struct chunk * __restrict buffer0,
 		    __global struct chunk * __restrict buffer1,
 		    const int active_buf) {
   printf("HELLO FROM FPGA KERNEL\n");
 
-  __global struct chunk *global_buf;
+  __global struct chunk *buffer;
   if (active_buf == 0) {
-    global_buf = buffer0;
+    buffer = buffer0;
   } else if (active_buf == 1) {
-    global_buf = buffer1;
-  }
-  __local struct chunk local_buf[LOC_BUF_SIZE];
-
-  __attribute__ ((xcl_pipeline_loop))
-  for (int chunk = 0; chunk < NUM_CHUNKS; chunk+=LOC_BUF_SIZE) {
-    for (int i = 0; i < LOC_BUF_SIZE; i++) {
-      for (int j = 0; j < 64; j++) {
-	local_buf[i].data[j] = global_buf[i + chunk].data[j];
-      }
-    }
-    for (int i = 0; i < LOC_BUF_SIZE; i++) {
-      sha256(local_buf[i].data);
-    }
-    for (int i = 0; i < LOC_BUF_SIZE; i++) {
-      for (int j = 0; j < 64; j++) {
-	global_buf[i + chunk].data[j] = local_buf[i].data[j];
-      }
-    }
+    buffer = buffer1;
   }
 
-  /*
-  __attribute__((xcl_pipeline_loop))
-  for (int i = 0; i < 16; i+=1) {
+  for (int i = 0; i < NUM_CHUNKS; i++) {
     sha256(buffer[i].data);
   }
-  */
 }
