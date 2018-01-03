@@ -2,6 +2,8 @@
 #define NUMBER_ONE 1
 #define DATA_TO_TOUCH 32
 
+#define NUM_CHUNKS 16
+
 #define ROTR(x, n) (((x) >> (n)) | ((x) << ((32) - (n)))) //from https://stackoverflow.com/questions/21895604/rotate-right-by-n-only-using-bitwise-operators-in-c
 
 // https://www.xilinx.com/html_docs/xilinx2017_2/sdaccel_doc/topics/pragmas/concept-Intro_to_OpenCL_attributes.html
@@ -54,16 +56,16 @@ void sha256(__global char *buffer) {
   uint H0[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
   uint W[64];
   uint a,b,c,d,e,f,g,h,t1,t2;
+
   int j = 0;
-  //  __attribute__((opencl_unroll_hint(n)))
   for (int i = 0;  i < 16; i++) {
     W[i] = ((__global unsigned char) buffer[j] << 24) | ((__global unsigned char) buffer[j+1] << 16) | ((__global unsigned char) buffer[j+2] << 8) | ((__global unsigned char) buffer[j+3]);
     j += 4;
   }
 
-  //__attribute__((opencl_unroll_hint(n)))
-  for (int i = 16; i < 64; i++) {
+  for (int i = 16; i < 64; i+=2) {
     W[i] = sigma1(W[i-2]) + W[i-7] + sigma0(W[i-15]) + W[i-16];
+    W[i+1] = sigma1(W[i-1]) + W[i-6] + sigma0(W[i-14]) + W[i-15];
   }
 
   //Initialize working variables
@@ -99,10 +101,12 @@ void sha256(__global char *buffer) {
   H0[6] = H0[6] + g;
   H0[7] = H0[7] + h;
 
-  //Store hash in buffer
-  //__attribute__((opencl_unroll_hint(n)))
-  for (int i = 0; i < 8; i++) {
-    ((__global uint *) buffer)[i] = (((unsigned char *) H0)[i*4] << 24) | (((unsigned char *) H0)[i*4+1] << 16) | (((unsigned char *) H0)[i*4+2] << 8) | (((unsigned char *) H0)[i*4+3]);
+  //Store hash in input buffer
+  for (int i = 0; i < 32; i+=4) {
+    ((__global char *) buffer)[i+3] = (((unsigned char *) H0)[i]);
+    ((__global char *) buffer)[i+2] = (((unsigned char *) H0)[i+1]);
+    ((__global char *) buffer)[i+1] = (((unsigned char *) H0)[i+2]);
+    ((__global char *) buffer)[i] = (((unsigned char *) H0)[i+3]);
   }
 }
 
@@ -110,7 +114,6 @@ void sha256(__global char *buffer) {
 kernel __attribute__((reqd_work_group_size(1, 1, 1)))
 void hashing_kernel(__global struct chunk * __restrict buffer0,
 		    __global struct chunk * __restrict buffer1,
-		    const int n_elements,
 		    const int active_buf) {
   printf("HELLO FROM FPGA KERNEL\n");
 
@@ -121,8 +124,7 @@ void hashing_kernel(__global struct chunk * __restrict buffer0,
     buffer = buffer1;
   }
 
-  // __attribute__((xcl_pipeline_loop))
-  for (int i = 0; i < n_elements; i++) {
+  for (int i = 0; i < NUM_CHUNKS; i++) {
     sha256(buffer[i].data);
   }
 }
