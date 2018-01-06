@@ -2,7 +2,7 @@
 #define NUMBER_ONE 1
 #define DATA_TO_TOUCH 32
 
-#define NUM_CHUNKS 16
+#define NUM_CHUNKS 15625000
 
 #define ROTR(x, n) (((x) >> (n)) | ((x) << ((32) - (n)))) //from https://stackoverflow.com/questions/21895604/rotate-right-by-n-only-using-bitwise-operators-in-c
 
