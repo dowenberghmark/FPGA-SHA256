@@ -41,7 +41,7 @@ void pre_settings_init(settings *config) {
   config->fvalue = NULL;
   config->filename = "./password.txt";
   config->outfile = "./results/output.csv";
-  config->buffer_size = 0.001024;  // 4 chunks per buffer
+  config->buffer_size = 1000;  // 4 chunks per buffer
 }
 
 void set_lines_to_read(settings *config) {
