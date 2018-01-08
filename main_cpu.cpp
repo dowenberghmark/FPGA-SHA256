@@ -185,13 +185,8 @@ void sha256_fpga(settings *config) {
       lines_read++;
     }
   }
-  // result = double_buffer->get_last_result();
 
-  // if (config->dopt) {
-  //   print_result(result);
-  // }
   if (config->vopt) {
-    // push_to_verify(result, &verify_vec);
     verify(verify_vec, config->filename);
   }
   file.close();
