@@ -11,7 +11,7 @@
 extern size_t BUFFER_SIZE;
 extern int CHUNKS_PER_BUFFER;
 
-const int BUFFER_COUNT = 2;
+const int BUFFER_COUNT = 1;
 
 struct chunk {
   char data[64];
