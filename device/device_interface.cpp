@@ -83,21 +83,21 @@ struct chunk *DeviceInterface::run_fpga(int num_chunks, int active_buf) {
 
   // set the kernel Arguments
   int narg = 0;
-  krnl_sha.setArg(narg++, ocl_bufs[0]);
-  krnl_sha.setArg(narg++, ocl_bufs[1]);
+  krnl_sha.setArg(narg++, ocl_bufs[active_buf]);
   krnl_sha.setArg(narg++, num_chunks);
-  krnl_sha.setArg(narg++, active_buf);
 
   // launch the Kernel
   q.enqueueTask(krnl_sha);
 
-  // previous computations result
-  host_bufs[1 - active_buf] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[1 - active_buf], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
+  q.finish();
+  // current computations result
+  host_bufs[active_buf] = (struct chunk *) q.enqueueMapBuffer(ocl_bufs[active_buf], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, BUFFER_SIZE, NULL, NULL, &err);
   check_error(err);
 
-  return (struct chunk *) host_bufs[1 - active_buf];
+  return (struct chunk *) host_bufs[active_buf];
 }
 
+// not needed for this version
 struct chunk *DeviceInterface::read_last_result(int active_buf) {
   int err;
   q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf], NULL, NULL);
@@ -109,6 +109,6 @@ struct chunk *DeviceInterface::read_last_result(int active_buf) {
 }
 
 void DeviceInterface::unmap_last_result(int active_buf) {
-  q.enqueueUnmapMemObject(ocl_bufs[1 - active_buf], host_bufs[1 - active_buf]);
+  q.enqueueUnmapMemObject(ocl_bufs[active_buf], host_bufs[active_buf]);
   q.finish();
 }
