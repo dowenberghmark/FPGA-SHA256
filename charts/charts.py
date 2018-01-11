@@ -9,10 +9,10 @@ def plot(data, filename, title):
     color = ['bD', 'go', 'rh', 'cx', 'mp', 'y<', 'k', 'w']
     for x in xrange(1, len(data)):
         for c in xrange(1, len(data[x])):
-            data[x][c] = data[x][c]/data[0][c]
+            data[x][c] = data[0][c]/data[x][c]
         plt.plot(data[0][1:], data[x][1:], color[x-1]+"-", label=data[x][0][:-4])
     plt.gca().set_xscale('log')
-    plt.legend(loc="upper right")
+    plt.legend(loc="upper left")
     plt.xlabel('Amount of hashed data (MB)')
     plt.ylabel('Throughput (MB/s)')
     plt.title(title)
