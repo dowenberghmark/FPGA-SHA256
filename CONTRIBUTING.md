@@ -1,4 +1,4 @@
-## Contributing
+# Contributing
 
 Additions to the master branch must go through a pull request. The pull request must be approved by at least one reviewer and go through a Continuous Integration (CI) check by Travis. The CI only lints.
 
@@ -13,7 +13,7 @@ source venv/bin/activate
 deactivate
 ```
 
-### C++
+## C++
 
 C++ code has to conform to Google's c++ [style guide](https://google.github.io/styleguide/cppguide.html). It is verified by the cpplint tool. To run it on your own code:
 
@@ -25,15 +25,15 @@ cpplint --linelength=200 --filter=-legal/copyright,-build/c++11 --extensions=cpp
 # resolve all errors
 ```
 
-#### Names
+### Names
 
 Snake case for everything except class names. Class names use camel case.
 
-#### Spacing
+### Spacing
 
 Indentation level is two spaces.
 
-#### Pointers
+### Pointers
 
 ```
 int *bar
@@ -46,7 +46,7 @@ int* bar
 ```
 
 
-### Python
+## Python
 
 Python code has to conform to the pep8 [style guide](https://www.python.org/dev/peps/pep-0008/). It is verified by the pep8 tool. To run it on your own code:
 
