@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/dowenberghmark/PineappleExpress.svg?branch=master)](https://travis-ci.org/dowenberghmark/PineappleExpress)
+[![Build Status](https://travis-ci.org/dowenberghmark/FPGA-SHA256.svg?branch=master)](https://travis-ci.org/dowenberghmark/FPGA-SHA256)
 
 # PineappleExpress
 
